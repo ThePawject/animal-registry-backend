@@ -1,1 +1,1 @@
-# tp-animal-registry-backend
+# animal-registry-backend
