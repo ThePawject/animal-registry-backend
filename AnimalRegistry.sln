@@ -2,6 +2,19 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimalRegistry", "AnimalRegistry\AnimalRegistry.csproj", "{EC5B8087-2695-4C96-B7A1-CD40BC05EE9F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{32BA7A95-B146-4E56-AEF4-A9216EE6B945}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		LICENSE = LICENSE
+		github\git-commit-instructions.md = github\git-commit-instructions.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{1E91B872-B500-4F8F-BEF8-B4602DABFC75}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Accounts", "Accounts", "{189D3990-4F60-4263-81D7-C79EC31DF643}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Animals", "Animals", "{B4D46E5D-15F6-4E6B-AA04-9CDF5B815B45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +25,9 @@ Global
 		{EC5B8087-2695-4C96-B7A1-CD40BC05EE9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC5B8087-2695-4C96-B7A1-CD40BC05EE9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC5B8087-2695-4C96-B7A1-CD40BC05EE9F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{189D3990-4F60-4263-81D7-C79EC31DF643} = {1E91B872-B500-4F8F-BEF8-B4602DABFC75}
+		{B4D46E5D-15F6-4E6B-AA04-9CDF5B815B45} = {1E91B872-B500-4F8F-BEF8-B4602DABFC75}
 	EndGlobalSection
 EndGlobal
