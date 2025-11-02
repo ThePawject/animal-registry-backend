@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Modules/" />
+  <Folder Name="/Modules/Accounts/">
+    <Project Path="AnimalRegistry.Modules.Accounts.Api/AnimalRegistry.Modules.Accounts.Api.csproj" />
+    <Project Path="AnimalRegistry.Modules.Accounts.Application/AnimalRegistry.Modules.Accounts.Application.csproj" />
+    <Project Path="AnimalRegistry.Modules.Accounts.Domain/AnimalRegistry.Modules.Accounts.Domain.csproj" />
+    <Project Path="AnimalRegistry.Modules.Accounts.Infrastructure/AnimalRegistry.Modules.Accounts.Infrastructure.csproj" />
+    <Project Path="AnimalRegistry.Modules.Accounts/AnimalRegistry.Modules.Accounts.csproj" />
+  </Folder>
+  <Folder Name="/Modules/Animals/" />
+  <Folder Name="/Solution Items/">
+    <File Path="github/git-commit-instructions.md" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="AnimalRegistry.Shared/AnimalRegistry.Shared.csproj" />
+  <Project Path="AnimalRegistry/AnimalRegistry.csproj" />
+</Solution>
