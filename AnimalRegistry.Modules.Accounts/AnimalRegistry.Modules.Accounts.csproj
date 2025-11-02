@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AnimalRegistry.Modules.Accounts.Api\AnimalRegistry.Modules.Accounts.Api.csproj" />
+      <ProjectReference Include="..\AnimalRegistry.Shared\AnimalRegistry.Shared.csproj" />
+    </ItemGroup>
+
 </Project>
