@@ -1,5 +1,6 @@
 using AnimalRegistry.Modules.Accounts.Api;
 using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,5 +20,7 @@ public sealed class AccountsModule : IModule
                 typeof(MyEndpoint).Assembly,
             ];
         });
+
+        services.AddMyMediator(typeof(MyEndpoint).Assembly);
     }
 }
