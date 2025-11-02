@@ -39,15 +39,16 @@ public class GetWelcomeMessageQuery : IRequest<GetWelcomeMessageQueryResponse>
 
 public class GetWelcomeMessageQueryResponse
 {
-    public required string FullName { get; set; } 
+    public required string FullName { get; set; }
     public required string Message { get; set; }
 }
 
 public class GetWelcomeMessageQueryHandler : IRequestHandler<GetWelcomeMessageQuery, GetWelcomeMessageQueryResponse>
 {
-    public Task<GetWelcomeMessageQueryResponse> Handle(GetWelcomeMessageQuery request, CancellationToken cancellationToken)
+    public Task<GetWelcomeMessageQueryResponse> Handle(GetWelcomeMessageQuery request,
+        CancellationToken cancellationToken)
     {
-        var response = new GetWelcomeMessageQueryResponse 
+        var response = new GetWelcomeMessageQueryResponse
         {
             FullName = $"{request.FirstName} {request.LastName}",
             Message = "Welcome to FastEndpoints...",
