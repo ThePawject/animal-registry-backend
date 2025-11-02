@@ -20,7 +20,7 @@ app.UseFastEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi(); 
+    app.MapOpenApi();
     app.MapScalarApiReference();
 }
 
@@ -32,7 +32,5 @@ return;
 void ApplyModuleServices(List<IModule> list, WebApplicationBuilder webApplicationBuilder)
 {
     foreach (var module in list)
-    {
         module.RegisterServices(webApplicationBuilder.Services, webApplicationBuilder.Configuration);
-    }
 }

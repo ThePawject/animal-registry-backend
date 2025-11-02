@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Accounts.Api;
 using AnimalRegistry.Shared;
 using FastEndpoints;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +16,7 @@ public sealed class AccountsModule : IModule
         {
             options.Assemblies =
             [
-                typeof(Api.MyEndpoint).Assembly,
+                typeof(MyEndpoint).Assembly,
             ];
         });
     }

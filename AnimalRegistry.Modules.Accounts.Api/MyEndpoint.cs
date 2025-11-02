@@ -12,10 +12,10 @@ public class MyEndpoint : Endpoint<MyRequest, MyResponse>
 
     public override async Task HandleAsync(MyRequest r, CancellationToken c)
     {
-        await Send.OkAsync(new()
+        await Send.OkAsync(new MyResponse
         {
             FullName = $"{r.FirstName} {r.LastName}",
-            Message = "Welcome to FastEndpoints..."				
+            Message = "Welcome to FastEndpoints...",
         });
     }
 }
