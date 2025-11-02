@@ -1,8 +1,9 @@
+using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Accounts.Api;
 
-public class MyEndpoint : Endpoint<MyRequest, MyResponse>
+public class MyEndpoint(IMediator mediator) : Endpoint<MyRequest, MyResponse>
 {
     public override void Configure()
     {
@@ -10,12 +11,48 @@ public class MyEndpoint : Endpoint<MyRequest, MyResponse>
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(MyRequest r, CancellationToken c)
+    public override async Task HandleAsync(MyRequest req, CancellationToken ct)
     {
-        await Send.OkAsync(new MyResponse
+        var query = new GetWelcomeMessageQuery
         {
-            FullName = $"{r.FirstName} {r.LastName}",
+            FirstName = req.FirstName,
+            LastName = req.LastName,
+        };
+
+        var result = await mediator.Send(query, ct);
+
+        var response = new MyResponse
+        {
+            FullName = result.FullName,
+            Message = result.Message,
+        };
+
+        await Send.OkAsync(response, ct);
+    }
+}
+
+public class GetWelcomeMessageQuery : IRequest<GetWelcomeMessageQueryResponse>
+{
+    public required string FirstName { get; set; }
+    public required string LastName { get; set; }
+}
+
+public class GetWelcomeMessageQueryResponse
+{
+    public required string FullName { get; set; } 
+    public required string Message { get; set; }
+}
+
+public class GetWelcomeMessageQueryHandler : IRequestHandler<GetWelcomeMessageQuery, GetWelcomeMessageQueryResponse>
+{
+    public Task<GetWelcomeMessageQueryResponse> Handle(GetWelcomeMessageQuery request, CancellationToken cancellationToken)
+    {
+        var response = new GetWelcomeMessageQueryResponse 
+        {
+            FullName = $"{request.FirstName} {request.LastName}",
             Message = "Welcome to FastEndpoints...",
-        });
+        };
+
+        return Task.FromResult(response);
     }
 }
