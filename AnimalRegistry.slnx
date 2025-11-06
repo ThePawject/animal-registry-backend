@@ -1,22 +1,27 @@
 <Solution>
-    <Folder Name="/Modules/"/>
-    <Folder Name="/Modules/Accounts/">
-        <Project Path="AnimalRegistry.Modules.Accounts.Api/AnimalRegistry.Modules.Accounts.Api.csproj"/>
-        <Project Path="AnimalRegistry.Modules.Accounts.Application/AnimalRegistry.Modules.Accounts.Application.csproj"/>
-        <Project Path="AnimalRegistry.Modules.Accounts.Domain/AnimalRegistry.Modules.Accounts.Domain.csproj"/>
-        <Project
-                Path="AnimalRegistry.Modules.Accounts.Infrastructure/AnimalRegistry.Modules.Accounts.Infrastructure.csproj"/>
-        <Project Path="AnimalRegistry.Modules.Accounts/AnimalRegistry.Modules.Accounts.csproj"/>
-    </Folder>
-    <Folder Name="/Modules/Animals/"/>
-    <Folder Name="/Solution Items/">
-        <File Path="github/git-commit-instructions.md"/>
-        <File Path="LICENSE"/>
-        <File Path="README.md"/>
-    </Folder>
-    <Folder Name="/Tests/">
-        <Project Path="AnimalRegistry.Benchmarks\AnimalRegistry.Benchmarks.csproj" Type="Classic C#"/>
-    </Folder>
-    <Project Path="AnimalRegistry.Shared/AnimalRegistry.Shared.csproj"/>
-    <Project Path="AnimalRegistry/AnimalRegistry.csproj"/>
+  <Folder Name="/Modules/" />
+  <Folder Name="/Modules/Accounts/">
+    <Project Path="AnimalRegistry.Modules.Accounts.Api/AnimalRegistry.Modules.Accounts.Api.csproj" />
+    <Project Path="AnimalRegistry.Modules.Accounts.Application/AnimalRegistry.Modules.Accounts.Application.csproj" />
+    <Project Path="AnimalRegistry.Modules.Accounts.Domain/AnimalRegistry.Modules.Accounts.Domain.csproj" />
+    <Project Path="AnimalRegistry.Modules.Accounts.Infrastructure/AnimalRegistry.Modules.Accounts.Infrastructure.csproj" />
+    <Project Path="AnimalRegistry.Modules.Accounts/AnimalRegistry.Modules.Accounts.csproj" />
+  </Folder>
+  <Folder Name="/Modules/Animals/">
+    <Project Path="AnimalRegistry.Modules.Animals.Api\AnimalRegistry.Modules.Animals.Api.csproj" Type="Classic C#" />
+    <Project Path="AnimalRegistry.Modules.Animals.Application\AnimalRegistry.Modules.Animals.Application.csproj" Type="Classic C#" />
+    <Project Path="AnimalRegistry.Modules.Animals.Domain\AnimalRegistry.Modules.Animals.Domain.csproj" Type="Classic C#" />
+    <Project Path="AnimalRegistry.Modules.Animals.Infrastructure\AnimalRegistry.Modules.Animals.Infrastructure.csproj" Type="Classic C#" />
+    <Project Path="AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="github/git-commit-instructions.md" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="AnimalRegistry.Benchmarks\AnimalRegistry.Benchmarks.csproj" Type="Classic C#" />
+  </Folder>
+  <Project Path="AnimalRegistry.Shared/AnimalRegistry.Shared.csproj" />
+  <Project Path="AnimalRegistry/AnimalRegistry.csproj" />
 </Solution>
