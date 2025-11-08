@@ -2,13 +2,7 @@
 
 public abstract class DomainEventBase : IDomainEvent
 {
-    protected DomainEventBase()
-    {
-        Id = Guid.NewGuid();
-        OccurredOn = DateTime.UtcNow;
-    }
+    public Guid Id { get; } = Guid.NewGuid();
 
-    public Guid Id { get; }
-
-    public DateTime OccurredOn { get; }
+    public DateTime OccurredOn { get; } = DateTime.UtcNow;
 }

@@ -1,11 +1,16 @@
-﻿namespace AnimalRegistry.Shared.DDD;
+﻿using JetBrains.Annotations;
 
-public abstract class Entity
+namespace AnimalRegistry.Shared.DDD;
+
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
+public abstract class Entity<TId>(TId id)
+    where TId : notnull
 {
     private List<IDomainEvent>? _domainEvents;
+    public TId Id { get; protected set; } = id;
 
-    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents?.AsReadOnly() ?? new List<IDomainEvent>().AsReadOnly();
-
+    public IReadOnlyCollection<IDomainEvent> DomainEvents =>
+        _domainEvents?.AsReadOnly() ?? new List<IDomainEvent>().AsReadOnly();
 
     public void ClearDomainEvents()
     {
@@ -14,8 +19,49 @@ public abstract class Entity
 
     protected void AddDomainEvent(IDomainEvent domainEvent)
     {
-        _domainEvents ??= new List<IDomainEvent>();
-
+        _domainEvents ??= [];
         _domainEvents.Add(domainEvent);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Entity<TId> other)
+            return false;
+
+        if (ReferenceEquals(this, other))
+            return true;
+
+        if (Id.Equals(default(TId)) || other.Id.Equals(default(TId)))
+            return false;
+
+        return Id.Equals(other.Id);
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
+    }
+
+    public static bool operator ==(Entity<TId>? left, Entity<TId>? right)
+    {
+        if (left is null && right is null) return true;
+        if (left is null || right is null) return false;
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Entity<TId>? left, Entity<TId>? right)
+    {
+        return !(left == right);
+    }
+}
+
+public abstract class Entity : Entity<Guid>
+{
+    protected Entity() : base(Guid.NewGuid())
+    {
+    }
+
+    protected Entity(Guid id) : base(id)
+    {
     }
 }
