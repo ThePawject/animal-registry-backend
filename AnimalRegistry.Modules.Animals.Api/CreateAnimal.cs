@@ -14,7 +14,14 @@ public sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRequ
 
     public override async Task HandleAsync(CreateAnimalRequest req, CancellationToken ct)
     {
-        var command = 
-        await mediator.Send(new CreateAnimalCommand());
+        await mediator.Send(new CreateAnimalCommand(
+            req.Signature,
+            req.TransponderCode,
+            req.Name,
+            req.Color,
+            req.DictItemSpeciesId,
+            req.DictItemSexId,
+            req.BirthDate
+        ), ct);
     }
 }

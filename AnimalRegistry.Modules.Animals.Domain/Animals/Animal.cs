@@ -3,7 +3,7 @@ using AnimalRegistry.Shared.DDD;
 
 namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
-internal sealed class Animal : Entity, IAggregateRoot
+public sealed class Animal : Entity, IAggregateRoot
 {
     private Animal()
     {
@@ -16,7 +16,7 @@ internal sealed class Animal : Entity, IAggregateRoot
         string color,
         int dictItemSpeciesId,
         int dictItemSexId,
-        DateTime birthDate)
+        DateTimeOffset birthDate)
     {
         Signature = signature;
         TransponderCode = transponderCode;
@@ -27,8 +27,8 @@ internal sealed class Animal : Entity, IAggregateRoot
         BirthDate = birthDate;
 
         IsActive = true;
-        CreatedOn = DateTime.UtcNow;
-        ModifiedOn = DateTime.UtcNow;
+        CreatedOn = DateTimeOffset.Now;
+        ModifiedOn = DateTimeOffset.UtcNow;
     }
 
     public string TransponderCode { get; private set; } = null!;
@@ -37,9 +37,9 @@ internal sealed class Animal : Entity, IAggregateRoot
     public string Color { get; private set; } = null!;
     public int DictItemSpeciesId { get; private set; }
     public int DictItemSexId { get; private set; }
-    public DateTime BirthDate { get; private set; }
-    public DateTime CreatedOn { get; private set; }
-    public DateTime ModifiedOn { get; private set; }
+    public DateTimeOffset BirthDate { get; private set; }
+    public DateTimeOffset CreatedOn { get; private set; }
+    public DateTimeOffset ModifiedOn { get; private set; }
     public bool IsActive { get; private set; }
 
     public static Animal Create(
@@ -49,7 +49,7 @@ internal sealed class Animal : Entity, IAggregateRoot
         string color,
         int dictItemSpeciesId,
         int dictItemSexId,
-        DateTime birthDate)
+        DateTimeOffset birthDate)
     {
         var animal = new Animal(signature, transponderCode, name, color, dictItemSpeciesId, dictItemSexId, birthDate);
 
@@ -63,7 +63,7 @@ internal sealed class Animal : Entity, IAggregateRoot
         if (!IsActive) return;
 
         IsActive = false;
-        ModifiedOn = DateTime.UtcNow;
+        ModifiedOn = DateTimeOffset.UtcNow;
         AddDomainEvent(new AnimalArchivedDomainEvent(Id));
     }
 }

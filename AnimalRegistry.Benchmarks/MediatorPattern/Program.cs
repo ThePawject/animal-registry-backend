@@ -5,12 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AnimalRegistry.Benchmarks.MediatorPattern;
 
 [MemoryDiagnoser]
-public class MediatorBenchmarks
+public class MediatorBenchmarks(IMediator mediatorCached, IMediator mediatorDynamic, IServiceProvider serviceProvider)
 {
     private readonly Ping _pingRequest = new();
-    private IMediator _mediatorCached;
-    private IMediator _mediatorDynamic;
-    private IServiceProvider _serviceProvider;
+    private IMediator _mediatorCached = mediatorCached;
+    private IMediator _mediatorDynamic = mediatorDynamic;
+    private IServiceProvider _serviceProvider = serviceProvider;
 
     [GlobalSetup]
     public void Setup()
