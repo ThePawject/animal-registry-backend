@@ -18,6 +18,7 @@
     <File Path="github/git-commit-instructions.md" />
     <File Path="LICENSE" />
     <File Path="README.md" />
+    <File Path=".editorconfig" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="AnimalRegistry.Benchmarks\AnimalRegistry.Benchmarks.csproj" Type="Classic C#" />

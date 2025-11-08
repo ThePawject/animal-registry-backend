@@ -53,6 +53,12 @@ public abstract class Entity<TId>(TId id)
     {
         return !(left == right);
     }
+
+    protected static void CheckRule(IBusinessRule rule)
+    {
+        if (rule.IsBroken())
+            throw new BusinessRuleValidationException(rule);
+    }
 }
 
 public abstract class Entity : Entity<Guid>

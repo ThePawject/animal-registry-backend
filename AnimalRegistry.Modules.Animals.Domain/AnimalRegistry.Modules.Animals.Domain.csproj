@@ -10,4 +10,8 @@
         <ProjectReference Include="..\AnimalRegistry.Shared\AnimalRegistry.Shared.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Animals\Rules\" />
+    </ItemGroup>
+
 </Project>

@@ -15,19 +15,6 @@ internal class Animal : Entity, IAggregateRoot
         int dictItemSexId,
         DateTime birthDate)
     {
-        //TODO: check rule
-        // if (string.IsNullOrWhiteSpace(signature))
-        //     throw new ArgumentException("Signature cannot be empty.", nameof(signature));
-        //
-        // if (string.IsNullOrWhiteSpace(name))
-        //     throw new ArgumentException("Name cannot be empty.", nameof(name));
-        //
-        // if (dictItemSpeciesId <= 0)
-        //     throw new ArgumentException("SpeciesId must be valid.", nameof(dictItemSpeciesId));
-        //
-        // if (dictItemSexId <= 0)
-        //     throw new ArgumentException("SexId must be valid.", nameof(dictItemSexId));
-        //
         Signature = signature;
         TransponderCode = transponderCode;
         Name = name;
@@ -63,21 +50,9 @@ internal class Animal : Entity, IAggregateRoot
     {
         var animal = new Animal(signature, transponderCode, name, color, dictItemSpeciesId, dictItemSexId, birthDate);
 
-        // animal.AddDomainEvent(new AnimalCreatedEvent(animal.Id, animal.Signature, animal.Name));
+        animal.AddDomainEvent(new AnimalCreatedDomainEvent(animal.Id, animal.Signature, animal.Name));
 
         return animal;
-    }
-
-    public void UpdateDetails(string name, string color, string transponderCode, DateTime birthDate)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Name cannot be empty.", nameof(name));
-
-        Name = name;
-        Color = color;
-        TransponderCode = transponderCode;
-        BirthDate = birthDate;
-        ModifiedOn = DateTime.UtcNow;
     }
 
     public void Archive()
@@ -86,6 +61,6 @@ internal class Animal : Entity, IAggregateRoot
 
         IsActive = false;
         ModifiedOn = DateTime.UtcNow;
-        // AddDomainEvent(new AnimalArchivedEvent(Id));
+        AddDomainEvent(new AnimalArchivedDomainEvent(Id));
     }
 }
