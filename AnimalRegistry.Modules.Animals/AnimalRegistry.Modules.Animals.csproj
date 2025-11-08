@@ -5,5 +5,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Api\AnimalRegistry.Modules.Animals.Api.csproj" />
+      <ProjectReference Include="..\AnimalRegistry.Shared\AnimalRegistry.Shared.csproj" />
+    </ItemGroup>
 
 </Project>

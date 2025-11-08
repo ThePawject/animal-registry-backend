@@ -1,4 +1,7 @@
+using AnimalRegistry.Modules.Animals.Domain.Animals.DomainEvents;
 using AnimalRegistry.Shared.DDD;
+
+namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
 internal sealed class Animal : Entity, IAggregateRoot
 {
