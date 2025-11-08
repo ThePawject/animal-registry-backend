@@ -19,6 +19,7 @@
     <File Path="LICENSE" />
     <File Path="README.md" />
     <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="AnimalRegistry.Benchmarks\AnimalRegistry.Benchmarks.csproj" Type="Classic C#" />

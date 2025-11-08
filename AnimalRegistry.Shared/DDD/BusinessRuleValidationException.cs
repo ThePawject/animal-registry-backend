@@ -1,6 +1,6 @@
 ﻿namespace AnimalRegistry.Shared.DDD;
 
-public class BusinessRuleValidationException(IBusinessRule brokenRule) : Exception(brokenRule.Message)
+public sealed class BusinessRuleValidationException(IBusinessRule brokenRule) : Exception(brokenRule.Message)
 {
     private IBusinessRule BrokenRule { get; } = brokenRule;
 

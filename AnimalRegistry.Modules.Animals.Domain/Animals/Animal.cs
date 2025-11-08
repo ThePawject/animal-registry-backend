@@ -1,6 +1,6 @@
 using AnimalRegistry.Shared.DDD;
 
-internal class Animal : Entity, IAggregateRoot
+internal sealed class Animal : Entity, IAggregateRoot
 {
     private Animal()
     {
