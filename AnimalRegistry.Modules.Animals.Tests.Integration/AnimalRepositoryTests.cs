@@ -1,13 +1,10 @@
-using System;
-using System.Threading.Tasks;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MsSql;
-using Xunit;
 
-namespace AnimalRegistry.Modules.Animals.Tests.Infrastructure;
+namespace AnimalRegistry.Modules.Animals.Tests.Integration;
 
 public class AnimalRepositoryTests : IAsyncLifetime
 {
@@ -50,7 +47,8 @@ public class AnimalRepositoryTests : IAsyncLifetime
     public async Task RemoveAnimal_WorksCorrectly()
     {
         var animal = Animal.Create(
-            "sig2", "trans2", "Mruczek", "Gray", AnimalSpecies.Cat, AnimalSex.Female, DateTimeOffset.UtcNow.AddYears(-3));
+            "sig2", "trans2", "Mruczek", "Gray", AnimalSpecies.Cat, AnimalSex.Female,
+            DateTimeOffset.UtcNow.AddYears(-3));
         await _repository.AddAsync(animal);
         _repository.Remove(animal);
         var loaded = await _repository.GetByIdAsync(animal.Id);

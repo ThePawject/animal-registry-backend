@@ -6,7 +6,8 @@
     <Project Path="AnimalRegistry.Modules.Animals.Application\AnimalRegistry.Modules.Animals.Application.csproj" Type="Classic C#" />
     <Project Path="AnimalRegistry.Modules.Animals.Domain\AnimalRegistry.Modules.Animals.Domain.csproj" Type="Classic C#" />
     <Project Path="AnimalRegistry.Modules.Animals.Infrastructure\AnimalRegistry.Modules.Animals.Infrastructure.csproj" Type="Classic C#" />
-    <Project Path="AnimalRegistry.Modules.Animals.Tests\AnimalRegistry.Modules.Animals.Tests.csproj" Type="Classic C#" />
+    <Project Path="AnimalRegistry.Modules.Animals.Tests.Integration\AnimalRegistry.Modules.Animals.Tests.Integration.csproj" Type="Classic C#" />
+    <Project Path="AnimalRegistry.Modules.Animals.Tests.Unit\AnimalRegistry.Modules.Animals.Tests.Unit.csproj" Type="Classic C#" />
     <Project Path="AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/Solution Items/">

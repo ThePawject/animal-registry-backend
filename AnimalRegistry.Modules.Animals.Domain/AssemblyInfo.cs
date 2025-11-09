@@ -1,2 +1,2 @@
 using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo("AnimalRegistry.Modules.Animals.Tests")]
+[assembly: InternalsVisibleTo("AnimalRegistry.Modules.Animals.Tests.Unit")]

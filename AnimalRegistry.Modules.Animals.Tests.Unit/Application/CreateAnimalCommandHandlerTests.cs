@@ -3,7 +3,7 @@ using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using NSubstitute;
 
-namespace AnimalRegistry.Modules.Animals.Tests.Application;
+namespace AnimalRegistry.Modules.Animals.Tests.Unit.Application;
 
 public class CreateAnimalCommandHandlerTests
 {

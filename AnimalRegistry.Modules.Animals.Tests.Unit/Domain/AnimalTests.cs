@@ -4,7 +4,7 @@ using Xunit;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.DomainEvents;
 
-namespace AnimalRegistry.Modules.Animals.Tests.Domain
+namespace AnimalRegistry.Modules.Animals.Tests.Unit.Domain
 {
     public class AnimalTests
     {
