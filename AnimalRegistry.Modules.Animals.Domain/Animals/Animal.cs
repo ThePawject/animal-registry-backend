@@ -14,16 +14,16 @@ public sealed class Animal : Entity, IAggregateRoot
         string transponderCode,
         string name,
         string color,
-        int dictItemSpeciesId,
-        int dictItemSexId,
+        AnimalSpecies species,
+        AnimalSex sex,
         DateTimeOffset birthDate)
     {
         Signature = signature;
         TransponderCode = transponderCode;
         Name = name;
         Color = color;
-        DictItemSpeciesId = dictItemSpeciesId;
-        DictItemSexId = dictItemSexId;
+        Species = species;
+        Sex = sex;
         BirthDate = birthDate;
 
         IsActive = true;
@@ -35,8 +35,8 @@ public sealed class Animal : Entity, IAggregateRoot
     public string Signature { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string Color { get; private set; } = null!;
-    public int DictItemSpeciesId { get; private set; }
-    public int DictItemSexId { get; private set; }
+    public AnimalSpecies Species { get; private set; }
+    public AnimalSex Sex { get; private set; }
     public DateTimeOffset BirthDate { get; private set; }
     public DateTimeOffset CreatedOn { get; private set; }
     public DateTimeOffset ModifiedOn { get; private set; }
@@ -47,11 +47,11 @@ public sealed class Animal : Entity, IAggregateRoot
         string transponderCode,
         string name,
         string color,
-        int dictItemSpeciesId,
-        int dictItemSexId,
+        AnimalSpecies species,
+        AnimalSex sex,
         DateTimeOffset birthDate)
     {
-        var animal = new Animal(signature, transponderCode, name, color, dictItemSpeciesId, dictItemSexId, birthDate);
+        var animal = new Animal(signature, transponderCode, name, color, species, sex, birthDate);
 
         animal.AddDomainEvent(new AnimalCreatedDomainEvent(animal.Id, animal.Signature, animal.Name));
 

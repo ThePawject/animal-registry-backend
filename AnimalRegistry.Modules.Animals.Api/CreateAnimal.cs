@@ -8,7 +8,7 @@ public sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRequ
 {
     public override void Configure()
     {
-        Post("/animals");
+        Post(CreateAnimalRequest.Route);
         AllowAnonymous();
     }
 
@@ -19,8 +19,8 @@ public sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRequ
             req.TransponderCode,
             req.Name,
             req.Color,
-            req.DictItemSpeciesId,
-            req.DictItemSexId,
+            req.Species,
+            req.Sex,
             req.BirthDate
         ), ct);
     }

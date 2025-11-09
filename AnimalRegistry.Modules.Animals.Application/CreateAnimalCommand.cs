@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
@@ -7,8 +8,8 @@ public sealed class CreateAnimalCommand(
     string transponderCode,
     string name,
     string color,
-    int dictItemSpeciesId,
-    int dictItemSexId,
+    AnimalSpecies species,
+    AnimalSex sex,
     DateTimeOffset birthDate)
     : IRequest<CreateAnimalCommandResponse>
 {
@@ -16,8 +17,8 @@ public sealed class CreateAnimalCommand(
     public string TransponderCode { get; } = transponderCode;
     public string Name { get; } = name;
     public string Color { get; } = color;
-    public int DictItemSpeciesId { get; } = dictItemSpeciesId;
-    public int DictItemSexId { get; } = dictItemSexId;
+    public AnimalSpecies Species { get; } = species;
+    public AnimalSex Sex { get; } = sex;
     public DateTimeOffset BirthDate { get; } = birthDate;
 }
 

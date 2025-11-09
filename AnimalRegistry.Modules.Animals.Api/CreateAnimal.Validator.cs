@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Domain.Animals;
 using FastEndpoints;
 using FluentValidation;
 
@@ -16,10 +17,10 @@ public sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
             .MinimumLength(2);
         RuleFor(x => x.Color)
             .NotEmpty();
-        RuleFor(x => x.DictItemSpeciesId)
-            .GreaterThan(0);
-        RuleFor(x => x.DictItemSexId)
-            .GreaterThan(0);
+        RuleFor(x => x.Species)
+            .IsInEnum().NotEqual(AnimalSpecies.None);
+        RuleFor(x => x.Sex)
+            .IsInEnum().NotEqual(AnimalSex.None);
         RuleFor(x => x.BirthDate)
             .LessThanOrEqualTo(DateTime.UtcNow);
     }

@@ -13,8 +13,8 @@ public class CreateAnimalCommandHandler : IRequestHandler<CreateAnimalCommand, C
             request.TransponderCode,
             request.Name,
             request.Color,
-            request.DictItemSpeciesId,
-            request.DictItemSexId,
+            request.Species,
+            request.Sex,
             request.BirthDate
         );
         return Task.FromResult(new CreateAnimalCommandResponse());
