@@ -1,10 +1,7 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
-using Xunit;
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using NSubstitute;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Application;
 
@@ -22,7 +19,8 @@ public class CreateAnimalCommandHandlerTests
             AnimalSex.Male,
             new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)
         );
-        var handler = new CreateAnimalCommandHandler();
+        var repoMock = Substitute.For<IAnimalRepository>();
+        var handler = new CreateAnimalCommandHandler(repoMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -42,7 +40,8 @@ public class CreateAnimalCommandHandlerTests
             AnimalSex.Female,
             new DateTimeOffset(2018, 5, 10, 0, 0, 0, TimeSpan.Zero)
         );
-        var handler = new CreateAnimalCommandHandler();
+        var repoMock = Substitute.For<IAnimalRepository>();
+        var handler = new CreateAnimalCommandHandler(repoMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
