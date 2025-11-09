@@ -9,7 +9,7 @@ namespace AnimalRegistry.Modules.Animals;
 
 public sealed class AnimalsModule: IModule
 {
-    public string Name { get; } = "Animals";
+    public string Name => "Animals";
 
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
