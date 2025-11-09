@@ -5,7 +5,14 @@ namespace AnimalRegistry.Modules.Animals.Application;
 
 public sealed class CreateAnimalCommandHandler : IRequestHandler<CreateAnimalCommand, CreateAnimalCommandResponse>
 {
-    public Task<CreateAnimalCommandResponse> Handle(CreateAnimalCommand request,
+    private readonly IAnimalRepository _animalRepository;
+
+    public CreateAnimalCommandHandler(IAnimalRepository animalRepository)
+    {
+        _animalRepository = animalRepository;
+    }
+
+    public async Task<CreateAnimalCommandResponse> Handle(CreateAnimalCommand request,
         CancellationToken cancellationToken)
     {
         var animal = Animal.Create(
@@ -17,6 +24,7 @@ public sealed class CreateAnimalCommandHandler : IRequestHandler<CreateAnimalCom
             request.Sex,
             request.BirthDate
         );
-        return Task.FromResult(new CreateAnimalCommandResponse());
+        await _animalRepository.AddAsync(animal, cancellationToken);
+        return new CreateAnimalCommandResponse();
     }
 }

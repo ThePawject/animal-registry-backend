@@ -1,6 +1,8 @@
 using AnimalRegistry.Modules.Animals.Api;
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Infrastructure;
+using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
@@ -37,6 +39,7 @@ public sealed class AnimalsModule : IModule
             var dbSettings = serviceProvider.GetRequiredService<IOptions<AnimalsDatabaseSettings>>().Value;
             options.UseSqlServer(dbSettings.ConnectionString);
         });
- 
+
+        services.AddScoped<IAnimalRepository, AnimalRepository>();
     }
 }

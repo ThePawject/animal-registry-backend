@@ -5,7 +5,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure;
 
 public class AnimalsDbContext(DbContextOptions<AnimalsDbContext> options) : DbContext(options)
 {
-    public DbSet<Animal> Users => Set<Animal>();
+    public DbSet<Animal> Animals => Set<Animal>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
