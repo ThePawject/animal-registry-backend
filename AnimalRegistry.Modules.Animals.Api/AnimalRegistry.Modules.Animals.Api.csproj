@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FastEndpoints" Version="7.1.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Application\AnimalRegistry.Modules.Animals.Application.csproj" />
+      <ProjectReference Include="..\AnimalRegistry.Shared\AnimalRegistry.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="FastEndpoints">
+        <HintPath>..\..\..\.nuget\packages\fastendpoints\7.1.0\lib\net9.0\FastEndpoints.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

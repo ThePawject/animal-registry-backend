@@ -1,0 +1,13 @@
+### Create Animal
+POST http://localhost:5000/animals
+Content-Type: application/json
+
+{
+  "signature": "ABC123",
+  "transponderCode": "XYZ789",
+  "name": "Burek",
+  "color": "Brown",
+  "dictItemSpeciesId": 1,
+  "dictItemSexId": 2,
+  "birthDate": "2020-01-01T00:00:00Z"
+}

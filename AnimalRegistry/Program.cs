@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Accounts;
+using AnimalRegistry.Modules.Animals;
 using AnimalRegistry.Shared;
 using FastEndpoints;
 using Scalar.AspNetCore;
@@ -6,6 +7,7 @@ using Scalar.AspNetCore;
 var modules = new List<IModule>
 {
     new AccountsModule(),
+    new AnimalsModule(),
 };
 
 var builder = WebApplication.CreateBuilder(args);
