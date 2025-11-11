@@ -6,7 +6,7 @@ using Testcontainers.MsSql;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Integration;
 
-public class AnimalRepositoryTests : IAsyncLifetime
+public sealed class AnimalRepositoryTests : IAsyncLifetime
 {
     private readonly MsSqlContainer _dbContainer = new MsSqlBuilder()
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")

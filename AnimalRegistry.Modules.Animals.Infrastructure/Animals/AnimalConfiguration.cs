@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 
-public class AnimalConfiguration : IEntityTypeConfiguration<Animal>
+internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
 {
     public void Configure(EntityTypeBuilder<Animal> builder)
     {

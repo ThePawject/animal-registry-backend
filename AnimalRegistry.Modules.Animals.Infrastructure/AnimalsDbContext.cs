@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure;
 
-public class AnimalsDbContext(DbContextOptions<AnimalsDbContext> options) : DbContext(options)
+internal sealed class AnimalsDbContext(DbContextOptions<AnimalsDbContext> options) : DbContext(options)
 {
     public DbSet<Animal> Animals => Set<Animal>();
 

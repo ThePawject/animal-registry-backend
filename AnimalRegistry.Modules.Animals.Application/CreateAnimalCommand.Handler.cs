@@ -3,15 +3,9 @@ using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
 
-public sealed class CreateAnimalCommandHandler : IRequestHandler<CreateAnimalCommand, CreateAnimalCommandResponse>
+internal sealed class CreateAnimalCommandHandler(IAnimalRepository animalRepository)
+    : IRequestHandler<CreateAnimalCommand, CreateAnimalCommandResponse>
 {
-    private readonly IAnimalRepository _animalRepository;
-
-    public CreateAnimalCommandHandler(IAnimalRepository animalRepository)
-    {
-        _animalRepository = animalRepository;
-    }
-
     public async Task<CreateAnimalCommandResponse> Handle(CreateAnimalCommand request,
         CancellationToken cancellationToken)
     {
@@ -24,7 +18,7 @@ public sealed class CreateAnimalCommandHandler : IRequestHandler<CreateAnimalCom
             request.Sex,
             request.BirthDate
         );
-        await _animalRepository.AddAsync(animal, cancellationToken);
+        await animalRepository.AddAsync(animal, cancellationToken);
         return new CreateAnimalCommandResponse();
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 
-public class AnimalRepository(AnimalsDbContext context) : IAnimalRepository
+internal sealed class AnimalRepository(AnimalsDbContext context) : IAnimalRepository
 {
     public async Task<Animal?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
