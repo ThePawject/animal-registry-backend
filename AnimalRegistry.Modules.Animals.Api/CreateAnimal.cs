@@ -4,7 +4,7 @@ using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Animals.Api;
 
-public sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRequest>
+internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRequest>
 {
     public override void Configure()
     {

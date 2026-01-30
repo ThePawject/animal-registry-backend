@@ -3,7 +3,7 @@ using AnimalRegistry.Shared.DDD;
 
 namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
-public sealed class Animal : Entity, IAggregateRoot
+internal sealed class Animal : Entity, IAggregateRoot
 {
     private Animal()
     {

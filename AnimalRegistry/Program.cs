@@ -1,14 +1,9 @@
-using AnimalRegistry.Modules.Accounts;
 using AnimalRegistry.Modules.Animals;
 using AnimalRegistry.Shared;
 using FastEndpoints;
 using Scalar.AspNetCore;
 
-var modules = new List<IModule>
-{
-    new AccountsModule(),
-    new AnimalsModule(),
-};
+var modules = new List<IModule> { new AnimalsModule() };
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,5 +29,7 @@ return;
 void ApplyModuleServices(List<IModule> list, WebApplicationBuilder webApplicationBuilder)
 {
     foreach (var module in list)
+    {
         module.RegisterServices(webApplicationBuilder.Services, webApplicationBuilder.Configuration);
+    }
 }

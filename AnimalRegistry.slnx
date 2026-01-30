@@ -1,17 +1,13 @@
 <Solution>
   <Folder Name="/Modules/" />
-  <Folder Name="/Modules/Accounts/">
-    <Project Path="AnimalRegistry.Modules.Accounts.Api/AnimalRegistry.Modules.Accounts.Api.csproj" />
-    <Project Path="AnimalRegistry.Modules.Accounts.Application/AnimalRegistry.Modules.Accounts.Application.csproj" />
-    <Project Path="AnimalRegistry.Modules.Accounts.Domain/AnimalRegistry.Modules.Accounts.Domain.csproj" />
-    <Project Path="AnimalRegistry.Modules.Accounts.Infrastructure/AnimalRegistry.Modules.Accounts.Infrastructure.csproj" />
-    <Project Path="AnimalRegistry.Modules.Accounts/AnimalRegistry.Modules.Accounts.csproj" />
-  </Folder>
+  <Folder Name="/Modules/Accounts/" />
   <Folder Name="/Modules/Animals/">
     <Project Path="AnimalRegistry.Modules.Animals.Api\AnimalRegistry.Modules.Animals.Api.csproj" Type="Classic C#" />
     <Project Path="AnimalRegistry.Modules.Animals.Application\AnimalRegistry.Modules.Animals.Application.csproj" Type="Classic C#" />
     <Project Path="AnimalRegistry.Modules.Animals.Domain\AnimalRegistry.Modules.Animals.Domain.csproj" Type="Classic C#" />
     <Project Path="AnimalRegistry.Modules.Animals.Infrastructure\AnimalRegistry.Modules.Animals.Infrastructure.csproj" Type="Classic C#" />
+    <Project Path="AnimalRegistry.Modules.Animals.Tests.Integration\AnimalRegistry.Modules.Animals.Tests.Integration.csproj" Type="Classic C#" />
+    <Project Path="AnimalRegistry.Modules.Animals.Tests.Unit\AnimalRegistry.Modules.Animals.Tests.Unit.csproj" Type="Classic C#" />
     <Project Path="AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/Solution Items/">

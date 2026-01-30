@@ -7,7 +7,7 @@ Content-Type: application/json
   "transponderCode": "XYZ789",
   "name": "Burek",
   "color": "Brown",
-  "dictItemSpeciesId": 1,
-  "dictItemSexId": 2,
+  "species": 1,
+  "sex": 1,
   "birthDate": "2020-01-01T00:00:00Z"
 }
