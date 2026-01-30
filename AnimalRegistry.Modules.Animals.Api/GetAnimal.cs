@@ -1,0 +1,21 @@
+using AnimalRegistry.Modules.Animals.Application;
+using AnimalRegistry.Shared.FastEndpoints;
+using AnimalRegistry.Shared.MediatorPattern;
+using FastEndpoints;
+
+namespace AnimalRegistry.Modules.Animals.Api;
+
+public sealed class GetAnimal(IMediator mediator) : Endpoint<GetAnimalRequest, GetAnimalByIdQueryResponse>
+{
+    public override void Configure()
+    {
+        Get(GetAnimalRequest.Route);
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(GetAnimalRequest req, CancellationToken ct)
+    {
+        var result = await mediator.Send(new GetAnimalByIdQuery(req.Id), ct);
+        await this.SendResultAsync(result, ct: ct);
+    }
+}

@@ -4,18 +4,24 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>b5d14652-aed7-41b0-9601-89ae362fda3b</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="FastEndpoints" Version="7.1.0"/>
         <PackageReference Include="FastEndpoints.Swagger" Version="7.1.0"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.12">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.12"/>
         <PackageReference Include="Scalar.AspNetCore" Version="2.9.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\AnimalRegistry.Modules.Accounts\AnimalRegistry.Modules.Accounts.csproj"/>
-        <ProjectReference Include="..\AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj" />
+        <ProjectReference Include="..\AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj"/>
         <ProjectReference Include="..\AnimalRegistry.Shared\AnimalRegistry.Shared.csproj"/>
     </ItemGroup>
 

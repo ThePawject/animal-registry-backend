@@ -4,11 +4,7 @@ using AnimalRegistry.Shared;
 using FastEndpoints;
 using Scalar.AspNetCore;
 
-var modules = new List<IModule>
-{
-    new AccountsModule(),
-    new AnimalsModule(),
-};
+var modules = new List<IModule> { new AccountsModule(), new AnimalsModule() };
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +14,8 @@ ApplyModuleServices(modules, builder);
 
 var app = builder.Build();
 
+app.UseBusinessRuleExceptionHandling();
+app.UseDefaultExceptionHandler();
 app.UseFastEndpoints();
 
 if (app.Environment.IsDevelopment())
