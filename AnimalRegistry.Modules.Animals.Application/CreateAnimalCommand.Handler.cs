@@ -21,9 +21,11 @@ internal sealed class CreateAnimalCommandHandler(IAnimalRepository animalReposit
         );
 
         var result = await animalRepository.AddAsync(animal, cancellationToken);
-        if(!result.IsSuccess || result.Value == null)
+        if (!result.IsSuccess || result.Value == null)
         {
             return Result<CreateAnimalCommandResponse>.Failure("Failed to create animal.");
         }
-        return Result<CreateAnimalCommandResponse>.Success(new CreateAnimalCommandResponse(result.Value.Id));    }
+
+        return Result<CreateAnimalCommandResponse>.Success(new CreateAnimalCommandResponse(result.Value.Id));
+    }
 }
