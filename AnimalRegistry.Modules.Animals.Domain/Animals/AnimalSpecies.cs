@@ -1,6 +1,6 @@
 namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
-internal enum AnimalSpecies
+public enum AnimalSpecies
 {
     None = 0,
     Dog = 1,

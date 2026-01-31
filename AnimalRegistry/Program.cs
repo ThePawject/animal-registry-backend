@@ -41,6 +41,9 @@ ApplyModuleServices(modules, builder);
 
 var app = builder.Build();
 
+app.UseBusinessRuleExceptionHandling();
+app.UseDefaultExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     IdentityModelEventSource.LogCompleteSecurityArtifact = true;
@@ -63,4 +66,8 @@ void ApplyModuleServices(List<IModule> list, WebApplicationBuilder webApplicatio
     {
         module.RegisterServices(webApplicationBuilder.Services, webApplicationBuilder.Configuration);
     }
+}
+
+public partial class Program
+{
 }

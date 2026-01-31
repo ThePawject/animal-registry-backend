@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
@@ -11,7 +12,7 @@ internal sealed class CreateAnimalCommand(
     AnimalSpecies species,
     AnimalSex sex,
     DateTimeOffset birthDate)
-    : IRequest<CreateAnimalCommandResponse>
+    : IRequest<Result<CreateAnimalCommandResponse>>
 {
     public string Signature { get; } = signature;
     public string TransponderCode { get; } = transponderCode;
@@ -22,4 +23,4 @@ internal sealed class CreateAnimalCommand(
     public DateTimeOffset BirthDate { get; } = birthDate;
 }
 
-public sealed class CreateAnimalCommandResponse;
+public record CreateAnimalCommandResponse(Guid AnimalId);

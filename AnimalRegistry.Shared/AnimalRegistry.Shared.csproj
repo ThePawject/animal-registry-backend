@@ -11,6 +11,24 @@
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.10"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10"/>
+        <PackageReference Include="FastEndpoints" Version="7.1.0"/>
+        <PackageReference Include="Scalar.AspNetCore" Version="2.9.0"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="FastEndpoints">
+            <HintPath>..\..\..\.nuget\packages\fastendpoints\7.1.0\lib\net9.0\FastEndpoints.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
+            <HintPath>..\..\..\.nuget\packages\microsoft.aspnetcore.app.ref\9.0.12\ref\net9.0\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
+            <HintPath>..\..\..\.nuget\packages\microsoft.aspnetcore.app.ref\9.0.12\ref\net9.0\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>
