@@ -1,4 +1,3 @@
-using AnimalRegistry.Modules.Accounts;
 using AnimalRegistry.Modules.Animals;
 using AnimalRegistry.Shared;
 using FastEndpoints;
@@ -32,5 +31,7 @@ return;
 void ApplyModuleServices(List<IModule> list, WebApplicationBuilder webApplicationBuilder)
 {
     foreach (var module in list)
+    {
         module.RegisterServices(webApplicationBuilder.Services, webApplicationBuilder.Configuration);
+    }
 }

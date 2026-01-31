@@ -4,7 +4,7 @@ using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
 
-public sealed class CreateAnimalCommand(
+internal sealed class CreateAnimalCommand(
     string signature,
     string transponderCode,
     string name,

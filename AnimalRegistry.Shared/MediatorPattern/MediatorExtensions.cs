@@ -1,11 +1,11 @@
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace AnimalRegistry.Shared.MediatorPattern;
 
 public static class MediatorExtensions
 {
-    public static IServiceCollection AddMyMediator(this IServiceCollection services, Assembly assembly)
+    public static IServiceCollection AddMediator(this IServiceCollection services, Assembly assembly)
     {
         services.AddScoped<IMediator, Mediator>();
 
