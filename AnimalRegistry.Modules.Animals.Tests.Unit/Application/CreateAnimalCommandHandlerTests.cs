@@ -1,6 +1,7 @@
 using FluentAssertions;
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Shared;
 using NSubstitute;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Unit.Application;
@@ -20,12 +21,17 @@ public class CreateAnimalCommandHandlerTests
             new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)
         );
         var repoMock = Substitute.For<IAnimalRepository>();
+        repoMock.AddAsync(Arg.Any<Animal>(), Arg.Any<CancellationToken>())
+            .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
+
         var handler = new CreateAnimalCommandHandler(repoMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
         response.Should().NotBeNull();
-        response.Should().BeOfType<CreateAnimalCommandResponse>();
+        response.IsSuccess.Should().BeTrue();
+        response.Value.Should().NotBeNull();
+        response.Value.Should().BeOfType<CreateAnimalCommandResponse>();
     }
 
     [Fact]
@@ -41,11 +47,16 @@ public class CreateAnimalCommandHandlerTests
             new DateTimeOffset(2018, 5, 10, 0, 0, 0, TimeSpan.Zero)
         );
         var repoMock = Substitute.For<IAnimalRepository>();
+        repoMock.AddAsync(Arg.Any<Animal>(), Arg.Any<CancellationToken>())
+            .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
+
         var handler = new CreateAnimalCommandHandler(repoMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
         response.Should().NotBeNull();
-        response.Should().BeOfType<CreateAnimalCommandResponse>();
+        response.IsSuccess.Should().BeTrue();
+        response.Value.Should().NotBeNull();
+        response.Value.Should().BeOfType<CreateAnimalCommandResponse>();
     }
 }
