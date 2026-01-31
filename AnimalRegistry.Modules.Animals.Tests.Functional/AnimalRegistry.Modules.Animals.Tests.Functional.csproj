@@ -14,6 +14,7 @@
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2"/>
         <PackageReference Include="Testcontainers" Version="4.8.1"/>
         <PackageReference Include="Testcontainers.MsSql" Version="4.8.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.9"/>
         <PackageReference Include="FluentAssertions" Version="6.11.0"/>
     </ItemGroup>
 
@@ -23,6 +24,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Infrastructure\AnimalRegistry.Modules.Animals.Infrastructure.csproj"/>
+        <ProjectReference Include="..\AnimalRegistry\AnimalRegistry.csproj"/>
+        <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Api\AnimalRegistry.Modules.Animals.Api.csproj"/>
+        <ProjectReference Include="..\AnimalRegistry.Shared\AnimalRegistry.Shared.csproj"/>
     </ItemGroup>
 
 </Project>
