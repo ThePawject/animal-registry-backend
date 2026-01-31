@@ -13,6 +13,9 @@ ApplyModuleServices(modules, builder);
 
 var app = builder.Build();
 
+app.UseBusinessRuleExceptionHandling();
+app.UseDefaultExceptionHandler();
+
 app.UseFastEndpoints();
 
 if (app.Environment.IsDevelopment())
