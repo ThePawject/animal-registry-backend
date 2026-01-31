@@ -36,3 +36,7 @@ void ApplyModuleServices(List<IModule> list, WebApplicationBuilder webApplicatio
         module.RegisterServices(webApplicationBuilder.Services, webApplicationBuilder.Configuration);
     }
 }
+
+public partial class Program
+{
+}
