@@ -23,4 +23,9 @@ internal sealed class AnimalRepository(AnimalsDbContext context) : IAnimalReposi
         context.Animals.Remove(entity);
         context.SaveChanges();
     }
+
+    public async Task<IEnumerable<Animal>> ListAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.Animals.ToListAsync(cancellationToken);
+    }
 }

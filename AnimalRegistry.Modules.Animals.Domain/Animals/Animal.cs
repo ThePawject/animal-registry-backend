@@ -3,7 +3,7 @@ using AnimalRegistry.Shared.DDD;
 
 namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
-internal sealed class Animal : Entity, IAggregateRoot
+public sealed class Animal : Entity, IAggregateRoot
 {
     private Animal()
     {
@@ -32,8 +32,8 @@ internal sealed class Animal : Entity, IAggregateRoot
     }
 
     public string TransponderCode { get; private set; } = null!;
-    public string Signature { get; private set; } = null!;
-    public string Name { get; private set; } = null!;
+    public string Signature { get; } = null!;
+    public string Name { get; } = null!;
     public string Color { get; private set; } = null!;
     public AnimalSpecies Species { get; private set; }
     public AnimalSex Sex { get; private set; }
@@ -60,7 +60,10 @@ internal sealed class Animal : Entity, IAggregateRoot
 
     public void Archive()
     {
-        if (!IsActive) return;
+        if (!IsActive)
+        {
+            return;
+        }
 
         IsActive = false;
         ModifiedOn = DateTimeOffset.UtcNow;

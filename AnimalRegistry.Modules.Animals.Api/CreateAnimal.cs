@@ -5,7 +5,7 @@ using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Animals.Api;
 
-internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRequest>
+internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRequest, CreateAnimalCommandResponse>
 {
     public override void Configure()
     {
@@ -24,7 +24,7 @@ internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRe
             req.Sex,
             req.BirthDate
         ), ct);
-        
-        await this.SendResultAsync(result, ct); 
+
+        await this.SendResultAsync(result, ct);
     }
 }
