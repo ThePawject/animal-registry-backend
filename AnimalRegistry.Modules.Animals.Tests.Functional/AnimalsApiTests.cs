@@ -28,4 +28,17 @@ public class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixture<Int
         var list = await _factory.ListAsync();
         list.Any(a => a.Id == createdId).Should().BeTrue();
     }
+
+    [Fact]
+    public async Task List_ReturnsCreatedItems()
+    {
+        var id1 = await _factory.CreateAsync("sig-list-1", "t-1", "ListOne", AnimalSpecies.Cat, AnimalSex.Female);
+        var id2 = await _factory.CreateAsync("sig-list-2", "t-2", "ListTwo", AnimalSpecies.Dog, AnimalSex.Male);
+
+        var list = await _factory.ListAsync();
+
+        list.Any(a => a.Id == id1 && a.Name == "ListOne").Should().BeTrue();
+        list.Any(a => a.Id == id2 && a.Name == "ListTwo").Should().BeTrue();
+    }
 }
+
