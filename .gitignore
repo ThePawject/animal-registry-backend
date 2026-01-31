@@ -277,3 +277,6 @@ UploadedFiles
 
 # Docker
 .env
+
+# Environment files with secrets
+http-client.private.env.json

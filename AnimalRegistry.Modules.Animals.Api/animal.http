@@ -1,5 +1,7 @@
+@HostAddress = https://localhost:5000
+
 ### Create Animal
-POST http://localhost:5000/animals
+POST {{HostAddress}}/animals
 Content-Type: application/json
 
 {
@@ -11,3 +13,8 @@ Content-Type: application/json
   "sex": 1,
   "birthDate": "2020-01-01T00:00:00Z"
 }
+
+### Get Animal
+GET {{HostAddress}}/animals
+Content-Type: application/json
+Authorization: Bearer {{$auth.token("auth0")}}

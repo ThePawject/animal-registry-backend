@@ -10,7 +10,6 @@ internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRe
     public override void Configure()
     {
         Post(CreateAnimalRequest.Route);
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CreateAnimalRequest req, CancellationToken ct)

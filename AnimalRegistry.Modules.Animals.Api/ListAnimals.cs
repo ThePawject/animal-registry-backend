@@ -10,7 +10,6 @@ internal sealed class ListAnimals(IMediator mediator) : Endpoint<EmptyRequest, I
     public override void Configure()
     {
         Get(ListAnimalsRequest.Route);
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
