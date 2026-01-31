@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Application;
+using AnimalRegistry.Shared.FastEndpoints;
 using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
 
@@ -14,7 +15,7 @@ internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRe
 
     public override async Task HandleAsync(CreateAnimalRequest req, CancellationToken ct)
     {
-        await mediator.Send(new CreateAnimalCommand(
+        var result = await mediator.Send(new CreateAnimalCommand(
             req.Signature,
             req.TransponderCode,
             req.Name,
@@ -23,5 +24,7 @@ internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRe
             req.Sex,
             req.BirthDate
         ), ct);
+        
+        await this.SendResultAsync(result, ct); 
     }
 }

@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals;
@@ -10,10 +11,11 @@ internal sealed class AnimalRepository(AnimalsDbContext context) : IAnimalReposi
         return await context.Animals.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
-    public async Task AddAsync(Animal entity, CancellationToken cancellationToken = default)
+    public async Task<Result<Animal>> AddAsync(Animal entity, CancellationToken cancellationToken = default)
     {
-        await context.Animals.AddAsync(entity, cancellationToken);
+        var entityEntry = await context.Animals.AddAsync(entity, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
+        return Result<Animal>.Success(entityEntry.Entity);
     }
 
     public void Remove(Animal entity)

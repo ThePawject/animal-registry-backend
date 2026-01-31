@@ -27,7 +27,7 @@ public sealed class AnimalsModule : IModule
             ];
         });
 
-        services.AddMediator(typeof(CreateAnimalCommand).Assembly);
+        services.AddMediator(typeof(CreateAnimalCommandHandler).Assembly);
         
         var connectionString = configuration.GetConnectionString("AnimalsDb");
         services.Configure<AnimalsDatabaseSettings>(options =>
