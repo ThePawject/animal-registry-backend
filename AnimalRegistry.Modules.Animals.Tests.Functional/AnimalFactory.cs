@@ -16,7 +16,7 @@ public sealed class AnimalFactory(ApiClient api)
             Color = "Unknown",
             Species = species,
             Sex = sex,
-            BirthDate = DateTimeOffset.UtcNow.AddYears(-1)
+            BirthDate = DateTimeOffset.UtcNow.AddYears(-1),
         };
 
         var resp = await api.PostJsonAsync(CreateAnimalRequest.Route, req);
@@ -28,7 +28,7 @@ public sealed class AnimalFactory(ApiClient api)
 
     public async Task<AnimalDto> GetAsync(Guid id)
     {
-        var resp = await api.GetAsync($"/animals/{id}");
+        var resp = await api.GetAsync(GetAnimalRequest.BuildRoute(id));
         resp.EnsureSuccessStatusCode();
         var dto = await resp.Content.ReadFromJsonAsync<AnimalDto>() ?? throw new InvalidOperationException("Get response null");
         return dto;
