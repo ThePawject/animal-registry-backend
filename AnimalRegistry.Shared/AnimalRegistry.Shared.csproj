@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
@@ -7,12 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.10"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10"/>
-        <PackageReference Include="FastEndpoints" Version="7.1.0"/>
-        <PackageReference Include="Scalar.AspNetCore" Version="2.9.0"/>
+        <PackageReference Include="JetBrains.Annotations" />
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+        <PackageReference Include="FastEndpoints" />
+        <PackageReference Include="Scalar.AspNetCore" />
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 

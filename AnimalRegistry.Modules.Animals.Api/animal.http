@@ -2,6 +2,7 @@
 
 ### Create Animal
 POST {{HostAddress}}/animals
+Authorization: Bearer {{$auth.token("auth0")}}
 Content-Type: application/json
 
 {
@@ -16,5 +17,5 @@ Content-Type: application/json
 
 ### Get Animal
 GET {{HostAddress}}/animals
-Content-Type: application/json
 Authorization: Bearer {{$auth.token("auth0")}}
+Content-Type: application/json
