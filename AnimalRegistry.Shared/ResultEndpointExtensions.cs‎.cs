@@ -2,7 +2,7 @@ using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 
-namespace AnimalRegistry.Shared.FastEndpoints;
+namespace AnimalRegistry.Shared;
 
 public static class ResultEndpointExtensions
 {
