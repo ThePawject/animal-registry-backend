@@ -1,5 +1,5 @@
 using AnimalRegistry.Modules.Animals.Application;
-using AnimalRegistry.Shared.FastEndpoints;
+using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
 
@@ -10,6 +10,7 @@ internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRe
     public override void Configure()
     {
         Post(CreateAnimalRequest.Route);
+        Policies(ShelterAccessHandler.ShelterAccessPolicyName);
     }
 
     public override async Task HandleAsync(CreateAnimalRequest req, CancellationToken ct)

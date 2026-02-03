@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
 using Void = FastEndpoints.Void;
 
-namespace AnimalRegistry.Shared.FastEndpoints;
+namespace AnimalRegistry.Shared;
 
 public static class ResultEndpointExtensions
 {
