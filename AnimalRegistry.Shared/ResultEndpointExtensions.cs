@@ -1,6 +1,7 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using System.Diagnostics;
+using Void = FastEndpoints.Void;
 
 namespace AnimalRegistry.Shared.FastEndpoints;
 
@@ -44,7 +45,7 @@ public static class ResultEndpointExtensions
         };
     }
 
-    private static Task SendValidationError<TRequest, TResponse>(
+    private static Task<Void> SendValidationError<TRequest, TResponse>(
         Endpoint<TRequest, TResponse> ep,
         string? error,
         CancellationToken ct)
@@ -54,7 +55,7 @@ public static class ResultEndpointExtensions
         return ep.HttpContext.Response.SendErrorsAsync(ep.ValidationFailures, cancellation: ct);
     }
 
-    private static Task SendValidationError<TRequest>(
+    private static Task<Void> SendValidationError<TRequest>(
         Endpoint<TRequest> ep,
         string? error,
         CancellationToken ct)
@@ -79,7 +80,7 @@ public static class ResultEndpointExtensions
             Instance = $"{ctx.Request.Method} {ctx.Request.Path}",
             TraceId = Activity.Current?.Id ?? ctx.TraceIdentifier,
             Detail = detail ?? "An unexpected error occurred.",
-            Errors = Array.Empty<ProblemDetails.Error>(),
+            Errors = [],
         };
 
         ctx.Response.StatusCode = status;
