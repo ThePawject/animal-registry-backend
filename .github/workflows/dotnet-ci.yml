@@ -1,15 +1,17 @@
 name: Dotnet CI
 
 on:
-  push:
   pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: dotnet-ci-${{ github.ref }}
+  group: dotnet-ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -22,9 +24,15 @@ jobs:
       DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
       DOTNET_ROOT: ${{ github.workspace }}/.dotnet
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+      DOCKER_CONFIG: ${{ github.workspace }}/.docker
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Prepare Docker config
+        run: |
+          mkdir -p "${{ env.DOCKER_CONFIG }}"
+          printf '{"auths":{}}\n' > "${{ env.DOCKER_CONFIG }}/config.json"
 
       - name: Cache .NET SDK
         uses: actions/cache@v4
