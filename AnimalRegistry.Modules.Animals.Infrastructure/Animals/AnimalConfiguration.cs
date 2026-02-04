@@ -19,5 +19,7 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
         builder.Property(a => a.CreatedOn).IsRequired();
         builder.Property(a => a.ModifiedOn).IsRequired();
         builder.Property(a => a.IsActive).IsRequired();
+        builder.Property(a => a.ShelterId).IsRequired().HasMaxLength(100);
+        builder.HasIndex(a => a.ShelterId);
     }
 }

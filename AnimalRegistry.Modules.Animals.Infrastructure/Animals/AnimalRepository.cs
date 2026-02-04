@@ -1,12 +1,18 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.DDD;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 
 internal sealed class AnimalRepository(AnimalsDbContext context) : IAnimalRepository
 {
-    public async Task<Animal?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Animal?> GetByIdAsync(Guid id, string shelterId, CancellationToken cancellationToken = default)
+    {
+        return await context.Animals.FirstOrDefaultAsync(a => a.Id == id && a.ShelterId == shelterId, cancellationToken);
+    }
+
+    async Task<Animal?> IRepository<Animal>.GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Animals.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
@@ -24,8 +30,8 @@ internal sealed class AnimalRepository(AnimalsDbContext context) : IAnimalReposi
         context.SaveChanges();
     }
 
-    public async Task<IEnumerable<Animal>> ListAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Animal>> ListAsync(string shelterId, CancellationToken cancellationToken = default)
     {
-        return await context.Animals.ToListAsync(cancellationToken);
+        return await context.Animals.Where(a => a.ShelterId == shelterId).ToListAsync(cancellationToken);
     }
 }

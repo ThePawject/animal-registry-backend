@@ -2,12 +2,22 @@ using FluentAssertions;
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.CurrentUser;
 using NSubstitute;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Unit.Application;
 
 public class CreateAnimalCommandHandlerTests
 {
+    private const string TestShelterId = "test-shelter-id";
+
+    private static ICurrentUser CreateCurrentUserMock()
+    {
+        var currentUserMock = Substitute.For<ICurrentUser>();
+        currentUserMock.ShelterId.Returns(TestShelterId);
+        return currentUserMock;
+    }
+
     [Fact]
     public async Task Handle_ShouldCreateAnimal_WhenRequestIsValid()
     {
@@ -23,8 +33,9 @@ public class CreateAnimalCommandHandlerTests
         var repoMock = Substitute.For<IAnimalRepository>();
         repoMock.AddAsync(Arg.Any<Animal>(), Arg.Any<CancellationToken>())
             .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
+        var currentUserMock = CreateCurrentUserMock();
 
-        var handler = new CreateAnimalCommandHandler(repoMock);
+        var handler = new CreateAnimalCommandHandler(repoMock, currentUserMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -49,8 +60,9 @@ public class CreateAnimalCommandHandlerTests
         var repoMock = Substitute.For<IAnimalRepository>();
         repoMock.AddAsync(Arg.Any<Animal>(), Arg.Any<CancellationToken>())
             .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
+        var currentUserMock = CreateCurrentUserMock();
 
-        var handler = new CreateAnimalCommandHandler(repoMock);
+        var handler = new CreateAnimalCommandHandler(repoMock, currentUserMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 

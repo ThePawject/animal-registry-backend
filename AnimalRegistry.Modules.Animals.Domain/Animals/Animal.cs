@@ -16,7 +16,8 @@ public sealed class Animal : Entity, IAggregateRoot
         string color,
         AnimalSpecies species,
         AnimalSex sex,
-        DateTimeOffset birthDate)
+        DateTimeOffset birthDate,
+        string shelterId)
     {
         Signature = signature;
         TransponderCode = transponderCode;
@@ -25,6 +26,7 @@ public sealed class Animal : Entity, IAggregateRoot
         Species = species;
         Sex = sex;
         BirthDate = birthDate;
+        ShelterId = shelterId;
 
         IsActive = true;
         CreatedOn = DateTimeOffset.Now;
@@ -41,6 +43,7 @@ public sealed class Animal : Entity, IAggregateRoot
     public DateTimeOffset CreatedOn { get; private set; }
     public DateTimeOffset ModifiedOn { get; private set; }
     public bool IsActive { get; private set; }
+    public string ShelterId { get; private set; } = null!;
 
     public static Animal Create(
         string signature,
@@ -49,9 +52,10 @@ public sealed class Animal : Entity, IAggregateRoot
         string color,
         AnimalSpecies species,
         AnimalSex sex,
-        DateTimeOffset birthDate)
+        DateTimeOffset birthDate,
+        string shelterId)
     {
-        var animal = new Animal(signature, transponderCode, name, color, species, sex, birthDate);
+        var animal = new Animal(signature, transponderCode, name, color, species, sex, birthDate, shelterId);
 
         animal.AddDomainEvent(new AnimalCreatedDomainEvent(animal.Id, animal.Signature, animal.Name));
 
