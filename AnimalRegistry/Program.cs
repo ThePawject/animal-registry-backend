@@ -1,3 +1,4 @@
+global using AnimalRegistry;
 using AnimalRegistry.Modules.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.CurrentUser;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Scalar.AspNetCore;
 
 var modules = new List<IModule> { new AnimalsModule() };
 
@@ -14,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IAuthorizationHandler, ShelterAccessHandler>();
 
-builder.Services.AddOpenApi();
+builder.Services.AddAuth0OpenApi(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
@@ -60,7 +60,7 @@ if (app.Environment.IsDevelopment())
     IdentityModelEventSource.LogCompleteSecurityArtifact = true;
     IdentityModelEventSource.ShowPII = true;
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarWithAuth0(builder.Configuration);
 }
 
 app.UseHttpsRedirection();
