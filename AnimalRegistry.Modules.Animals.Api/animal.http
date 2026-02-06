@@ -21,5 +21,5 @@ Authorization: Bearer {{$auth.token("auth0")}}
 Content-Type: application/json
 
 ### Get Animal
-GET {{HostAddress}}/animals/26a0bbf9-fe9b-4cd2-8c45-0aa057d5cc3c
+GET {{HostAddress}}/animals/34c897df-8085-420b-942b-9e75e7e5fa99
 Authorization: Bearer {{$auth.token("auth0")}}
