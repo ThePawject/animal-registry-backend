@@ -14,21 +14,26 @@ public sealed record AnimalDto(
     DateTimeOffset CreatedOn,
     DateTimeOffset ModifiedOn,
     bool IsActive,
-    string ShelterId
+    string ShelterId,
+    IReadOnlyCollection<AnimalPhotoDto> Photos
 )
 {
-    public static AnimalDto FromDomain(Animal a) => new(
-        a.Id,
-        a.Signature,
-        a.TransponderCode,
-        a.Name,
-        a.Color,
-        a.Species,
-        a.Sex,
-        a.BirthDate,
-        a.CreatedOn,
-        a.ModifiedOn,
-        a.IsActive,
-        a.ShelterId
-    );
+    public static AnimalDto FromDomain(Animal a)
+    {
+        return new AnimalDto(
+            a.Id,
+            a.Signature,
+            a.TransponderCode,
+            a.Name,
+            a.Color,
+            a.Species,
+            a.Sex,
+            a.BirthDate,
+            a.CreatedOn,
+            a.ModifiedOn,
+            a.IsActive,
+            a.ShelterId,
+            a.Photos.Select(AnimalPhotoDto.FromDomain).ToList()
+        );
+    }
 }

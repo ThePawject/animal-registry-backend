@@ -5,6 +5,8 @@ namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
 public sealed class Animal : Entity, IAggregateRoot
 {
+    private readonly List<AnimalPhoto> _photos = [];
+
     private Animal()
     {
     }
@@ -44,6 +46,8 @@ public sealed class Animal : Entity, IAggregateRoot
     public DateTimeOffset ModifiedOn { get; private set; }
     public bool IsActive { get; private set; }
     public string ShelterId { get; private set; } = null!;
+    public IReadOnlyCollection<AnimalPhoto> Photos => _photos.AsReadOnly();
+    public AnimalPhoto? MainPhoto => _photos.FirstOrDefault(p => p.IsMain);
 
     public static Animal Create(
         string signature,
@@ -72,5 +76,47 @@ public sealed class Animal : Entity, IAggregateRoot
         IsActive = false;
         ModifiedOn = DateTimeOffset.UtcNow;
         AddDomainEvent(new AnimalArchivedDomainEvent(Id));
+    }
+
+    public void AddPhoto(string blobUrl, string fileName, bool isMain = false)
+    {
+        if (isMain)
+        {
+            foreach (var existingPhoto in _photos.Where(p => p.IsMain))
+            {
+                existingPhoto.UnsetAsMain();
+            }
+        }
+
+        var photo = AnimalPhoto.Create(blobUrl, fileName, isMain);
+        _photos.Add(photo);
+        ModifiedOn = DateTimeOffset.UtcNow;
+    }
+
+    public void RemovePhoto(Guid photoId)
+    {
+        var photoToRemove = _photos.FirstOrDefault(p => p.Id == photoId);
+        if (photoToRemove is not null)
+        {
+            _photos.Remove(photoToRemove);
+            ModifiedOn = DateTimeOffset.UtcNow;
+        }
+    }
+
+    public void SetMainPhoto(Guid photoId)
+    {
+        var photoToSet = _photos.FirstOrDefault(p => p.Id == photoId);
+        if (photoToSet is null)
+        {
+            return;
+        }
+
+        foreach (var p in _photos.Where(p => p.IsMain))
+        {
+            p.UnsetAsMain();
+        }
+
+        photoToSet.SetAsMain();
+        ModifiedOn = DateTimeOffset.UtcNow;
     }
 }

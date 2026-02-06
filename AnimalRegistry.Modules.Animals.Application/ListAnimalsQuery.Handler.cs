@@ -9,9 +9,9 @@ namespace AnimalRegistry.Modules.Animals.Application;
 internal sealed class ListAnimalsQueryHandler(
     IAnimalRepository animalRepository,
     ICurrentUser currentUser)
-    : IRequestHandler<ListAnimalsQuery, Result<PagedResult<AnimalDto>>>
+    : IRequestHandler<ListAnimalsQuery, Result<PagedResult<AnimalListItemDto>>>
 {
-    public async Task<Result<PagedResult<AnimalDto>>> Handle(ListAnimalsQuery request,
+    public async Task<Result<PagedResult<AnimalListItemDto>>> Handle(ListAnimalsQuery request,
         CancellationToken cancellationToken)
     {
         var pagedAnimals = await animalRepository.ListAsync(
@@ -20,13 +20,13 @@ internal sealed class ListAnimalsQueryHandler(
             request.PageSize,
             cancellationToken);
 
-        var items = pagedAnimals.Items.Select(AnimalDto.FromDomain).ToList();
-        var result = new PagedResult<AnimalDto>(
+        var items = pagedAnimals.Items.Select(AnimalListItemDto.FromDomain).ToList();
+        var result = new PagedResult<AnimalListItemDto>(
             items,
             pagedAnimals.TotalCount,
             pagedAnimals.Page,
             pagedAnimals.PageSize);
 
-        return Result<PagedResult<AnimalDto>>.Success(result);
+        return Result<PagedResult<AnimalListItemDto>>.Success(result);
     }
 }

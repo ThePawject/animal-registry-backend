@@ -21,5 +21,16 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
         builder.Property(a => a.IsActive).IsRequired();
         builder.Property(a => a.ShelterId).IsRequired().HasMaxLength(100);
         builder.HasIndex(a => a.ShelterId);
+
+        builder.OwnsMany(a => a.Photos, photoBuilder =>
+        {
+            photoBuilder.ToTable("AnimalPhotos");
+            photoBuilder.HasKey(p => p.Id);
+            photoBuilder.Property(p => p.BlobUrl).IsRequired().HasMaxLength(500);
+            photoBuilder.Property(p => p.FileName).IsRequired().HasMaxLength(255);
+            photoBuilder.Property(p => p.IsMain).IsRequired();
+            photoBuilder.Property(p => p.UploadedOn).IsRequired();
+            photoBuilder.HasIndex(p => p.IsMain);
+        });
     }
 }

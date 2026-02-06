@@ -15,7 +15,11 @@ Content-Type: application/json
   "birthDate": "2020-01-01T00:00:00Z"
 }
 
-### Get Animal
-GET {{HostAddress}}/animals
+### Get Animals
+GET {{HostAddress}}/animals?page=1&pageSize=20
 Authorization: Bearer {{$auth.token("auth0")}}
 Content-Type: application/json
+
+### Get Animal
+GET {{HostAddress}}/animals/26a0bbf9-fe9b-4cd2-8c45-0aa057d5cc3c
+Authorization: Bearer {{$auth.token("auth0")}}

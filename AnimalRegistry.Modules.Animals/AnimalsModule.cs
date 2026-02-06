@@ -1,8 +1,9 @@
 using AnimalRegistry.Modules.Animals.Api;
 using AnimalRegistry.Modules.Animals.Application;
-using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
+using AnimalRegistry.Modules.Animals.Infrastructure.Services;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
@@ -28,7 +29,7 @@ public sealed class AnimalsModule : IModule
         });
 
         services.AddMediator(typeof(CreateAnimalCommandHandler).Assembly);
-        
+
         var connectionString = configuration.GetConnectionString("AnimalsDb");
         services.Configure<AnimalsDatabaseSettings>(options =>
         {
@@ -41,5 +42,12 @@ public sealed class AnimalsModule : IModule
         });
 
         services.AddScoped<IAnimalRepository, AnimalRepository>();
+
+        services.Configure<BlobStorageSettings>(options =>
+        {
+            options.ConnectionString = configuration["BlobStorage:ConnectionString"]!;
+            options.ContainerName = configuration["BlobStorage:ContainerName"]!;
+        });
+        services.AddSingleton<IBlobStorageService, BlobStorageService>();
     }
 }

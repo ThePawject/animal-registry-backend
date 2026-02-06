@@ -10,19 +10,22 @@ public sealed class AnimalFactory(ApiClient api)
     public async Task<Guid> CreateAsync(string signature, string transponder, string name, AnimalSpecies species,
         AnimalSex sex)
     {
-        var req = new CreateAnimalRequest
-        {
-            Signature = signature,
-            TransponderCode = transponder,
-            Name = name,
-            Color = "Unknown",
-            Species = species,
-            Sex = sex,
-            BirthDate = DateTimeOffset.UtcNow.AddYears(-1),
-        };
+        var content = new MultipartFormDataContent();
+        content.Add(new StringContent(signature), "Signature");
+        content.Add(new StringContent(transponder), "TransponderCode");
+        content.Add(new StringContent(name), "Name");
+        content.Add(new StringContent("Unknown"), "Color");
+        content.Add(new StringContent(((int)species).ToString()), "Species");
+        content.Add(new StringContent(((int)sex).ToString()), "Sex");
+        content.Add(new StringContent(DateTimeOffset.UtcNow.AddYears(-1).ToString("o")), "BirthDate");
 
-        var resp = await api.PostJsonAsync(CreateAnimalRequest.Route, req);
-        resp.EnsureSuccessStatusCode();
+        var resp = await api.PostFormAsync(CreateAnimalRequest.Route, content);
+        if (!resp.IsSuccessStatusCode)
+        {
+            var errorContent = await resp.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"Request failed with status {resp.StatusCode}: {errorContent}");
+        }
+
         var created = await resp.Content.ReadFromJsonAsync<CreateAnimalCommandResponse>()
                       ?? throw new InvalidOperationException("Create response null");
         return created.AnimalId;
@@ -37,11 +40,11 @@ public sealed class AnimalFactory(ApiClient api)
         return dto;
     }
 
-    public async Task<PagedResult<AnimalDto>> ListAsync()
+    public async Task<PagedResult<AnimalListItemDto>> ListAsync()
     {
-        var resp = await api.GetAsync(ListAnimalsRequest.Route);
+        var resp = await api.GetAsync(ListAnimalsRequest.Route + "?page=1&pageSize=10");
         resp.EnsureSuccessStatusCode();
-        var result = await resp.Content.ReadFromJsonAsync<PagedResult<AnimalDto>>() ??
+        var result = await resp.Content.ReadFromJsonAsync<PagedResult<AnimalListItemDto>>() ??
                      throw new InvalidOperationException("List response null");
         return result;
     }
