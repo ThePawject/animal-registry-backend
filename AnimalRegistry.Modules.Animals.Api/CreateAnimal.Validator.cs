@@ -25,15 +25,8 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
             .IsInEnum();
         RuleFor(x => x.BirthDate)
             .NotEmpty();
-    }
-
-    private static bool BeValidSpecies(string species)
-    {
-        return Enum.TryParse<AnimalSpecies>(species, true, out var result) && result != AnimalSpecies.None;
-    }
-
-    private static bool BeValidSex(string sex)
-    {
-        return Enum.TryParse<AnimalSex>(sex, true, out var result) && result != AnimalSex.None;
+        RuleFor(x => x.MainPhotoIndex)
+            .GreaterThanOrEqualTo(0)
+            .When(x => x.MainPhotoIndex.HasValue);
     }
 }
