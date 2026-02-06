@@ -18,6 +18,7 @@
     <File Path="README.md" />
     <File Path=".editorconfig" />
     <File Path=".env" />
+    <File Path=".github\workflows\docker.yml" />
     <File Path=".github\workflows\dotnet-ci.yml" />
     <File Path="Directory.Build.props" />
   </Folder>
