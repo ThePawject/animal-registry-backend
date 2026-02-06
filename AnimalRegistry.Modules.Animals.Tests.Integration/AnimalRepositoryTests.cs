@@ -96,14 +96,15 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         var animal1 = Animal.Create(
             "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
             TestShelterId);
-        animal1.AddEvent(AnimalEventType.Test, TimeProvider.System.GetUtcNow(), "description", "performedBy");
+        animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
+            "performedBy");
         await _repository.AddAsync(animal1);
 
         var result = await _repository.ListAsync(TestShelterId, 1, 20);
 
         Assert.Single(result.Items);
         Assert.Equal("Animal1", result.Items.First().Name);
-        Assert.Equal(AnimalEventType.Test, result.Items.First().Events.First().Type);
+        Assert.Equal(AnimalEventType.AdmissionToShelter, result.Items.First().Events.First().Type);
         Assert.Equal(1, result.TotalCount);
     }
 
@@ -113,16 +114,18 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         var animal1 = Animal.Create(
             "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
             TestShelterId);
-        animal1.AddEvent(AnimalEventType.Test, TimeProvider.System.GetUtcNow(), "description", "performedBy");
+        animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
+            "performedBy");
         await _repository.AddAsync(animal1);
 
-        animal1.UpdateEvent(animal1.Events.First().Id, AnimalEventType.Test2, TimeProvider.System.GetUtcNow(),
+        animal1.UpdateEvent(animal1.Events.First().Id, AnimalEventType.StartOfQuarantine,
+            TimeProvider.System.GetUtcNow(),
             "new description", "new performedBy");
         await _repository.UpdateAsync(animal1);
 
         var result = await _repository.ListAsync(TestShelterId, 1, 20);
         Assert.Single(result.Items);
-        Assert.Equal(AnimalEventType.Test2, result.Items.First().Events.First().Type);
+        Assert.Equal(AnimalEventType.StartOfQuarantine, result.Items.First().Events.First().Type);
     }
 
     [Fact]
@@ -131,7 +134,8 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         var animal1 = Animal.Create(
             "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
             TestShelterId);
-        animal1.AddEvent(AnimalEventType.Test, TimeProvider.System.GetUtcNow(), "description", "performedBy");
+        animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
+            "performedBy");
         await _repository.AddAsync(animal1);
         await _repository.ListAsync(TestShelterId, 1, 20);
 
