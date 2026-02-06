@@ -1,4 +1,3 @@
-using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 
