@@ -45,3 +45,6 @@ volumes:
   sql_data:
   azurite_data:
 ```
+
+- Replace `thepawject` with your GitHub username or organization.
+- Change `YourStrong!Passw0rd` to your desired SQL Server SA password.
