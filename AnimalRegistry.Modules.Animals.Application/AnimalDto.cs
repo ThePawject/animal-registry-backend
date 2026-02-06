@@ -15,7 +15,8 @@ public sealed record AnimalDto(
     DateTimeOffset ModifiedOn,
     bool IsActive,
     string ShelterId,
-    IReadOnlyCollection<AnimalPhotoDto> Photos
+    IReadOnlyCollection<AnimalPhotoDto> Photos,
+    IReadOnlyCollection<AnimalEventDto> Events
 )
 {
     public static AnimalDto FromDomain(Animal a)
@@ -33,7 +34,8 @@ public sealed record AnimalDto(
             a.ModifiedOn,
             a.IsActive,
             a.ShelterId,
-            a.Photos.Select(AnimalPhotoDto.FromDomain).ToList()
+            a.Photos.Select(AnimalPhotoDto.FromDomain).ToList(),
+            a.Events.Select(AnimalEventDto.FromDomain).ToList()
         );
     }
 }

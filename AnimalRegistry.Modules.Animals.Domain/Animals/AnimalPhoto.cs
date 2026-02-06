@@ -6,6 +6,7 @@ public sealed class AnimalPhoto : Entity
 {
     private AnimalPhoto()
     {
+        //For ORM
     }
 
     private AnimalPhoto(Guid id, string blobUrl, string fileName, bool isMain, DateTimeOffset uploadedOn)

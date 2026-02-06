@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 using Microsoft.EntityFrameworkCore;
@@ -87,5 +88,62 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         Assert.Single(result.Items);
         Assert.Equal("Animal1", result.Items.First().Name);
         Assert.Equal(1, result.TotalCount);
+    }
+
+    [Fact]
+    public async Task AddEvent_WithCorrectEvent_AddsEvent()
+    {
+        var animal1 = Animal.Create(
+            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            TestShelterId);
+        animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
+            "performedBy");
+        await _repository.AddAsync(animal1);
+
+        var result = await _repository.ListAsync(TestShelterId, 1, 20);
+
+        Assert.Single(result.Items);
+        Assert.Equal("Animal1", result.Items.First().Name);
+        Assert.Equal(AnimalEventType.AdmissionToShelter, result.Items.First().Events.First().Type);
+        Assert.Equal(1, result.TotalCount);
+    }
+
+    [Fact]
+    public async Task UpdateEvent_WithCorrectEvent_UpdatesEvent()
+    {
+        var animal1 = Animal.Create(
+            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            TestShelterId);
+        animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
+            "performedBy");
+        await _repository.AddAsync(animal1);
+
+        animal1.UpdateEvent(animal1.Events.First().Id, AnimalEventType.StartOfQuarantine,
+            TimeProvider.System.GetUtcNow(),
+            "new description", "new performedBy");
+        await _repository.UpdateAsync(animal1);
+
+        var result = await _repository.ListAsync(TestShelterId, 1, 20);
+        Assert.Single(result.Items);
+        Assert.Equal(AnimalEventType.StartOfQuarantine, result.Items.First().Events.First().Type);
+    }
+
+    [Fact]
+    public async Task RemoveEvent_WithCorrectEvent_RemovesEvent()
+    {
+        var animal1 = Animal.Create(
+            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            TestShelterId);
+        animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
+            "performedBy");
+        await _repository.AddAsync(animal1);
+        await _repository.ListAsync(TestShelterId, 1, 20);
+
+        animal1.RemoveEvent(animal1.Events.First().Id);
+        await _repository.UpdateAsync(animal1);
+
+        var result = await _repository.ListAsync(TestShelterId, 1, 20);
+        Assert.Single(result.Items);
+        Assert.Empty(result.Items.First().Events);
     }
 }

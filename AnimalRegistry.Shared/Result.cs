@@ -24,6 +24,11 @@ public class Result
         return new Result(false, error, ResultStatus.Error);
     }
 
+    public static Result Forbidden(string error)
+    {
+        return new Result(false, error, ResultStatus.Forbidden);
+    }
+
     public static Result NotFound(string? error = null)
     {
         return new Result(false, error ?? "Not found", ResultStatus.NotFound);
@@ -41,6 +46,7 @@ public enum ResultStatus
     Ok = 1,
     NotFound = 2,
     ValidationError = 3,
+    Forbidden = 4
 }
 
 public class Result<T> : Result
