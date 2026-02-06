@@ -1,5 +1,6 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.Pagination;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals;
@@ -8,7 +9,8 @@ internal sealed class AnimalRepository(AnimalsDbContext context) : IAnimalReposi
 {
     public async Task<Animal?> GetByIdAsync(Guid id, string shelterId, CancellationToken cancellationToken = default)
     {
-        return await context.Animals.FirstOrDefaultAsync(a => a.Id == id && a.ShelterId == shelterId, cancellationToken);
+        return await context.Animals.FirstOrDefaultAsync(a => a.Id == id && a.ShelterId == shelterId,
+            cancellationToken);
     }
 
     public async Task<Result<Animal>> AddAsync(Animal entity, CancellationToken cancellationToken = default)
@@ -24,8 +26,18 @@ internal sealed class AnimalRepository(AnimalsDbContext context) : IAnimalReposi
         context.SaveChanges();
     }
 
-    public async Task<IEnumerable<Animal>> ListAsync(string shelterId, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize,
+        CancellationToken cancellationToken = default)
     {
-        return await context.Animals.Where(a => a.ShelterId == shelterId).ToListAsync(cancellationToken);
+        var query = context.Animals.Where(a => a.ShelterId == shelterId);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<Animal>(items, totalCount, page, pageSize);
     }
 }

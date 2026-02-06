@@ -2,6 +2,7 @@ global using AnimalRegistry;
 using AnimalRegistry.Modules.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.CurrentUser;
+using AnimalRegistry.Shared.Pagination;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -17,6 +18,7 @@ builder.Services.AddSingleton<IAuthorizationHandler, ShelterAccessHandler>();
 builder.Services.AddAuth0OpenApi(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddPagination(builder.Configuration);
 
 var domain = builder.Configuration["Auth0:Domain"];
 var audience = builder.Configuration["Auth0:Audience"];

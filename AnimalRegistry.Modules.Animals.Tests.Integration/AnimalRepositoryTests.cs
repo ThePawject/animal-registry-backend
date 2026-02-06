@@ -8,6 +8,8 @@ namespace AnimalRegistry.Modules.Animals.Tests.Integration;
 
 public sealed class AnimalRepositoryTests : IAsyncLifetime
 {
+    private const string TestShelterId = "test-shelter-id";
+
     private readonly MsSqlContainer _dbContainer = new MsSqlBuilder()
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
         .WithPassword("yourStrong(!)Password")
@@ -32,13 +34,12 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         await _dbContainer.DisposeAsync();
     }
 
-    private const string TestShelterId = "test-shelter-id";
-
     [Fact]
     public async Task AddAndGetAnimal_WorksCorrectly()
     {
         var animal = Animal.Create(
-            "sig1", "trans1", "Burek", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-2), TestShelterId);
+            "sig1", "trans1", "Burek", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-2),
+            TestShelterId);
         await _repository.AddAsync(animal);
         var loaded = await _repository.GetByIdAsync(animal.Id, TestShelterId);
         Assert.NotNull(loaded);
@@ -62,7 +63,8 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
     public async Task GetByIdAsync_WithWrongShelterId_ReturnsNull()
     {
         var animal = Animal.Create(
-            "sig3", "trans3", "Reksio", "Black", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1), TestShelterId);
+            "sig3", "trans3", "Reksio", "Black", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            TestShelterId);
         await _repository.AddAsync(animal);
         var loaded = await _repository.GetByIdAsync(animal.Id, "wrong-shelter-id");
         Assert.Null(loaded);
@@ -72,15 +74,18 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
     public async Task ListAsync_WithShelterId_ReturnsOnlyMatchingAnimals()
     {
         var animal1 = Animal.Create(
-            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1), TestShelterId);
+            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            TestShelterId);
         var animal2 = Animal.Create(
-            "sig5", "trans5", "Animal2", "Gray", AnimalSpecies.Cat, AnimalSex.Female, DateTimeOffset.UtcNow.AddYears(-2), "other-shelter-id");
+            "sig5", "trans5", "Animal2", "Gray", AnimalSpecies.Cat, AnimalSex.Female,
+            DateTimeOffset.UtcNow.AddYears(-2), "other-shelter-id");
         await _repository.AddAsync(animal1);
         await _repository.AddAsync(animal2);
 
-        var list = await _repository.ListAsync(TestShelterId);
+        var result = await _repository.ListAsync(TestShelterId, 1, 20);
 
-        Assert.Single(list);
-        Assert.Equal("Animal1", list.First().Name);
+        Assert.Single(result.Items);
+        Assert.Equal("Animal1", result.Items.First().Name);
+        Assert.Equal(1, result.TotalCount);
     }
 }

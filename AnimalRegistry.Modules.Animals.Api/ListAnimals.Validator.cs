@@ -1,6 +1,13 @@
+using AnimalRegistry.Shared.Pagination;
 using FastEndpoints;
-using FluentValidation;
+using Microsoft.Extensions.Options;
 
 namespace AnimalRegistry.Modules.Animals.Api;
 
-internal sealed class ListAnimalsValidator : Validator<ListAnimalsRequest>;
+internal sealed class ListAnimalsValidator : Validator<ListAnimalsRequest>
+{
+    public ListAnimalsValidator(IOptions<PaginationSettings> settings)
+    {
+        Include(new PaginationRequestValidator<ListAnimalsRequest>(settings));
+    }
+}
