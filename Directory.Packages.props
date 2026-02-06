@@ -24,5 +24,6 @@
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.5" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.23.0" />
   </ItemGroup>
 </Project>

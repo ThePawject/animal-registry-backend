@@ -18,10 +18,22 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
         RuleFor(x => x.Color)
             .NotEmpty();
         RuleFor(x => x.Species)
-            .IsInEnum().NotEqual(AnimalSpecies.None);
+            .NotEmpty()
+            .IsInEnum();
         RuleFor(x => x.Sex)
-            .IsInEnum().NotEqual(AnimalSex.None);
+            .NotEmpty()
+            .IsInEnum();
         RuleFor(x => x.BirthDate)
-            .LessThanOrEqualTo(DateTime.UtcNow);
+            .NotEmpty();
+    }
+
+    private static bool BeValidSpecies(string species)
+    {
+        return Enum.TryParse<AnimalSpecies>(species, true, out var result) && result != AnimalSpecies.None;
+    }
+
+    private static bool BeValidSex(string sex)
+    {
+        return Enum.TryParse<AnimalSex>(sex, true, out var result) && result != AnimalSex.None;
     }
 }

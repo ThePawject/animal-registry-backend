@@ -5,14 +5,27 @@ namespace AnimalRegistry.Shared.Testing;
 public sealed class ApiClient(HttpClient client)
 {
     public Task<HttpResponseMessage> PostJsonAsync<T>(string path, T body)
-        => client.PostAsJsonAsync(path, body);
+    {
+        return client.PostAsJsonAsync(path, body);
+    }
+
+    public Task<HttpResponseMessage> PostFormAsync(string path, MultipartFormDataContent content)
+    {
+        return client.PostAsync(path, content);
+    }
 
     public Task<HttpResponseMessage> GetAsync(string path)
-        => client.GetAsync(path);
+    {
+        return client.GetAsync(path);
+    }
 
     public Task<HttpResponseMessage> PutJsonAsync<T>(string path, T body)
-        => client.PutAsJsonAsync(path, body);
+    {
+        return client.PutAsJsonAsync(path, body);
+    }
 
     public Task<HttpResponseMessage> DeleteAsync(string path)
-        => client.DeleteAsync(path);
+    {
+        return client.DeleteAsync(path);
+    }
 }

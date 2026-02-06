@@ -4,23 +4,41 @@ using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
 
-internal sealed class CreateAnimalCommand(
-    string signature,
-    string transponderCode,
-    string name,
-    string color,
-    AnimalSpecies species,
-    AnimalSex sex,
-    DateTimeOffset birthDate)
-    : IRequest<Result<CreateAnimalCommandResponse>>
+internal sealed class CreateAnimalCommand : IRequest<Result<CreateAnimalCommandResponse>>
 {
-    public string Signature { get; } = signature;
-    public string TransponderCode { get; } = transponderCode;
-    public string Name { get; } = name;
-    public string Color { get; } = color;
-    public AnimalSpecies Species { get; } = species;
-    public AnimalSex Sex { get; } = sex;
-    public DateTimeOffset BirthDate { get; } = birthDate;
+    public CreateAnimalCommand(
+        string signature,
+        string transponderCode,
+        string name,
+        string color,
+        AnimalSpecies species,
+        AnimalSex sex,
+        DateTimeOffset birthDate,
+        List<PhotoUploadInfo>? photos = null,
+        int? mainPhotoIndex = null)
+    {
+        Signature = signature;
+        TransponderCode = transponderCode;
+        Name = name;
+        Color = color;
+        Species = species;
+        Sex = sex;
+        BirthDate = birthDate;
+        Photos = photos ?? [];
+        MainPhotoIndex = mainPhotoIndex;
+    }
+
+    public string Signature { get; }
+    public string TransponderCode { get; }
+    public string Name { get; }
+    public string Color { get; }
+    public AnimalSpecies Species { get; }
+    public AnimalSex Sex { get; }
+    public DateTimeOffset BirthDate { get; }
+    public List<PhotoUploadInfo> Photos { get; }
+    public int? MainPhotoIndex { get; }
 }
+
+public sealed record PhotoUploadInfo(string FileName, Stream Content, string ContentType);
 
 public record CreateAnimalCommandResponse(Guid AnimalId);

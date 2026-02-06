@@ -1,8 +1,8 @@
-using FluentAssertions;
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.CurrentUser;
+using FluentAssertions;
 using NSubstitute;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Unit.Application;
@@ -34,8 +34,9 @@ public class CreateAnimalCommandHandlerTests
         repoMock.AddAsync(Arg.Any<Animal>(), Arg.Any<CancellationToken>())
             .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
         var currentUserMock = CreateCurrentUserMock();
+        var blobStorageMock = Substitute.For<IBlobStorageService>();
 
-        var handler = new CreateAnimalCommandHandler(repoMock, currentUserMock);
+        var handler = new CreateAnimalCommandHandler(repoMock, currentUserMock, blobStorageMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -61,8 +62,9 @@ public class CreateAnimalCommandHandlerTests
         repoMock.AddAsync(Arg.Any<Animal>(), Arg.Any<CancellationToken>())
             .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
         var currentUserMock = CreateCurrentUserMock();
+        var blobStorageMock = Substitute.For<IBlobStorageService>();
 
-        var handler = new CreateAnimalCommandHandler(repoMock, currentUserMock);
+        var handler = new CreateAnimalCommandHandler(repoMock, currentUserMock, blobStorageMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 

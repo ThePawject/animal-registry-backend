@@ -1,9 +1,11 @@
+using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using NSubstitute;
 using System.Net.Http.Headers;
 using Testcontainers.MsSql;
 
@@ -31,6 +33,7 @@ public sealed class IntegrationTestFixture : IAsyncLifetime
             {
                 ConfigureTestJwtAuthentication(services);
                 ConfigureTestDatabase(services);
+                ConfigureTestBlobStorage(services);
                 RunMigrations(services);
             });
         });
@@ -91,6 +94,22 @@ public sealed class IntegrationTestFixture : IAsyncLifetime
         {
             opts.UseSqlServer(_dbContainer.GetConnectionString());
         });
+    }
+
+    private static void ConfigureTestBlobStorage(IServiceCollection services)
+    {
+        var blobStorageDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IBlobStorageService));
+        if (blobStorageDescriptor != null)
+        {
+            services.Remove(blobStorageDescriptor);
+        }
+
+        var mockBlobStorage = Substitute.For<IBlobStorageService>();
+        mockBlobStorage.UploadAsync(Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(),
+                Arg.Any<CancellationToken>())
+            .Returns(ci => Task.FromResult($"http://test-blob-storage/{Guid.NewGuid()}_{ci.ArgAt<string>(0)}"));
+
+        services.AddSingleton(mockBlobStorage);
     }
 
     private static void RunMigrations(IServiceCollection services)

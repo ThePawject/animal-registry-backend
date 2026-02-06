@@ -7,7 +7,8 @@ namespace AnimalRegistry.Modules.Animals.Application;
 
 internal sealed class CreateAnimalCommandHandler(
     IAnimalRepository animalRepository,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    IBlobStorageService blobStorageService)
     : IRequestHandler<CreateAnimalCommand, Result<CreateAnimalCommandResponse>>
 {
     public async Task<Result<CreateAnimalCommandResponse>> Handle(CreateAnimalCommand request,
@@ -23,6 +24,22 @@ internal sealed class CreateAnimalCommandHandler(
             request.BirthDate,
             currentUser.ShelterId
         );
+
+        if (request.Photos.Count > 0)
+        {
+            for (var i = 0; i < request.Photos.Count; i++)
+            {
+                var photo = request.Photos[i];
+                var blobUrl = await blobStorageService.UploadAsync(
+                    photo.FileName,
+                    photo.Content,
+                    photo.ContentType,
+                    cancellationToken);
+
+                var isMain = request.MainPhotoIndex.HasValue && request.MainPhotoIndex.Value == i;
+                animal.AddPhoto(blobUrl, photo.FileName, isMain);
+            }
+        }
 
         var result = await animalRepository.AddAsync(animal, cancellationToken);
         if (!result.IsSuccess || result.Value == null)

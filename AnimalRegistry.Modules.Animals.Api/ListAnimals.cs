@@ -6,7 +6,7 @@ using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Animals.Api;
 
-internal sealed class ListAnimals(IMediator mediator) : Endpoint<ListAnimalsRequest, PagedResult<AnimalDto>>
+internal sealed class ListAnimals(IMediator mediator) : Endpoint<ListAnimalsRequest, PagedResult<AnimalListItemDto>>
 {
     public override void Configure()
     {
