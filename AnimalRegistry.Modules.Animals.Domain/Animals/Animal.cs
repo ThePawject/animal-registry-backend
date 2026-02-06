@@ -124,11 +124,16 @@ public sealed class Animal : Entity, IAggregateRoot
         ModifiedOn = DateTimeOffset.UtcNow;
     }
     
-    public void AddEvent(AnimalEventType type, string description, string performedBy, TimeProvider timeProvider)
+    public void AddEvent(AnimalEventType type, DateTimeOffset occurredOn, string description, string performedBy)
     {
-        var animalEvent = AnimalEvent.Create(timeProvider, type, description, performedBy);
+        var animalEvent = AnimalEvent.Create(type, occurredOn, description, performedBy);
         _events.Add(animalEvent);
-        ModifiedOn = timeProvider.GetUtcNow();
+    }
+    
+    public void UpdateEvent(Guid eventId, AnimalEventType type, DateTimeOffset occurredOn, string description, string performedBy)
+    {
+        var animalEvent = _events.FirstOrDefault(e => e.Id == eventId);
+        animalEvent?.Update(type, occurredOn, description, performedBy);
     }
     
     public void RemoveEvent(Guid eventId)

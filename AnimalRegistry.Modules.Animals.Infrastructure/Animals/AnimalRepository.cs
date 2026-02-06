@@ -19,6 +19,13 @@ internal sealed class AnimalRepository(AnimalsDbContext context) : IAnimalReposi
         await context.SaveChangesAsync(cancellationToken);
         return Result<Animal>.Success(entityEntry.Entity);
     }
+    
+    public async Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default)
+    {
+        var entityEntry = context.Animals.Update(entity);
+        await context.SaveChangesAsync(cancellationToken);
+        return Result<Animal>.Success(entityEntry.Entity);
+    }
 
     public void Remove(Animal entity)
     {

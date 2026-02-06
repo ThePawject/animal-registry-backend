@@ -11,5 +11,8 @@ internal interface IAnimalRepository
         CancellationToken cancellationToken = default);
 
     Task<Result<Animal>> AddAsync(Animal entity, CancellationToken cancellationToken = default);
+
+    Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default);
+    
     void Remove(Animal entity);
 }

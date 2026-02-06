@@ -4,4 +4,5 @@ public enum AnimalEventType
 {
     None = 0,
     Test = 1,
+    Test2 = 2,
 }
