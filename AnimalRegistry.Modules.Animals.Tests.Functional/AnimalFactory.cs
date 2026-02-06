@@ -7,8 +7,14 @@ using System.Net.Http.Json;
 
 public sealed class AnimalFactory(ApiClient api)
 {
-    public async Task<Guid> CreateAsync(string signature, string transponder, string name, AnimalSpecies species,
-        AnimalSex sex)
+    public async Task<Guid> CreateAsync(
+        string signature,
+        string transponder,
+        string name,
+        AnimalSpecies species,
+        AnimalSex sex,
+        List<(string FileName, byte[] Data, string ContentType)>? photos = null,
+        int? mainPhotoIndex = null)
     {
         var content = new MultipartFormDataContent();
         content.Add(new StringContent(signature), "Signature");
@@ -18,6 +24,18 @@ public sealed class AnimalFactory(ApiClient api)
         content.Add(new StringContent(((int)species).ToString()), "Species");
         content.Add(new StringContent(((int)sex).ToString()), "Sex");
         content.Add(new StringContent(DateTimeOffset.UtcNow.AddYears(-1).ToString("o")), "BirthDate");
+        if (mainPhotoIndex != null)
+            content.Add(new StringContent(mainPhotoIndex.Value.ToString()), "MainPhotoIndex");
+
+        if (photos != null)
+        {
+            foreach (var (fileName, data, contentType) in photos)
+            {
+                var fileContent = new ByteArrayContent(data);
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+                content.Add(fileContent, "Photos", fileName);
+            }
+        }
 
         var resp = await api.PostFormAsync(CreateAnimalRequest.Route, content);
         if (!resp.IsSuccessStatusCode)

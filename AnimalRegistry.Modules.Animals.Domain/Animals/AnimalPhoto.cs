@@ -2,7 +2,7 @@ using AnimalRegistry.Shared.DDD;
 
 namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
-public sealed class AnimalPhoto : ValueObject
+public sealed class AnimalPhoto : Entity
 {
     private AnimalPhoto()
     {
@@ -18,7 +18,6 @@ public sealed class AnimalPhoto : ValueObject
         UploadedOn = uploadedOn;
     }
 
-    public Guid Id { get; private set; }
     public string BlobUrl { get; private set; } = null!;
     public string FileName { get; private set; } = null!;
     public bool IsMain { get; private set; }

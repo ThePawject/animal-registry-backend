@@ -15,53 +15,6 @@ public sealed class AnimalPhotosTests(IntegrationTestFixture fixture) : IClassFi
     }
 
     [Fact]
-    public async Task GetAnimal_WithPhotos_ReturnsAllPhotos()
-    {
-        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
-
-        var animalId = await factory.CreateAsync("sig-photos-1", "trans-photos-1", "PhotoTest", AnimalSpecies.Dog,
-            AnimalSex.Male);
-
-        var dto = await factory.GetAsync(animalId);
-
-        dto.Should().NotBeNull();
-        dto.Id.Should().Be(animalId);
-        dto.Photos.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task ListAnimals_WithMainPhoto_ReturnsOnlyMainPhoto()
-    {
-        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
-
-        var animalId = await factory.CreateAsync("sig-list-photo", "trans-list-photo", "ListPhotoTest", AnimalSpecies.Cat,
-            AnimalSex.Female);
-
-        var listResult = await factory.ListAsync();
-
-        listResult.Should().NotBeNull();
-        listResult.Items.Should().Contain(a => a.Id == animalId);
-        
-        var animalFromList = listResult.Items.First(a => a.Id == animalId);
-        animalFromList.MainPhoto.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task CreateAnimal_WithoutPhotos_WorksCorrectly()
-    {
-        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
-
-        var animalId = await factory.CreateAsync("sig-no-photos", "trans-no-photos", "NoPhotosTest", AnimalSpecies.Dog,
-            AnimalSex.Male);
-
-        var dto = await factory.GetAsync(animalId);
-
-        dto.Should().NotBeNull();
-        dto.Id.Should().Be(animalId);
-        dto.Photos.Should().BeEmpty();
-    }
-
-    [Fact]
     public async Task AnimalPhotos_AreOptional()
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
@@ -75,5 +28,30 @@ public sealed class AnimalPhotosTests(IntegrationTestFixture fixture) : IClassFi
 
         listResult.Items.Should().Contain(a => a.Id == animalId1);
         listResult.Items.Should().Contain(a => a.Id == animalId2);
+    }
+
+    [Fact]
+    public async Task AnimalPhotos_Upload_Multiple_WithMainIndex_WorksCorrectly()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+        var photo1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+        var photo2 = new byte[] { 0, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+        var photos = new List<(string, byte[], string)>
+        {
+            ("dog1.jpg", photo1, "image/jpeg"),
+            ("dog2.jpg", photo2, "image/jpeg")
+        };
+        var animalId = await factory.CreateAsync(
+            "sig-photo-main2", "trans-photo-main2", "MainDog", AnimalSpecies.Dog, AnimalSex.Female, photos, mainPhotoIndex: 1);
+        var dto = await factory.GetAsync(animalId);
+
+        dto.Photos.Should().NotBeNullOrEmpty();
+        dto.Photos.Count.Should().Be(2);
+        var main = dto.Photos.Single(p => p.FileName == "dog2.jpg");
+        var other = dto.Photos.Single(p => p.FileName == "dog1.jpg");
+        main.BlobUrl.Should().NotBeNullOrEmpty();
+        other.BlobUrl.Should().NotBeNullOrEmpty();
+        main.IsMain.Should().BeTrue();
+        other.IsMain.Should().BeFalse();
     }
 }

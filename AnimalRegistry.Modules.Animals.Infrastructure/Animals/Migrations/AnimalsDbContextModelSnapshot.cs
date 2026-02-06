@@ -75,7 +75,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 
                     b.HasIndex("ShelterId");
 
-                    b.ToTable("Animals");
+                    b.ToTable("Animals", (string)null);
                 });
 
             modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Animals.Animal", b =>
