@@ -32,5 +32,22 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
             photoBuilder.Property(p => p.UploadedOn).IsRequired();
             photoBuilder.HasIndex(p => p.IsMain);
         });
+
+        builder.OwnsMany(a => a.Events, eventBuilder =>
+        {
+            eventBuilder.Property(e => e.Type)
+                .IsRequired()
+                .HasConversion<string>();
+            eventBuilder.Property(e => e.Description)
+                .IsRequired()
+                .HasMaxLength(500);
+            eventBuilder.Property(e => e.PerformedBy)
+                .IsRequired()
+                .HasMaxLength(100);
+            eventBuilder.Property(e => e.OccurredOn)
+                .IsRequired();
+
+            // eventBuilder.WithOwner().HasForeignKey("AnimalId");
+        });
     }
 }

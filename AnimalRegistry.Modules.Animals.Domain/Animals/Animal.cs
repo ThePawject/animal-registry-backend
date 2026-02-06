@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals.DomainEvents;
 using AnimalRegistry.Shared.DDD;
 
@@ -6,9 +7,11 @@ namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 public sealed class Animal : Entity, IAggregateRoot
 {
     private readonly List<AnimalPhoto> _photos = [];
+    private readonly List<AnimalEvent> _events = [];
 
     private Animal()
     {
+        // For ORM
     }
 
     private Animal(
@@ -47,6 +50,7 @@ public sealed class Animal : Entity, IAggregateRoot
     public bool IsActive { get; private set; }
     public string ShelterId { get; private set; } = null!;
     public IReadOnlyCollection<AnimalPhoto> Photos => _photos.AsReadOnly();
+    public IReadOnlyCollection<AnimalEvent> Events => _events.AsReadOnly();
     public AnimalPhoto? MainPhoto => _photos.FirstOrDefault(p => p.IsMain);
 
     public static Animal Create(
@@ -118,5 +122,22 @@ public sealed class Animal : Entity, IAggregateRoot
 
         photoToSet.SetAsMain();
         ModifiedOn = DateTimeOffset.UtcNow;
+    }
+    
+    public void AddEvent(AnimalEventType type, string description, string performedBy, TimeProvider timeProvider)
+    {
+        var animalEvent = AnimalEvent.Create(timeProvider, type, description, performedBy);
+        _events.Add(animalEvent);
+        ModifiedOn = timeProvider.GetUtcNow();
+    }
+    
+    public void RemoveEvent(Guid eventId)
+    {
+        var eventToRemove = _events.FirstOrDefault(e => e.Id == eventId);
+        if (eventToRemove is not null)
+        {
+            _events.Remove(eventToRemove);
+            ModifiedOn = DateTimeOffset.UtcNow;
+        }
     }
 }

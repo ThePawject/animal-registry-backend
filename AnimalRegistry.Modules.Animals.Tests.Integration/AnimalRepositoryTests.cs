@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 using Microsoft.EntityFrameworkCore;
@@ -86,6 +87,24 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
 
         Assert.Single(result.Items);
         Assert.Equal("Animal1", result.Items.First().Name);
+        Assert.Equal(1, result.TotalCount);
+    }
+    
+    
+    [Fact]
+    public async Task AddEvent_WithCorrectEvent_AddsEvent()
+    {
+        var animal1 = Animal.Create(
+            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            TestShelterId);
+        animal1.AddEvent(AnimalEventType.Test, "description", "performedBy", TimeProvider.System);
+        await _repository.AddAsync(animal1);
+
+        var result = await _repository.ListAsync(TestShelterId, 1, 20);
+
+        Assert.Single(result.Items);
+        Assert.Equal("Animal1", result.Items.First().Name);
+        Assert.Equal(AnimalEventType.Test, result.Items.First().Events.First().Type);
         Assert.Equal(1, result.TotalCount);
     }
 }
