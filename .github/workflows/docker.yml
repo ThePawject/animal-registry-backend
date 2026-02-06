@@ -2,7 +2,7 @@ name: Build & Push (GHCR)
 
 on:
   push:
-    branches: ["main", "feature/deploy"]
+    branches: ["main"]
 
 permissions:
   contents: read
