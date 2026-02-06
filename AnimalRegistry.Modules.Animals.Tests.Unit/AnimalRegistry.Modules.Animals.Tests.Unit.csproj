@@ -8,23 +8,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" />
-        <PackageReference Include="FluentAssertions" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="NSubstitute" />
-        <PackageReference Include="xunit" />
-        <PackageReference Include="xunit.runner.visualstudio" />
+        <PackageReference Include="coverlet.collector"/>
+        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="NSubstitute"/>
+        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.runner.visualstudio"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="Xunit" />
+        <Using Include="Xunit"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Domain\AnimalRegistry.Modules.Animals.Domain.csproj" />
-      <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Application\AnimalRegistry.Modules.Animals.Application.csproj" />
-      <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Infrastructure\AnimalRegistry.Modules.Animals.Infrastructure.csproj" />
+        <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Domain\AnimalRegistry.Modules.Animals.Domain.csproj"/>
+        <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Application\AnimalRegistry.Modules.Animals.Application.csproj"/>
+        <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Infrastructure\AnimalRegistry.Modules.Animals.Infrastructure.csproj"/>
+        <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Api\AnimalRegistry.Modules.Animals.Api.csproj"/>
     </ItemGroup>
 
 </Project>

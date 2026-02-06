@@ -1,11 +1,12 @@
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
+using AnimalRegistry.Shared.Pagination;
 using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Animals.Api;
 
-internal sealed class ListAnimals(IMediator mediator) : Endpoint<EmptyRequest, IEnumerable<AnimalDto>>
+internal sealed class ListAnimals(IMediator mediator) : Endpoint<ListAnimalsRequest, PagedResult<AnimalDto>>
 {
     public override void Configure()
     {
@@ -13,9 +14,10 @@ internal sealed class ListAnimals(IMediator mediator) : Endpoint<EmptyRequest, I
         Policies(ShelterAccessHandler.ShelterAccessPolicyName);
     }
 
-    public override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
+    public override async Task HandleAsync(ListAnimalsRequest req, CancellationToken ct)
     {
-        var result = await mediator.Send(new ListAnimalsQuery(), ct);
+        var query = new ListAnimalsQuery(req.Page, req.PageSize);
+        var result = await mediator.Send(query, ct);
         await this.SendResultAsync(result, ct);
     }
 }

@@ -26,7 +26,7 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
         dto.Name.Should().Be("Integration");
 
         var list = await factory.ListAsync();
-        list.Should().Contain(a => a.Id == createdId);
+        list.Items.Should().Contain(a => a.Id == createdId);
     }
 
     [Fact]
@@ -39,8 +39,8 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
 
         var list = await factory.ListAsync();
 
-        list.Should().Contain(a => a.Id == id1 && a.Name == "ListOne");
-        list.Should().Contain(a => a.Id == id2 && a.Name == "ListTwo");
+        list.Items.Should().Contain(a => a.Id == id1 && a.Name == "ListOne");
+        list.Items.Should().Contain(a => a.Id == id2 && a.Name == "ListTwo");
     }
 
     [Fact]
