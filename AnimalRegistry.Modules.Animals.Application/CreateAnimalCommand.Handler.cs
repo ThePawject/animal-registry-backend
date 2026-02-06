@@ -1,10 +1,13 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
 
-internal sealed class CreateAnimalCommandHandler(IAnimalRepository animalRepository)
+internal sealed class CreateAnimalCommandHandler(
+    IAnimalRepository animalRepository,
+    ICurrentUser currentUser)
     : IRequestHandler<CreateAnimalCommand, Result<CreateAnimalCommandResponse>>
 {
     public async Task<Result<CreateAnimalCommandResponse>> Handle(CreateAnimalCommand request,
@@ -17,7 +20,8 @@ internal sealed class CreateAnimalCommandHandler(IAnimalRepository animalReposit
             request.Color,
             request.Species,
             request.Sex,
-            request.BirthDate
+            request.BirthDate,
+            currentUser.ShelterId
         );
 
         var result = await animalRepository.AddAsync(animal, cancellationToken);

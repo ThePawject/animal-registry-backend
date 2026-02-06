@@ -1,8 +1,13 @@
-using System.Net.Http;
+using AnimalRegistry.Modules.Animals.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 using Testcontainers.MsSql;
+
+namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
 public sealed class IntegrationTestFixture : IAsyncLifetime
 {
@@ -11,37 +16,22 @@ public sealed class IntegrationTestFixture : IAsyncLifetime
         .WithPassword("yourStrong(!)Password")
         .Build();
 
-    public WebApplicationFactory<Program> Factory { get; private set; } = null!;
+    private WebApplicationFactory<Program> Factory { get; set; } = null!;
     public HttpClient Client { get; private set; } = null!;
+    private TestJwtTokenGenerator TokenGenerator { get; set; } = null!;
 
     public async Task InitializeAsync()
     {
         await _dbContainer.StartAsync();
+        TokenGenerator = new TestJwtTokenGenerator();
 
         Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.ConfigureServices(services =>
             {
-                var descriptor = services.FirstOrDefault(d => d.ServiceType == typeof(Microsoft.Extensions.Options.IConfigureOptions<AnimalRegistry.Modules.Animals.Infrastructure.AnimalsDatabaseSettings>));
-                if (descriptor != null) services.Remove(descriptor);
-
-                services.Configure<AnimalRegistry.Modules.Animals.Infrastructure.AnimalsDatabaseSettings>(options =>
-                {
-                    options.ConnectionString = _dbContainer.GetConnectionString();
-                });
-
-                var dbDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(DbContextOptions<AnimalRegistry.Modules.Animals.Infrastructure.AnimalsDbContext>));
-                if (dbDescriptor != null) services.Remove(dbDescriptor);
-
-                services.AddDbContext<AnimalRegistry.Modules.Animals.Infrastructure.AnimalsDbContext>((sp, opts) =>
-                {
-                    opts.UseSqlServer(_dbContainer.GetConnectionString());
-                });
-
-                var sp = services.BuildServiceProvider();
-                using var scope = sp.CreateScope();
-                var ctx = scope.ServiceProvider.GetRequiredService<AnimalRegistry.Modules.Animals.Infrastructure.AnimalsDbContext>();
-                ctx.Database.Migrate();
+                ConfigureTestJwtAuthentication(services);
+                ConfigureTestDatabase(services);
+                RunMigrations(services);
             });
         });
 
@@ -53,5 +43,60 @@ public sealed class IntegrationTestFixture : IAsyncLifetime
         Client.Dispose();
         await Factory.DisposeAsync();
         await _dbContainer.DisposeAsync();
+    }
+
+    public HttpClient CreateAuthenticatedClient(TestUser user)
+    {
+        var client = Factory.CreateClient();
+        var token = TokenGenerator.GenerateToken(user);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        return client;
+    }
+
+    private void ConfigureTestJwtAuthentication(IServiceCollection services)
+    {
+        var jwtDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(JwtBearerOptions));
+        if (jwtDescriptor != null)
+        {
+            services.Remove(jwtDescriptor);
+        }
+
+        services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+        {
+            options.TokenValidationParameters = TokenGenerator.GetTokenValidationParameters();
+        });
+    }
+
+    private void ConfigureTestDatabase(IServiceCollection services)
+    {
+        var settingsDescriptor =
+            services.FirstOrDefault(d => d.ServiceType == typeof(IConfigureOptions<AnimalsDatabaseSettings>));
+        if (settingsDescriptor != null)
+        {
+            services.Remove(settingsDescriptor);
+        }
+
+        services.Configure<AnimalsDatabaseSettings>(options =>
+        {
+            options.ConnectionString = _dbContainer.GetConnectionString();
+        });
+
+        var dbDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(DbContextOptions<AnimalsDbContext>));
+        if (dbDescriptor != null)
+        {
+            services.Remove(dbDescriptor);
+        }
+
+        services.AddDbContext<AnimalsDbContext>((_, opts) =>
+        {
+            opts.UseSqlServer(_dbContainer.GetConnectionString());
+        });
+    }
+
+    private static void RunMigrations(IServiceCollection services)
+    {
+        using var scope = services.BuildServiceProvider().CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AnimalsDbContext>();
+        context.Database.Migrate();
     }
 }

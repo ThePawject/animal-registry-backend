@@ -13,7 +13,8 @@ public sealed record AnimalDto(
     DateTimeOffset BirthDate,
     DateTimeOffset CreatedOn,
     DateTimeOffset ModifiedOn,
-    bool IsActive
+    bool IsActive,
+    string ShelterId
 )
 {
     public static AnimalDto FromDomain(Animal a) => new(
@@ -27,6 +28,7 @@ public sealed record AnimalDto(
         a.BirthDate,
         a.CreatedOn,
         a.ModifiedOn,
-        a.IsActive
+        a.IsActive,
+        a.ShelterId
     );
 }

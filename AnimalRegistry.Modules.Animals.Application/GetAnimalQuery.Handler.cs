@@ -1,17 +1,18 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.MediatorPattern;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace AnimalRegistry.Modules.Animals.Application;
 
-internal sealed class GetAnimalQueryHandler(IAnimalRepository animalRepository)
+internal sealed class GetAnimalQueryHandler(
+    IAnimalRepository animalRepository,
+    ICurrentUser currentUser)
     : IRequestHandler<GetAnimalQuery, Result<AnimalDto>>
 {
     public async Task<Result<AnimalDto>> Handle(GetAnimalQuery request, CancellationToken cancellationToken)
     {
-        var animal = await animalRepository.GetByIdAsync(request.Id, cancellationToken);
+        var animal = await animalRepository.GetByIdAsync(request.Id, currentUser.ShelterId, cancellationToken);
         if (animal is null)
         {
             return Result<AnimalDto>.NotFound();

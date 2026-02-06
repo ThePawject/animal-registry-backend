@@ -8,6 +8,8 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Domain
 {
     public class AnimalTests
     {
+        private const string TestShelterId = "test-shelter-id";
+
         private static Animal CreateTestAnimal(
             string signature = "SIG123",
             string transponderCode = "TR123",
@@ -15,7 +17,8 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Domain
             string color = "Brown",
             AnimalSpecies species = AnimalSpecies.Dog,
             AnimalSex sex = AnimalSex.Male,
-            DateTimeOffset? birthDate = null)
+            DateTimeOffset? birthDate = null,
+            string? shelterId = null)
         {
             return Animal.Create(
                 signature,
@@ -24,7 +27,8 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Domain
                 color,
                 species,
                 sex,
-                birthDate ?? new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)
+                birthDate ?? new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                shelterId ?? TestShelterId
             );
         }
 
@@ -52,6 +56,7 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Domain
             animal.IsActive.Should().BeTrue();
             animal.CreatedOn.Should().BeCloseTo(DateTimeOffset.Now, TimeSpan.FromSeconds(10));
             animal.ModifiedOn.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+            animal.ShelterId.Should().Be(TestShelterId);
 
             animal.DomainEvents.Should().ContainSingle(e => e is AnimalCreatedDomainEvent);
             var createdEvent = animal.DomainEvents.Single(e => e is AnimalCreatedDomainEvent) as AnimalCreatedDomainEvent;
