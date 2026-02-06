@@ -1,3 +1,4 @@
+
 name: Build & Push (GHCR)
 
 on:
@@ -14,6 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set image + tags (lowercase)
+        shell: bash
+        run: |
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+          BRANCH="${GITHUB_REF_NAME}"
+          SAFE_BRANCH="$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | tr '/_' '--')"
+          echo "TAG_BRANCH=$SAFE_BRANCH" >> "$GITHUB_ENV"
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -27,5 +36,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:main
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ${{ env.IMAGE }}:${{ env.TAG_BRANCH }}
+            ${{ env.IMAGE }}:${{ github.sha }}
+hcr.io/${{ github.repository }}:${{ github.sha }}
