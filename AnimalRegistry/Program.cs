@@ -61,9 +61,9 @@ if (app.Environment.IsDevelopment())
 {
     IdentityModelEventSource.LogCompleteSecurityArtifact = true;
     IdentityModelEventSource.ShowPII = true;
-    app.MapOpenApi();
-    app.MapScalarWithAuth0(builder.Configuration);
 }
+app.MapOpenApi();
+app.MapScalarWithAuth0(builder.Configuration);
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
