@@ -8,4 +8,6 @@ public interface IModule
     string Name { get; }
 
     void RegisterServices(IServiceCollection services, IConfiguration configuration);
+
+    Task MigrateAsync(IServiceProvider serviceProvider);
 }

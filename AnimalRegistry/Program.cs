@@ -64,6 +64,8 @@ ApplyModuleServices(modules, builder);
 
 var app = builder.Build();
 
+await MigrateAsync(app, modules);
+
 app.UseBusinessRuleExceptionHandling();
 app.UseDefaultExceptionHandler();
 
@@ -90,6 +92,21 @@ void ApplyModuleServices(List<IModule> list, WebApplicationBuilder webApplicatio
     {
         module.RegisterServices(webApplicationBuilder.Services, webApplicationBuilder.Configuration);
     }
+}
+
+async Task MigrateAsync(WebApplication webApplication, List<IModule> modules1)
+{
+    var logger = webApplication.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Starting database migrations for {Count} modules...", modules1.Count);
+
+    foreach (var module in modules1)
+    {
+        logger.LogInformation("Migrating module: {ModuleName}", module.Name);
+        await module.MigrateAsync(webApplication.Services);
+        logger.LogInformation("Module {ModuleName} migrated successfully", module.Name);
+    }
+
+    logger.LogInformation("All database migrations completed successfully");
 }
 
 public partial class Program
