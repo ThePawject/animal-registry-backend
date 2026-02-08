@@ -2,7 +2,9 @@ using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
+using AnimalRegistry.Shared.DDD;
 using Microsoft.EntityFrameworkCore;
+using NSubstitute;
 using Testcontainers.MsSql;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Integration;
@@ -25,7 +27,8 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         var options = new DbContextOptionsBuilder<AnimalsDbContext>()
             .UseSqlServer(_dbContainer.GetConnectionString())
             .Options;
-        _dbContext = new AnimalsDbContext(options);
+        var dispatcher = Substitute.For<IDomainEventDispatcher>();
+        _dbContext = new AnimalsDbContext(options, dispatcher);
         await _dbContext.Database.MigrateAsync();
         _repository = new AnimalRepository(_dbContext);
     }
