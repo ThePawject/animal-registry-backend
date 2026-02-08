@@ -20,6 +20,15 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddPagination(builder.Configuration);
 
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.WithOrigins(corsOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 var domain = builder.Configuration["Auth0:Domain"];
 var audience = builder.Configuration["Auth0:Audience"];
 
@@ -66,6 +75,7 @@ app.MapOpenApi();
 app.MapScalarWithAuth0(builder.Configuration);
 
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseFastEndpoints();
