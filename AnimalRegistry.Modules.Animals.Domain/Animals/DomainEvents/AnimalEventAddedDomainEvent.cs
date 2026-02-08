@@ -6,5 +6,5 @@ namespace AnimalRegistry.Modules.Animals.Domain.Animals.DomainEvents;
 public sealed class AnimalEventAddedDomainEvent(Guid animalId, AnimalEvent animalEvent) : DomainEventBase
 {
     public Guid AnimalId { get; } = animalId;
-    public AnimalEvent AnimalEvent { get; set; } = animalEvent;
+    public AnimalEvent AnimalEvent { get; } = animalEvent;
 }
