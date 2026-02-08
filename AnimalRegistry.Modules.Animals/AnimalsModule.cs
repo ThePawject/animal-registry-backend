@@ -50,4 +50,11 @@ public sealed class AnimalsModule : IModule
         });
         services.AddSingleton<IBlobStorageService, BlobStorageService>();
     }
+
+    public async Task MigrateAsync(IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AnimalsDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
 }
