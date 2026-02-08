@@ -8,13 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="xunit" />
-        <PackageReference Include="xunit.runner.visualstudio" />
-        <PackageReference Include="Testcontainers" />
-        <PackageReference Include="Testcontainers.MsSql" />
-        <PackageReference Include="FluentAssertions" />
+        <PackageReference Include="coverlet.collector"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="NSubstitute"/>
+        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.runner.visualstudio"/>
+        <PackageReference Include="Testcontainers"/>
+        <PackageReference Include="Testcontainers.MsSql"/>
+        <PackageReference Include="FluentAssertions"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -6,8 +6,8 @@ namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
 public sealed class Animal : Entity, IAggregateRoot
 {
-    private readonly List<AnimalPhoto> _photos = [];
     private readonly List<AnimalEvent> _events = [];
+    private readonly List<AnimalPhoto> _photos = [];
 
     private Animal()
     {
@@ -123,19 +123,21 @@ public sealed class Animal : Entity, IAggregateRoot
         photoToSet.SetAsMain();
         ModifiedOn = DateTimeOffset.UtcNow;
     }
-    
+
     public void AddEvent(AnimalEventType type, DateTimeOffset occurredOn, string description, string performedBy)
     {
         var animalEvent = AnimalEvent.Create(type, occurredOn, description, performedBy);
         _events.Add(animalEvent);
+        AddDomainEvent(new AnimalEventAddedDomainEvent(Id, animalEvent));
     }
-    
-    public void UpdateEvent(Guid eventId, AnimalEventType type, DateTimeOffset occurredOn, string description, string performedBy)
+
+    public void UpdateEvent(Guid eventId, AnimalEventType type, DateTimeOffset occurredOn, string description,
+        string performedBy)
     {
         var animalEvent = _events.FirstOrDefault(e => e.Id == eventId);
         animalEvent?.Update(type, occurredOn, description, performedBy);
     }
-    
+
     public void RemoveEvent(Guid eventId)
     {
         var eventToRemove = _events.FirstOrDefault(e => e.Id == eventId);
