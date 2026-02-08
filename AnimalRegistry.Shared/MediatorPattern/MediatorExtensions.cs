@@ -11,7 +11,6 @@ public static class MediatorExtensions
         services.AddScoped<IMediator, Mediator>();
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
-
         var handlerTypes = assembly.GetTypes()
             .Where(t => t is { IsClass: true, IsAbstract: false } && t.GetInterfaces()
                 .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>)));
