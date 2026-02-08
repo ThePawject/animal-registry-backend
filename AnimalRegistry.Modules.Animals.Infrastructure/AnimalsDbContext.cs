@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure;
 
-internal sealed class AnimalsDbContext(DbContextOptions<AnimalsDbContext> options, IDomainEventDispatcher dispatcher)
+public sealed class AnimalsDbContext(DbContextOptions<AnimalsDbContext> options, IDomainEventDispatcher dispatcher)
     : DomainEventBaseDbContext(options, dispatcher)
 
 {

@@ -1,42 +1,14 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
-using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
-using AnimalRegistry.Shared.DDD;
-using Microsoft.EntityFrameworkCore;
-using NSubstitute;
-using Testcontainers.MsSql;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Integration;
 
-public sealed class AnimalRepositoryTests : IAsyncLifetime
+[Collection("IntegrationTestDbCollection")]
+public sealed class AnimalRepositoryTests(IntegrationTestDbFixture fixture)
 {
     private const string TestShelterId = "test-shelter-id";
-
-    private readonly MsSqlContainer _dbContainer = new MsSqlBuilder()
-        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
-        .WithPassword("yourStrong(!)Password")
-        .Build();
-
-    private AnimalsDbContext _dbContext = null!;
-    private AnimalRepository _repository = null!;
-
-    public async Task InitializeAsync()
-    {
-        await _dbContainer.StartAsync();
-        var options = new DbContextOptionsBuilder<AnimalsDbContext>()
-            .UseSqlServer(_dbContainer.GetConnectionString())
-            .Options;
-        var dispatcher = Substitute.For<IDomainEventDispatcher>();
-        _dbContext = new AnimalsDbContext(options, dispatcher);
-        await _dbContext.Database.MigrateAsync();
-        _repository = new AnimalRepository(_dbContext);
-    }
-
-    public async Task DisposeAsync()
-    {
-        await _dbContainer.DisposeAsync();
-    }
+    private readonly AnimalRepository _repository = new(fixture.DbContext);
 
     [Fact]
     public async Task AddAndGetAnimal_WorksCorrectly()
