@@ -5,6 +5,8 @@ using AnimalRegistry.Shared.Pagination;
 using AnimalRegistry.Shared.Testing;
 using System.Net.Http.Json;
 
+namespace AnimalRegistry.Modules.Animals.Tests.Functional;
+
 public sealed class AnimalFactory(ApiClient api)
 {
     public async Task<Guid> CreateAsync(
@@ -58,9 +60,15 @@ public sealed class AnimalFactory(ApiClient api)
         return dto;
     }
 
-    public async Task<PagedResult<AnimalListItemDto>> ListAsync()
+    public async Task<PagedResult<AnimalListItemDto>> ListAsync(string? keyWordSearch = null)
     {
-        var resp = await api.GetAsync(ListAnimalsRequest.Route + "?page=1&pageSize=10");
+        var uri = ListAnimalsRequest.Route + "?page=1&pageSize=10";
+        if (!string.IsNullOrWhiteSpace(keyWordSearch))
+        {
+            uri += $"&keyWordSearch={Uri.EscapeDataString(keyWordSearch)}";
+        }
+
+        var resp = await api.GetAsync(uri);
         resp.EnsureSuccessStatusCode();
         var result = await resp.Content.ReadFromJsonAsync<PagedResult<AnimalListItemDto>>() ??
                      throw new InvalidOperationException("List response null");

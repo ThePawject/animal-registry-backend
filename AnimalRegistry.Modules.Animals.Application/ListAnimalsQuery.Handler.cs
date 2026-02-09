@@ -1,7 +1,6 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
-using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.MediatorPattern;
 using AnimalRegistry.Shared.Pagination;
 
@@ -19,6 +18,7 @@ internal sealed class ListAnimalsQueryHandler(
             currentUser.ShelterId,
             request.Page,
             request.PageSize,
+            request.KeyWordSearch,
             cancellationToken);
 
         var items = pagedAnimals.Items.Select(AnimalListItemDto.FromDomain).ToList();

@@ -90,7 +90,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         await _repository.AddAsync(animal1);
         await _repository.AddAsync(animal2);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20);
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, null);
 
         Assert.Single(result.Items);
         Assert.Equal("Animal1", result.Items.First().Name);
@@ -107,7 +107,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
             "performedBy");
         await _repository.AddAsync(animal1);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20);
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, null);
 
         Assert.Single(result.Items);
         Assert.Equal("Animal1", result.Items.First().Name);
@@ -130,7 +130,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
             "new description");
         await _repository.UpdateAsync(animal1);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20);
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, null);
         Assert.Single(result.Items);
         Assert.Equal(AnimalEventType.StartOfQuarantine, result.Items.First().Events.First().Type);
     }
@@ -144,13 +144,36 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
             "performedBy");
         await _repository.AddAsync(animal1);
-        await _repository.ListAsync(TestShelterId, 1, 20);
+        await _repository.ListAsync(TestShelterId, 1, 20, null);
 
         animal1.RemoveEvent(animal1.Events.First().Id);
         await _repository.UpdateAsync(animal1);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20);
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, null);
         Assert.Single(result.Items);
         Assert.Empty(result.Items.First().Events);
+    }
+
+    [Fact]
+    public async Task ListAsync_WithKeyWordSearch_FiltersByEventsAndFields()
+    {
+        var birthDate = new DateTimeOffset(2024, 01, 15, 0, 0, 0, TimeSpan.Zero);
+        var animal1 = Animal.Create(
+            "sig-search", "trans-search", "Tosia", "Black", AnimalSpecies.Dog, AnimalSex.Female, birthDate,
+            TestShelterId);
+        animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "tesT description",
+            "PerformedByUser");
+
+        var animal2 = Animal.Create(
+            "sig-other", "trans-other", "Burek", "Brown", AnimalSpecies.Dog, AnimalSex.Male,
+            DateTimeOffset.UtcNow.AddYears(-1), TestShelterId);
+
+        await _repository.AddAsync(animal1);
+        await _repository.AddAsync(animal2);
+
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, "es 15.01.2024");
+
+        Assert.Single(result.Items);
+        Assert.Equal("Tosia", result.Items.First().Name);
     }
 }
