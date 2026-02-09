@@ -15,22 +15,32 @@ public sealed record AnimalListItemDto(
     DateTimeOffset ModifiedOn,
     bool IsActive,
     string ShelterId,
+    Guid? MainPhotoId,
     AnimalPhotoDto? MainPhoto
 )
 {
-    public static AnimalListItemDto FromDomain(Animal a) => new(
-        a.Id,
-        a.Signature,
-        a.TransponderCode,
-        a.Name,
-        a.Color,
-        a.Species,
-        a.Sex,
-        a.BirthDate,
-        a.CreatedOn,
-        a.ModifiedOn,
-        a.IsActive,
-        a.ShelterId,
-        a.MainPhoto is not null ? AnimalPhotoDto.FromDomain(a.MainPhoto) : null
-    );
+    public static AnimalListItemDto FromDomain(Animal a)
+    {
+        return new AnimalListItemDto(
+            a.Id,
+            a.Signature,
+            a.TransponderCode,
+            a.Name,
+            a.Color,
+            a.Species,
+            a.Sex,
+            a.BirthDate,
+            a.CreatedOn,
+            a.ModifiedOn,
+            a.IsActive,
+            a.ShelterId,
+            a.MainPhotoId,
+            a.MainPhoto is not null ? new AnimalPhotoDto(
+                a.MainPhoto.Id,
+                a.MainPhoto.Url ?? string.Empty,
+                a.MainPhoto.FileName,
+                a.MainPhoto.UploadedOn
+            ) : null
+        );
+    }
 }
