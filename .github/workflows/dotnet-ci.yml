@@ -32,11 +32,6 @@ jobs:
           mkdir -p "${{ env.DOCKER_CONFIG }}"
           printf '{"auths":{}}\n' > "${{ env.DOCKER_CONFIG }}/config.json"
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
