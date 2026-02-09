@@ -25,7 +25,6 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
 
         builder.OwnsMany(a => a.Photos, photoBuilder =>
         {
-            photoBuilder.HasKey(p => p.Id);
             photoBuilder.Property(p => p.BlobPath).IsRequired().HasMaxLength(500);
             photoBuilder.Property(p => p.FileName).IsRequired().HasMaxLength(255);
             photoBuilder.Property(p => p.UploadedOn).IsRequired();
