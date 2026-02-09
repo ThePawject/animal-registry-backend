@@ -166,8 +166,7 @@ public sealed class Animal : Entity, IAggregateRoot
         AddDomainEvent(new AnimalEventAddedDomainEvent(Id, animalEvent));
     }
 
-    internal void UpdateEvent(Guid eventId, AnimalEventType type, DateTimeOffset occurredOn, string description,
-        string performedBy)
+    internal void UpdateEvent(Guid eventId, AnimalEventType type, DateTimeOffset occurredOn, string description)
     {
         var animalEvent = _events.FirstOrDefault(e => e.Id == eventId);
         if (animalEvent is null)

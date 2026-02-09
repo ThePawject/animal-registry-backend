@@ -28,11 +28,10 @@ public sealed class AnimalEvent : Entity
         return new AnimalEvent(type, occurredOn, description, performedBy);
     }
 
-    internal void Update(AnimalEventType type, DateTimeOffset occurredOn, string description, string performedBy)
+    internal void Update(AnimalEventType type, DateTimeOffset occurredOn, string description)
     {
         Type = type;
         OccurredOn = occurredOn;
         Description = description;
-        PerformedBy = performedBy;
     }
 }

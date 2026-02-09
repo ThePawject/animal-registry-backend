@@ -1,7 +1,6 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
-using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application.AnimalEvents;
@@ -18,7 +17,7 @@ internal sealed class UpdateAnimalEventCommandHandler(
             return Result.NotFound("Animal not found.");
         }
 
-        animal.UpdateEvent(request.EventId, request.Type, request.OccurredOn, request.Description, request.PerformedBy);
+        animal.UpdateEvent(request.EventId, request.Type, request.OccurredOn, request.Description);
 
         await animalRepository.UpdateAsync(animal, cancellationToken);
 
