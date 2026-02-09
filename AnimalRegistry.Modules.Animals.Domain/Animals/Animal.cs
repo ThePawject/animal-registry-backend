@@ -11,7 +11,6 @@ public sealed class Animal : Entity, IAggregateRoot
 
     private Animal()
     {
-        // For ORM
     }
 
     private Animal(
@@ -49,9 +48,31 @@ public sealed class Animal : Entity, IAggregateRoot
     public DateTimeOffset ModifiedOn { get; private set; }
     public bool IsActive { get; private set; }
     public string ShelterId { get; private set; } = null!;
-    public IReadOnlyCollection<AnimalPhoto> Photos => _photos.AsReadOnly();
+    public Guid? MainPhotoId { get; private set; }
+    public IReadOnlyCollection<AnimalPhoto> Photos => GetOrderedPhotos();
     public IReadOnlyCollection<AnimalEvent> Events => _events.AsReadOnly();
-    public AnimalPhoto? MainPhoto => _photos.FirstOrDefault(p => p.IsMain);
+
+    public AnimalPhoto? MainPhoto => MainPhotoId.HasValue
+        ? _photos.FirstOrDefault(p => p.Id == MainPhotoId.Value)
+        : null;
+
+    private IReadOnlyCollection<AnimalPhoto> GetOrderedPhotos()
+    {
+        if (MainPhotoId.HasValue)
+        {
+            var mainPhoto = _photos.FirstOrDefault(p => p.Id == MainPhotoId.Value);
+            if (mainPhoto is not null)
+            {
+                var others = _photos
+                    .Where(p => p.Id != MainPhotoId.Value)
+                    .OrderBy(p => p.UploadedOn)
+                    .ToList();
+                return new List<AnimalPhoto> { mainPhoto }.Concat(others).ToList().AsReadOnly();
+            }
+        }
+
+        return _photos.OrderBy(p => p.UploadedOn).ToList().AsReadOnly();
+    }
 
     public static Animal Create(
         string signature,
@@ -82,18 +103,16 @@ public sealed class Animal : Entity, IAggregateRoot
         AddDomainEvent(new AnimalArchivedDomainEvent(Id));
     }
 
-    public void AddPhoto(string blobUrl, string fileName, bool isMain = false)
+    public void AddPhoto(string blobPath, string fileName, bool isMain = false)
     {
+        var photo = AnimalPhoto.Create(blobPath, fileName);
+        _photos.Add(photo);
+
         if (isMain)
         {
-            foreach (var existingPhoto in _photos.Where(p => p.IsMain))
-            {
-                existingPhoto.UnsetAsMain();
-            }
+            MainPhotoId = photo.Id;
         }
 
-        var photo = AnimalPhoto.Create(blobUrl, fileName, isMain);
-        _photos.Add(photo);
         ModifiedOn = DateTimeOffset.UtcNow;
     }
 
@@ -103,6 +122,12 @@ public sealed class Animal : Entity, IAggregateRoot
         if (photoToRemove is not null)
         {
             _photos.Remove(photoToRemove);
+
+            if (MainPhotoId == photoId)
+            {
+                MainPhotoId = null;
+            }
+
             ModifiedOn = DateTimeOffset.UtcNow;
         }
     }
@@ -115,12 +140,7 @@ public sealed class Animal : Entity, IAggregateRoot
             return;
         }
 
-        foreach (var p in _photos.Where(p => p.IsMain))
-        {
-            p.UnsetAsMain();
-        }
-
-        photoToSet.SetAsMain();
+        MainPhotoId = photoId;
         ModifiedOn = DateTimeOffset.UtcNow;
     }
 

@@ -7,7 +7,8 @@ namespace AnimalRegistry.Modules.Animals.Application;
 
 internal sealed class GetAnimalQueryHandler(
     IAnimalRepository animalRepository,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    IBlobStorageService blobStorageService)
     : IRequestHandler<GetAnimalQuery, Result<AnimalDto>>
 {
     public async Task<Result<AnimalDto>> Handle(GetAnimalQuery request, CancellationToken cancellationToken)
@@ -18,7 +19,7 @@ internal sealed class GetAnimalQueryHandler(
             return Result<AnimalDto>.NotFound();
         }
 
-        var resp = AnimalDto.FromDomain(animal);
+        var resp = AnimalDto.FromDomain(animal, blobStorageService);
 
         return Result<AnimalDto>.Success(resp);
     }

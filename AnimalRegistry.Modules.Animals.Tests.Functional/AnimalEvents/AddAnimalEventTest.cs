@@ -23,7 +23,6 @@ public class AddAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<
     [Fact]
     public async Task ShouldAddEvent_WhenRequestIsValid()
     {
-        // Arrange
         var user = TestUser.WithShelterAccess(TestShelterId);
         var factory = CreateFactory(user);
 
@@ -43,11 +42,9 @@ public class AddAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<
             PerformedBy = "Test User"
         };
 
-        // Act
         var client = fixture.CreateAuthenticatedClient(user);
         var response = await client.PostAsJsonAsync(AddAnimalEventRequest.BuildRoute(animalId), request);
 
-        // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent);
 
         var animal = await factory.GetAsync(animalId);
@@ -61,7 +58,6 @@ public class AddAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<
     [Fact]
     public async Task ShouldFail_WhenUserHasDifferentShelterId()
     {
-        // Arrange
         var ownerUser = TestUser.WithShelterAccess(TestShelterId);
         var factory = CreateFactory(ownerUser);
 
@@ -84,10 +80,8 @@ public class AddAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<
             PerformedBy = "Intruder"
         };
 
-        // Act
         var response = await otherClient.PostAsJsonAsync(AddAnimalEventRequest.BuildRoute(animalId), request);
 
-        // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.NotFound);
     }
 }

@@ -38,19 +38,18 @@ public sealed class AnimalPhotosTests(IntegrationTestFixture fixture) : IClassFi
         var photo2 = new byte[] { 0, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
         var photos = new List<(string, byte[], string)>
         {
-            ("dog1.jpg", photo1, "image/jpeg"),
-            ("dog2.jpg", photo2, "image/jpeg")
+            ("dog1.jpg", photo1, "image/jpeg"), ("dog2.jpg", photo2, "image/jpeg"),
         };
         var animalId = await factory.CreateAsync(
-            "sig-photo-main2", "trans-photo-main2", "MainDog", AnimalSpecies.Dog, AnimalSex.Female, photos, mainPhotoIndex: 1);
+            "sig-photo-main2", "trans-photo-main2", "MainDog", AnimalSpecies.Dog, AnimalSex.Female, photos, 1);
         var dto = await factory.GetAsync(animalId);
 
         dto.Photos.Should().NotBeNullOrEmpty();
         dto.Photos.Count.Should().Be(2);
         var main = dto.Photos.Single(p => p.FileName == "dog2.jpg");
         var other = dto.Photos.Single(p => p.FileName == "dog1.jpg");
-        main.BlobUrl.Should().NotBeNullOrEmpty();
-        other.BlobUrl.Should().NotBeNullOrEmpty();
+        main.Url.Should().NotBeNullOrEmpty();
+        other.Url.Should().NotBeNullOrEmpty();
         main.IsMain.Should().BeTrue();
         other.IsMain.Should().BeFalse();
     }

@@ -47,6 +47,7 @@ public sealed class AnimalsModule : IModule
         {
             options.ConnectionString = configuration["BlobStorage:ConnectionString"]!;
             options.ContainerName = configuration["BlobStorage:ContainerName"]!;
+            options.AccountName = configuration["BlobStorage:AccountName"]!;
         });
         services.AddSingleton<IBlobStorageService, BlobStorageService>();
     }

@@ -15,11 +15,12 @@ public sealed record AnimalDto(
     DateTimeOffset ModifiedOn,
     bool IsActive,
     string ShelterId,
+    Guid? MainPhotoId,
     IReadOnlyCollection<AnimalPhotoDto> Photos,
     IReadOnlyCollection<AnimalEventDto> Events
 )
 {
-    public static AnimalDto FromDomain(Animal a)
+    public static AnimalDto FromDomain(Animal a, IBlobStorageService blobStorageService)
     {
         return new AnimalDto(
             a.Id,
@@ -34,7 +35,8 @@ public sealed record AnimalDto(
             a.ModifiedOn,
             a.IsActive,
             a.ShelterId,
-            a.Photos.Select(AnimalPhotoDto.FromDomain).ToList(),
+            a.MainPhotoId,
+            a.Photos.Select(p => AnimalPhotoDto.FromDomain(p, a.MainPhotoId, blobStorageService)).ToList(),
             a.Events.Select(AnimalEventDto.FromDomain).ToList()
         );
     }
