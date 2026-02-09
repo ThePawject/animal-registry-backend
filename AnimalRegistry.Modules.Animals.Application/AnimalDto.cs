@@ -17,7 +17,8 @@ public sealed record AnimalDto(
     string ShelterId,
     Guid? MainPhotoId,
     IReadOnlyCollection<AnimalPhotoDto> Photos,
-    IReadOnlyCollection<AnimalEventDto> Events
+    IReadOnlyCollection<AnimalEventDto> Events,
+    IReadOnlyCollection<AnimalHealthDto> HealthRecords
 )
 {
     public static AnimalDto FromDomain(Animal a)
@@ -42,7 +43,8 @@ public sealed record AnimalDto(
                 p.FileName,
                 p.UploadedOn
             )).ToList(),
-            a.Events.Select(AnimalEventDto.FromDomain).ToList()
+            a.Events.Select(AnimalEventDto.FromDomain).ToList(),
+            a.HealthRecords.Select(AnimalHealthDto.FromDomain).ToList()
         );
     }
 }

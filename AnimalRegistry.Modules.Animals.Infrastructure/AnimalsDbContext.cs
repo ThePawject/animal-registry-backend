@@ -1,5 +1,6 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalHealths;
 using AnimalRegistry.Shared.DDD;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,7 @@ internal sealed class AnimalsDbContext(DbContextOptions<AnimalsDbContext> option
 {
     public DbSet<Animal> Animals => Set<Animal>();
     public DbSet<AnimalEvent> AnimalEvents => Set<AnimalEvent>();
+    public DbSet<AnimalHealth> AnimalHealthRecords => Set<AnimalHealth>();
     public DbSet<AnimalPhoto> AnimalPhotos => Set<AnimalPhoto>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
