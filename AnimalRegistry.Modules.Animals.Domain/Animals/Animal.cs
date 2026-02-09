@@ -1,5 +1,6 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents.Reactions;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalHealths;
 using AnimalRegistry.Modules.Animals.Domain.Animals.DomainEvents;
 using AnimalRegistry.Shared.DDD;
 
@@ -8,6 +9,7 @@ namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 public sealed class Animal : Entity, IAggregateRoot
 {
     private readonly List<AnimalEvent> _events = [];
+    private readonly List<AnimalHealth> _healthRecords = [];
     private readonly List<AnimalPhoto> _photos = [];
 
     private Animal()
@@ -52,6 +54,7 @@ public sealed class Animal : Entity, IAggregateRoot
     public Guid? MainPhotoId { get; private set; }
     public IReadOnlyCollection<AnimalPhoto> Photos => GetOrderedPhotos();
     public IReadOnlyCollection<AnimalEvent> Events => _events.AsReadOnly();
+    public IReadOnlyCollection<AnimalHealth> HealthRecords => _healthRecords.AsReadOnly();
 
     public AnimalPhoto? MainPhoto => MainPhotoId.HasValue
         ? _photos.FirstOrDefault(p => p.Id == MainPhotoId.Value)
@@ -207,6 +210,35 @@ public sealed class Animal : Entity, IAggregateRoot
         {
             AnimalEventReactionRegistry.For(eventToRemove.Type).Undo(this, eventToRemove);
             _events.Remove(eventToRemove);
+            ModifiedOn = DateTimeOffset.UtcNow;
+        }
+    }
+
+    internal void AddHealthRecord(DateTimeOffset occurredOn, string description, string performedBy)
+    {
+        var healthRecord = AnimalHealth.Create(occurredOn, description, performedBy);
+        _healthRecords.Add(healthRecord);
+        ModifiedOn = DateTimeOffset.UtcNow;
+    }
+
+    internal void UpdateHealthRecord(Guid healthRecordId, DateTimeOffset occurredOn, string description)
+    {
+        var healthRecord = _healthRecords.FirstOrDefault(h => h.Id == healthRecordId);
+        if (healthRecord is null)
+        {
+            return;
+        }
+
+        healthRecord.Update(occurredOn, description);
+        ModifiedOn = DateTimeOffset.UtcNow;
+    }
+
+    internal void RemoveHealthRecord(Guid healthRecordId)
+    {
+        var healthRecord = _healthRecords.FirstOrDefault(h => h.Id == healthRecordId);
+        if (healthRecord is not null)
+        {
+            _healthRecords.Remove(healthRecord);
             ModifiedOn = DateTimeOffset.UtcNow;
         }
     }

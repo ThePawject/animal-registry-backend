@@ -4,6 +4,7 @@ using AnimalRegistry.Modules.Animals.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 {
     [DbContext(typeof(AnimalsDbContext))]
-    partial class AnimalsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260209210704_AddAnimalHealth")]
+    partial class AddAnimalHealth
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,11 +152,11 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 
                     b.OwnsMany("AnimalRegistry.Modules.Animals.Domain.Animals.AnimalPhoto", "Photos", b1 =>
                         {
-                            b1.Property<Guid>("AnimalId")
-                                .HasColumnType("uniqueidentifier");
-
                             b1.Property<Guid>("Id")
                                 .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("AnimalId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("BlobPath")
@@ -169,7 +172,9 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                             b1.Property<DateTimeOffset>("UploadedOn")
                                 .HasColumnType("datetimeoffset");
 
-                            b1.HasKey("AnimalId", "Id");
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("AnimalId");
 
                             b1.ToTable("AnimalPhotos");
 
