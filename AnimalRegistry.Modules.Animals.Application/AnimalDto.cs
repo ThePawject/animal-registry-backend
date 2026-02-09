@@ -18,4 +18,31 @@ public sealed record AnimalDto(
     Guid? MainPhotoId,
     IReadOnlyCollection<AnimalPhotoDto> Photos,
     IReadOnlyCollection<AnimalEventDto> Events
-);
+)
+{
+    public static AnimalDto FromDomain(Animal a)
+    {
+        return new AnimalDto(
+            a.Id,
+            a.Signature,
+            a.TransponderCode,
+            a.Name,
+            a.Color,
+            a.Species,
+            a.Sex,
+            a.BirthDate,
+            a.CreatedOn,
+            a.ModifiedOn,
+            a.IsActive,
+            a.ShelterId,
+            a.MainPhotoId,
+            a.Photos.Select(p => new AnimalPhotoDto(
+                p.Id,
+                p.Url ?? string.Empty,
+                p.FileName,
+                p.UploadedOn
+            )).ToList(),
+            a.Events.Select(AnimalEventDto.FromDomain).ToList()
+        );
+    }
+}

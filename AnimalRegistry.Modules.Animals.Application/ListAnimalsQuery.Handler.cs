@@ -8,8 +8,7 @@ namespace AnimalRegistry.Modules.Animals.Application;
 
 internal sealed class ListAnimalsQueryHandler(
     IAnimalRepository animalRepository,
-    ICurrentUser currentUser,
-    IAnimalDtoMapper animalDtoMapper)
+    ICurrentUser currentUser)
     : IRequestHandler<ListAnimalsQuery, Result<PagedResult<AnimalListItemDto>>>
 {
     public async Task<Result<PagedResult<AnimalListItemDto>>> Handle(ListAnimalsQuery request,
@@ -21,7 +20,7 @@ internal sealed class ListAnimalsQueryHandler(
             request.PageSize,
             cancellationToken);
 
-        var items = pagedAnimals.Items.Select(animalDtoMapper.MapToListItem).ToList();
+        var items = pagedAnimals.Items.Select(AnimalListItemDto.FromDomain).ToList();
         var result = new PagedResult<AnimalListItemDto>(
             items,
             pagedAnimals.TotalCount,
