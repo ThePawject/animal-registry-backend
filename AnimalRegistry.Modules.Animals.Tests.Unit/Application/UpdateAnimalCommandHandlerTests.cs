@@ -1,7 +1,7 @@
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
-using AnimalRegistry.Shared.CurrentUser;
+using AnimalRegistry.Shared.Access;
 using FluentAssertions;
 using NSubstitute;
 
