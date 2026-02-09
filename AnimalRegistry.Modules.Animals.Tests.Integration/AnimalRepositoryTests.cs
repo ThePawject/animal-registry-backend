@@ -171,7 +171,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         await _repository.AddAsync(animal1);
         await _repository.AddAsync(animal2);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20, "es Burek");
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, "es Tosia");
 
         Assert.Single(result.Items);
         Assert.Equal("Tosia", result.Items.First().Name);
