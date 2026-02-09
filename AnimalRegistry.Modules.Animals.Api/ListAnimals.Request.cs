@@ -5,4 +5,6 @@ namespace AnimalRegistry.Modules.Animals.Api;
 public sealed record ListAnimalsRequest : PaginationRequest
 {
     public const string Route = "/animals";
+
+    public string? KeyWordSearch { get; init; }
 }
