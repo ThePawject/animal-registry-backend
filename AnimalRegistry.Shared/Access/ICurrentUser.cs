@@ -1,4 +1,4 @@
-﻿namespace AnimalRegistry.Shared.CurrentUser;
+﻿namespace AnimalRegistry.Shared.Access;
 
 public interface ICurrentUser
 {

@@ -20,9 +20,9 @@ public class UpdateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
         return new AnimalFactory(new ApiClient(client));
     }
 
-    private async Task AddEventAsync(HttpClient client, Guid animalId, AddAnimalEventRequest request)
+    private async Task AddEventAsync(HttpClient client, Guid animalId, CreateAnimalEventRequest request)
     {
-        var response = await client.PostAsJsonAsync(AddAnimalEventRequest.BuildRoute(animalId), request);
+        var response = await client.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(animalId), request);
         response.EnsureSuccessStatusCode();
     }
 
@@ -40,13 +40,12 @@ public class UpdateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
             AnimalSpecies.Dog,
             AnimalSex.Female);
 
-        var addRequest = new AddAnimalEventRequest
+        var addRequest = new CreateAnimalEventRequest
         {
             AnimalId = animalId,
             Type = AnimalEventType.AdmissionToShelter,
             OccurredOn = DateTimeOffset.UtcNow.AddDays(-1),
             Description = "Original Description",
-            PerformedBy = "Original User"
         };
         await AddEventAsync(client, animalId, addRequest);
 

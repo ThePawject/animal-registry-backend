@@ -13,7 +13,7 @@ public sealed record AnimalListItemDto(
     DateTimeOffset BirthDate,
     DateTimeOffset CreatedOn,
     DateTimeOffset ModifiedOn,
-    bool IsActive,
+    bool IsInShelter,
     string ShelterId,
     Guid? MainPhotoId,
     AnimalPhotoDto? MainPhoto
@@ -32,7 +32,7 @@ public sealed record AnimalListItemDto(
             a.BirthDate,
             a.CreatedOn,
             a.ModifiedOn,
-            a.IsActive,
+            a.IsInShelter,
             a.ShelterId,
             a.MainPhotoId,
             a.MainPhoto is not null ? new AnimalPhotoDto(

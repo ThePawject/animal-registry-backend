@@ -4,16 +4,14 @@ using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application.AnimalEvents;
 
-internal sealed class AddAnimalEventCommand(
+internal sealed class CreateAnimalEventCommand(
     Guid animalId,
     AnimalEventType type,
     DateTimeOffset occurredOn,
-    string description,
-    string performedBy) : IRequest<Result>
+    string description) : IRequest<Result>
 {
     public Guid AnimalId { get; } = animalId;
     public AnimalEventType Type { get; } = type;
     public DateTimeOffset OccurredOn { get; } = occurredOn;
     public string Description { get; } = description;
-    public string PerformedBy { get; } = performedBy;
 }
