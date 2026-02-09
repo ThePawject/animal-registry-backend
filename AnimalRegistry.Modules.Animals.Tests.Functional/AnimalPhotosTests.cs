@@ -39,19 +39,23 @@ public sealed class AnimalPhotosTests(IntegrationTestFixture fixture) : IClassFi
         var photos = new List<(string, byte[], string)>
         {
             ("dog1.jpg", photo1, "image/jpeg"),
-            ("dog2.jpg", photo2, "image/jpeg")
+            ("dog2.jpg", photo2, "image/jpeg"),
         };
         var animalId = await factory.CreateAsync(
-            "sig-photo-main2", "trans-photo-main2", "MainDog", AnimalSpecies.Dog, AnimalSex.Female, photos, mainPhotoIndex: 1);
+            "sig-photo-main2", "trans-photo-main2", "MainDog", AnimalSpecies.Dog, AnimalSex.Female, photos, 1);
         var dto = await factory.GetAsync(animalId);
 
         dto.Photos.Should().NotBeNullOrEmpty();
         dto.Photos.Count.Should().Be(2);
-        var main = dto.Photos.Single(p => p.FileName == "dog2.jpg");
-        var other = dto.Photos.Single(p => p.FileName == "dog1.jpg");
-        main.BlobUrl.Should().NotBeNullOrEmpty();
-        other.BlobUrl.Should().NotBeNullOrEmpty();
-        main.IsMain.Should().BeTrue();
-        other.IsMain.Should().BeFalse();
+        
+        dto.MainPhotoId.Should().NotBeNull();
+        
+        var mainPhoto = dto.Photos.Single(p => p.Id == dto.MainPhotoId);
+        var otherPhoto = dto.Photos.Single(p => p.Id != dto.MainPhotoId);
+        
+        mainPhoto.FileName.Should().Be("dog2.jpg");
+        otherPhoto.FileName.Should().Be("dog1.jpg");
+        mainPhoto.Url.Should().NotBeNullOrEmpty();
+        otherPhoto.Url.Should().NotBeNullOrEmpty();
     }
 }

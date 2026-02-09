@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Infrastructure;
@@ -20,6 +21,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
 
     private AnimalsDbContext _dbContext = null!;
     private AnimalRepository _repository = null!;
+    private IBlobStorageService _blobStorageService = null!;
 
     public async Task InitializeAsync()
     {
@@ -29,8 +31,10 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
             .Options;
         var dispatcher = Substitute.For<IDomainEventDispatcher>();
         _dbContext = new AnimalsDbContext(options, dispatcher);
+        _blobStorageService = Substitute.For<IBlobStorageService>();
+        _blobStorageService.GetBlobUrl(Arg.Any<string>()).Returns(x => $"http://test/{x.Arg<string>()}");
         await _dbContext.Database.MigrateAsync();
-        _repository = new AnimalRepository(_dbContext);
+        _repository = new AnimalRepository(_dbContext, _blobStorageService);
     }
 
     public async Task DisposeAsync()

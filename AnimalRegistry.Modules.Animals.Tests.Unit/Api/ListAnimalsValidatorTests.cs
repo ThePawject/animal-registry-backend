@@ -82,7 +82,6 @@ public sealed class ListAnimalsValidatorTests
 
         result.IsValid.Should().BeTrue();
 
-        // Test that 51 is now invalid with MaxPageSize = 50
         request = request with { PageSize = 51 };
         result = validator.Validate(request);
         result.IsValid.Should().BeFalse();
