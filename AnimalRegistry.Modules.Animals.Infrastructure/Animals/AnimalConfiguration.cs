@@ -43,8 +43,6 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
                 .HasMaxLength(100);
             eventBuilder.Property(e => e.OccurredOn)
                 .IsRequired();
-
-            // eventBuilder.WithOwner().HasForeignKey("AnimalId");
         });
 
         builder.OwnsMany(a => a.HealthRecords, healthBuilder =>
