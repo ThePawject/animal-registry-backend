@@ -53,7 +53,7 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Domain
             animal.Species.Should().Be(species);
             animal.Sex.Should().Be(sex);
             animal.BirthDate.Should().Be(birthDate);
-            animal.IsActive.Should().BeTrue();
+            animal.IsInShelter.Should().BeTrue();
             animal.CreatedOn.Should().BeCloseTo(DateTimeOffset.Now, TimeSpan.FromSeconds(10));
             animal.ModifiedOn.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
             animal.ShelterId.Should().Be(TestShelterId);
@@ -72,9 +72,9 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Domain
             var animal = CreateTestAnimal();
             animal.ClearDomainEvents();
 
-            animal.Archive();
+            animal.SetOutOfShelter();
 
-            animal.IsActive.Should().BeFalse();
+            animal.IsInShelter.Should().BeFalse();
             animal.ModifiedOn.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
             animal.DomainEvents.Should().ContainSingle(e => e is AnimalArchivedDomainEvent);
             var archivedEvent = animal.DomainEvents.Single(e => e is AnimalArchivedDomainEvent) as AnimalArchivedDomainEvent;
@@ -86,12 +86,12 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Domain
         public void Archive_ShouldNotRaiseEvent_WhenAlreadyArchived()
         {
             var animal = CreateTestAnimal();
-            animal.Archive();
+            animal.SetOutOfShelter();
             animal.ClearDomainEvents();
 
-            animal.Archive();
+            animal.SetOutOfShelter();
 
-            animal.IsActive.Should().BeFalse();
+            animal.IsInShelter.Should().BeFalse();
             animal.DomainEvents.Should().BeEmpty();
         }
 

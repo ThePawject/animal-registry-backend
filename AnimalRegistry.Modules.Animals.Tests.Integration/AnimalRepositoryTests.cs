@@ -62,7 +62,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
             "sig2", "trans2", "Mruczek", "Gray", AnimalSpecies.Cat, AnimalSex.Female,
             DateTimeOffset.UtcNow.AddYears(-3), TestShelterId);
         await _repository.AddAsync(animal);
-        _repository.Remove(animal);
+        await _repository.RemoveAsync(animal);
         var loaded = await _repository.GetByIdAsync(animal.Id, TestShelterId);
         Assert.Null(loaded);
     }
@@ -127,7 +127,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
 
         animal1.UpdateEvent(animal1.Events.First().Id, AnimalEventType.StartOfQuarantine,
             TimeProvider.System.GetUtcNow(),
-            "new description", "new performedBy");
+            "new description");
         await _repository.UpdateAsync(animal1);
 
         var result = await _repository.ListAsync(TestShelterId, 1, 20);

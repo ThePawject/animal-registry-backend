@@ -14,5 +14,5 @@ internal interface IAnimalRepository
 
     Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default);
     
-    void Remove(Animal entity);
+    Task RemoveAsync(Animal entity, CancellationToken cancellationToken = default);
 }

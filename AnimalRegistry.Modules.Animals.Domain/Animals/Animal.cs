@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents.Reactions;
 using AnimalRegistry.Modules.Animals.Domain.Animals.DomainEvents;
 using AnimalRegistry.Shared.DDD;
 
@@ -32,7 +33,7 @@ public sealed class Animal : Entity, IAggregateRoot
         BirthDate = birthDate;
         ShelterId = shelterId;
 
-        IsActive = true;
+        IsInShelter = true;
         CreatedOn = DateTimeOffset.Now;
         ModifiedOn = DateTimeOffset.UtcNow;
     }
@@ -46,7 +47,7 @@ public sealed class Animal : Entity, IAggregateRoot
     public DateTimeOffset BirthDate { get; private set; }
     public DateTimeOffset CreatedOn { get; private set; }
     public DateTimeOffset ModifiedOn { get; private set; }
-    public bool IsActive { get; private set; }
+    public bool IsInShelter { get; private set; }
     public string ShelterId { get; private set; } = null!;
     public Guid? MainPhotoId { get; private set; }
     public IReadOnlyCollection<AnimalPhoto> Photos => GetOrderedPhotos();
@@ -112,17 +113,29 @@ public sealed class Animal : Entity, IAggregateRoot
         AddDomainEvent(new AnimalUpdatedDomainEvent(Id, Name, Signature));
     }
 
-    public void Archive()
+    internal void SetOutOfShelter()
     {
-        if (!IsActive)
+        if (!IsInShelter)
         {
             return;
         }
 
-        IsActive = false;
+        IsInShelter = false;
         ModifiedOn = DateTimeOffset.UtcNow;
         AddDomainEvent(new AnimalArchivedDomainEvent(Id));
     }
+
+    internal void SetInShelter()
+    {
+        if (IsInShelter)
+        {
+            return;
+        }
+
+        IsInShelter = true;
+        ModifiedOn = DateTimeOffset.UtcNow;
+    }
+
 
     public void AddPhoto(string blobPath, string fileName, bool isMain = false)
     {
@@ -165,25 +178,34 @@ public sealed class Animal : Entity, IAggregateRoot
         ModifiedOn = DateTimeOffset.UtcNow;
     }
 
-    public void AddEvent(AnimalEventType type, DateTimeOffset occurredOn, string description, string performedBy)
+    internal void AddEvent(AnimalEventType type, DateTimeOffset occurredOn, string description, string performedBy)
     {
         var animalEvent = AnimalEvent.Create(type, occurredOn, description, performedBy);
         _events.Add(animalEvent);
+
+        AnimalEventReactionRegistry.For(type).Apply(this, animalEvent);
         AddDomainEvent(new AnimalEventAddedDomainEvent(Id, animalEvent));
     }
 
-    public void UpdateEvent(Guid eventId, AnimalEventType type, DateTimeOffset occurredOn, string description,
-        string performedBy)
+    internal void UpdateEvent(Guid eventId, AnimalEventType type, DateTimeOffset occurredOn, string description)
     {
         var animalEvent = _events.FirstOrDefault(e => e.Id == eventId);
-        animalEvent?.Update(type, occurredOn, description, performedBy);
+        if (animalEvent is null)
+        {
+            return;
+        }
+
+        AnimalEventReactionRegistry.For(animalEvent.Type).Undo(this, animalEvent);
+        animalEvent.Update(type, occurredOn, description);
+        AnimalEventReactionRegistry.For(animalEvent.Type).Apply(this, animalEvent);
     }
 
-    public void RemoveEvent(Guid eventId)
+    internal void RemoveEvent(Guid eventId)
     {
         var eventToRemove = _events.FirstOrDefault(e => e.Id == eventId);
         if (eventToRemove is not null)
         {
+            AnimalEventReactionRegistry.For(eventToRemove.Type).Undo(this, eventToRemove);
             _events.Remove(eventToRemove);
             ModifiedOn = DateTimeOffset.UtcNow;
         }

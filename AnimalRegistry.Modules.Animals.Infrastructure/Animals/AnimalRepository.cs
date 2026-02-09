@@ -40,10 +40,10 @@ internal sealed class AnimalRepository(
         return Result<Animal>.Success(entity);
     }
 
-    public void Remove(Animal entity)
+    public async Task RemoveAsync(Animal entity, CancellationToken cancellationToken = default)
     {
         context.Animals.Remove(entity);
-        context.SaveChanges();
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize,

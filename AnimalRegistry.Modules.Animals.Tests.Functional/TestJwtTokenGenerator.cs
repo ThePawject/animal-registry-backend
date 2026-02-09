@@ -15,9 +15,9 @@ public sealed class TestJwtTokenGenerator(
     {
         var claims = new List<Claim>(user.Roles.Count + user.CustomClaims.Count + 4)
         {
-            new(JwtRegisteredClaimNames.Sub, user.UserId),
+            new("https://ThePawject/user_id", TestUser.UserId),
             new(JwtRegisteredClaimNames.Name, TestUser.Name),
-            new(JwtRegisteredClaimNames.Email, TestUser.Email),
+            new("https://ThePawject/email", TestUser.Email),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 
