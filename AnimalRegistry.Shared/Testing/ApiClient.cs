@@ -24,6 +24,11 @@ public sealed class ApiClient(HttpClient client)
         return client.PutAsJsonAsync(path, body);
     }
 
+    public Task<HttpResponseMessage> PutFormAsync(string path, MultipartFormDataContent content)
+    {
+        return client.PutAsync(path, content);
+    }
+
     public Task<HttpResponseMessage> DeleteAsync(string path)
     {
         return client.DeleteAsync(path);
