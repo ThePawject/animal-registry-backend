@@ -4,6 +4,7 @@ using AnimalRegistry.Modules.Animals.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 {
     [DbContext(typeof(AnimalsDbContext))]
-    partial class AnimalsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260209141922_RenameBlobUrlToBlobPath")]
+    partial class RenameBlobUrlToBlobPath
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,9 +44,6 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
-
-                    b.Property<Guid?>("MainPhotoId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("ModifiedOn")
                         .HasColumnType("datetimeoffset");
@@ -136,12 +136,17 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                                 .HasMaxLength(255)
                                 .HasColumnType("nvarchar(255)");
 
+                            b1.Property<bool>("IsMain")
+                                .HasColumnType("bit");
+
                             b1.Property<DateTimeOffset>("UploadedOn")
                                 .HasColumnType("datetimeoffset");
 
                             b1.HasKey("Id");
 
                             b1.HasIndex("AnimalId");
+
+                            b1.HasIndex("IsMain");
 
                             b1.ToTable("AnimalPhotos");
 

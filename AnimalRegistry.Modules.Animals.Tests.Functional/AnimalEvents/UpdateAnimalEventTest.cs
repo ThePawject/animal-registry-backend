@@ -29,7 +29,6 @@ public class UpdateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
     [Fact]
     public async Task ShouldUpdateEvent_WhenRequestIsValid()
     {
-        // Arrange
         var user = TestUser.WithShelterAccess(TestShelterId);
         var factory = CreateFactory(user);
         var client = fixture.CreateAuthenticatedClient(user);
@@ -64,11 +63,9 @@ public class UpdateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
             PerformedBy = "Updated User"
         };
 
-        // Act
         var response =
             await client.PutAsJsonAsync(UpdateAnimalEventRequest.BuildRoute(animalId, eventId), updateRequest);
 
-        // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent);
 
         var updatedAnimal = await factory.GetAsync(animalId);

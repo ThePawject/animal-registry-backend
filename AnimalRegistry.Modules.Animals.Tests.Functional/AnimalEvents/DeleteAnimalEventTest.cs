@@ -29,7 +29,6 @@ public class DeleteAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
     [Fact]
     public async Task ShouldDeleteEvent_WhenRequestIsValid()
     {
-        // Arrange
         var user = TestUser.WithShelterAccess(TestShelterId);
         var factory = CreateFactory(user);
         var client = fixture.CreateAuthenticatedClient(user);
@@ -54,10 +53,8 @@ public class DeleteAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
         var animal = await factory.GetAsync(animalId);
         var eventId = animal.Events.First().Id;
 
-        // Act
         var response = await client.DeleteAsync(DeleteAnimalEventRequest.BuildRoute(animalId, eventId));
 
-        // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent);
 
         var updatedAnimal = await factory.GetAsync(animalId);

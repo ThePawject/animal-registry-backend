@@ -15,6 +15,7 @@ public sealed record AnimalDto(
     DateTimeOffset ModifiedOn,
     bool IsActive,
     string ShelterId,
+    Guid? MainPhotoId,
     IReadOnlyCollection<AnimalPhotoDto> Photos,
     IReadOnlyCollection<AnimalEventDto> Events
 )
@@ -34,7 +35,13 @@ public sealed record AnimalDto(
             a.ModifiedOn,
             a.IsActive,
             a.ShelterId,
-            a.Photos.Select(AnimalPhotoDto.FromDomain).ToList(),
+            a.MainPhotoId,
+            a.Photos.Select(p => new AnimalPhotoDto(
+                p.Id,
+                p.Url ?? string.Empty,
+                p.FileName,
+                p.UploadedOn
+            )).ToList(),
             a.Events.Select(AnimalEventDto.FromDomain).ToList()
         );
     }

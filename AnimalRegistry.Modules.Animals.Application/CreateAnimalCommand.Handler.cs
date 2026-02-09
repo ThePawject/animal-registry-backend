@@ -30,14 +30,23 @@ internal sealed class CreateAnimalCommandHandler(
             for (var i = 0; i < request.Photos.Count; i++)
             {
                 var photo = request.Photos[i];
-                var blobUrl = await blobStorageService.UploadAsync(
+                
+                var uploadResult = await blobStorageService.UploadAsync(
                     photo.FileName,
                     photo.Content,
                     photo.ContentType,
+                    currentUser.ShelterId,
+                    animal.Id,
                     cancellationToken);
 
+                if (uploadResult.IsFailure)
+                {
+                    return Result<CreateAnimalCommandResponse>.ValidationError(
+                        $"Error uploading photo '{photo.FileName}': {uploadResult.Error}");
+                }
+
                 var isMain = request.MainPhotoIndex.HasValue && request.MainPhotoIndex.Value == i;
-                animal.AddPhoto(blobUrl, photo.FileName, isMain);
+                animal.AddPhoto(uploadResult.Value!, photo.FileName, isMain);
             }
         }
 
