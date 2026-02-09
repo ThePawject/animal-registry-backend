@@ -35,7 +35,7 @@ public sealed record AnimalListItemDto(
             a.IsActive,
             a.ShelterId,
             a.MainPhotoId,
-            a.MainPhoto is not null ? AnimalPhotoDto.FromDomain(a.MainPhoto, a.MainPhotoId, blobStorageService) : null
+            a.MainPhoto is not null ? AnimalPhotoDto.FromDomain(a.MainPhoto, blobStorageService) : null
         );
     }
 }

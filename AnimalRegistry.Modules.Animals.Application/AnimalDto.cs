@@ -36,7 +36,7 @@ public sealed record AnimalDto(
             a.IsActive,
             a.ShelterId,
             a.MainPhotoId,
-            a.Photos.Select(p => AnimalPhotoDto.FromDomain(p, a.MainPhotoId, blobStorageService)).ToList(),
+            a.Photos.Select(p => AnimalPhotoDto.FromDomain(p, blobStorageService)).ToList(),
             a.Events.Select(AnimalEventDto.FromDomain).ToList()
         );
     }
