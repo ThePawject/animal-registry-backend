@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Application;
+using AnimalRegistry.Shared;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Options;
@@ -13,15 +14,7 @@ internal sealed class BlobStorageService : IBlobStorageService
 
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".jpg", ".jpeg", ".png", ".webp"
-    };
-
-    private static readonly Dictionary<string, string> ExtensionToContentType = new(StringComparer.OrdinalIgnoreCase)
-    {
-        { ".jpg", "image/jpeg" },
-        { ".jpeg", "image/jpeg" },
-        { ".png", "image/png" },
-        { ".webp", "image/webp" }
+        ".jpg", ".jpeg", ".png", ".webp",
     };
 
     public BlobStorageService(IOptions<BlobStorageSettings> options)
@@ -32,7 +25,7 @@ internal sealed class BlobStorageService : IBlobStorageService
         _containerClient.CreateIfNotExists(PublicAccessType.Blob);
     }
 
-    public async Task<string> UploadAsync(
+    public async Task<Result<string>> UploadAsync(
         string fileName, 
         Stream content, 
         string contentType,
@@ -40,7 +33,11 @@ internal sealed class BlobStorageService : IBlobStorageService
         Guid animalId,
         CancellationToken cancellationToken = default)
     {
-        ValidateFile(fileName, content);
+        var validationResult = ValidateFile(fileName, content);
+        if (validationResult.IsFailure)
+        {
+            return Result<string>.ValidationError(validationResult.Error!);
+        }
 
         var safeFileName = SanitizeFileName(fileName);
         var timestamp = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff");
@@ -51,7 +48,7 @@ internal sealed class BlobStorageService : IBlobStorageService
         var blobHttpHeaders = new BlobHttpHeaders 
         { 
             ContentType = contentType,
-            CacheControl = "public, max-age=31536000"
+            CacheControl = "public, max-age=31536000",
         };
 
         await blobClient.UploadAsync(content, new BlobUploadOptions 
@@ -61,11 +58,11 @@ internal sealed class BlobStorageService : IBlobStorageService
             {
                 { "shelterId", shelterId },
                 { "animalId", animalId.ToString() },
-                { "originalFileName", fileName }
-            }
+                { "originalFileName", fileName },
+            },
         }, cancellationToken);
 
-        return blobPath;
+        return Result<string>.Success(blobPath);
     }
 
     public async Task DeleteAsync(string blobPath, CancellationToken cancellationToken = default)
@@ -79,23 +76,23 @@ internal sealed class BlobStorageService : IBlobStorageService
         return _settings.GetBlobUrl(blobPath);
     }
 
-    private void ValidateFile(string fileName, Stream content)
+    private static Result ValidateFile(string fileName, Stream content)
     {
         var extension = Path.GetExtension(fileName);
         if (string.IsNullOrEmpty(extension) || !AllowedExtensions.Contains(extension))
         {
-            throw new ArgumentException(
-                $"Invalid file extension: '{extension}'. Allowed: {string.Join(", ", AllowedExtensions)}",
-                nameof(fileName));
+            return Result.ValidationError(
+                $"Invalid file extension: '{extension}'. Allowed: {string.Join(", ", AllowedExtensions)}");
         }
 
         const long maxSize = 10 * 1024 * 1024;
         if (content.Length > maxSize)
         {
-            throw new ArgumentException(
-                $"File is too large: {content.Length / 1024 / 1024}MB. Maximum size: 10MB",
-                nameof(content));
+            return Result.ValidationError(
+                $"File is too large: {content.Length / 1024 / 1024}MB. Maximum size: 10MB");
         }
+
+        return Result.Success();
     }
 
     private static string SanitizeFileName(string fileName)

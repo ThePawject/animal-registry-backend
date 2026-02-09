@@ -1,8 +1,10 @@
+using AnimalRegistry.Shared;
+
 namespace AnimalRegistry.Modules.Animals.Application;
 
 public interface IBlobStorageService
 {
-    Task<string> UploadAsync(
+    Task<Result<string>> UploadAsync(
         string fileName, 
         Stream content, 
         string contentType,

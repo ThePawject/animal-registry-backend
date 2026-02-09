@@ -31,24 +31,22 @@ internal sealed class CreateAnimalCommandHandler(
             {
                 var photo = request.Photos[i];
                 
-                string blobPath;
-                try
+                var uploadResult = await blobStorageService.UploadAsync(
+                    photo.FileName,
+                    photo.Content,
+                    photo.ContentType,
+                    currentUser.ShelterId,
+                    animal.Id,
+                    cancellationToken);
+
+                if (uploadResult.IsFailure)
                 {
-                    blobPath = await blobStorageService.UploadAsync(
-                        photo.FileName,
-                        photo.Content,
-                        photo.ContentType,
-                        currentUser.ShelterId,
-                        animal.Id,
-                        cancellationToken);
-                }
-                catch (ArgumentException ex)
-                {
-                    return Result<CreateAnimalCommandResponse>.Failure($"Error uploading photo '{photo.FileName}': {ex.Message}");
+                    return Result<CreateAnimalCommandResponse>.ValidationError(
+                        $"Error uploading photo '{photo.FileName}': {uploadResult.Error}");
                 }
 
                 var isMain = request.MainPhotoIndex.HasValue && request.MainPhotoIndex.Value == i;
-                animal.AddPhoto(blobPath, photo.FileName, isMain);
+                animal.AddPhoto(uploadResult.Value!, photo.FileName, isMain);
             }
         }
 

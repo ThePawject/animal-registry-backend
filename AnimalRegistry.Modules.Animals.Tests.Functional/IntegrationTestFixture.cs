@@ -1,5 +1,6 @@
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Infrastructure;
+using AnimalRegistry.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -107,7 +108,7 @@ public sealed class IntegrationTestFixture : IAsyncLifetime
         var mockBlobStorage = Substitute.For<IBlobStorageService>();
         mockBlobStorage.UploadAsync(Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(),
                 Arg.Any<string>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>())
-            .Returns(ci => Task.FromResult($"test-shelter/{Guid.NewGuid()}/{DateTimeOffset.UtcNow:yyyyMMddHHmmssfff}_{ci.ArgAt<string>(0)}"));
+            .Returns(ci => Task.FromResult(Result<string>.Success($"test-shelter/{Guid.NewGuid()}/{DateTimeOffset.UtcNow:yyyyMMddHHmmssfff}_{ci.ArgAt<string>(0)}")));
         mockBlobStorage.GetBlobUrl(Arg.Any<string>())
             .Returns(ci => $"http://test-blob-storage/{ci.ArgAt<string>(0)}");
 

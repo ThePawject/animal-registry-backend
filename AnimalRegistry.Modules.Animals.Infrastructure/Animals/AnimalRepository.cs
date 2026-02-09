@@ -41,6 +41,7 @@ internal sealed class AnimalRepository(AnimalsDbContext context) : IAnimalReposi
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
+            .OrderByDescending(x => x.ModifiedOn)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);

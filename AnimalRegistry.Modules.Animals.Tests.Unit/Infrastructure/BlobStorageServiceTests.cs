@@ -71,26 +71,26 @@ public class BlobStorageValidationTests
     [InlineData("photo.pdf")]
     [InlineData("photo.txt")]
     [InlineData("photo.exe")]
-    public async Task UploadAsync_With_Invalid_Extension_Should_Throw_ArgumentException(string fileName)
+    public async Task UploadAsync_With_Invalid_Extension_Should_Return_ValidationError(string fileName)
     {
         var content = new MemoryStream([1, 2, 3]);
 
-        var action = async () => await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
+        var result = await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
 
-        await action.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*Invalid file extension*");
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("Invalid file extension");
     }
 
     [Fact]
-    public async Task UploadAsync_With_File_Too_Large_Should_Throw_ArgumentException()
+    public async Task UploadAsync_With_File_Too_Large_Should_Return_ValidationError()
     {
         const string fileName = "photo.jpg";
         var content = new MemoryStream(new byte[11 * 1024 * 1024]);
 
-        var action = async () => await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
+        var result = await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
 
-        await action.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*File is too large*");
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("File is too large");
     }
 
     [Theory]
@@ -98,12 +98,12 @@ public class BlobStorageValidationTests
     [InlineData("photo.jpeg")]
     [InlineData("photo.png")]
     [InlineData("photo.webp")]
-    public async Task ValidateFile_With_Valid_Extension_Should_Not_Throw(string fileName)
+    public async Task ValidateFile_With_Valid_Extension_Should_Not_Return_ValidationError(string fileName)
     {
         var content = new MemoryStream(new byte[1024 * 1024]);
 
-        var action = async () => await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
+        var result = await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
 
-        await action.Should().NotThrowAsync<ArgumentException>();
+        result.IsSuccess.Should().BeTrue();
     }
 }
