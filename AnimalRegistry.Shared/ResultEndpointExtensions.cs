@@ -22,6 +22,7 @@ public static class ResultEndpointExtensions
         {
             ResultStatus.ValidationError => SendValidationError(ep, result.Error, ct),
             ResultStatus.NotFound => ep.HttpContext.Response.SendNotFoundAsync(ct),
+            ResultStatus.Forbidden => ep.HttpContext.Response.SendForbiddenAsync(ct),
             _ => SendProblem(ep, StatusCodes.Status500InternalServerError, result.Error, ct),
         };
     }
@@ -41,6 +42,7 @@ public static class ResultEndpointExtensions
         {
             ResultStatus.ValidationError => SendValidationError(ep, result.Error, ct),
             ResultStatus.NotFound => ep.HttpContext.Response.SendNotFoundAsync(ct),
+            ResultStatus.Forbidden => ep.HttpContext.Response.SendForbiddenAsync(ct),
             _ => SendProblem(ep, StatusCodes.Status500InternalServerError, result.Error, ct),
         };
     }

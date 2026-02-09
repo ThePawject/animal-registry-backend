@@ -176,7 +176,7 @@ public sealed class Animal : Entity, IAggregateRoot
         }
 
         AnimalEventReactionRegistry.For(animalEvent.Type).Undo(this, animalEvent);
-        animalEvent.Update(type, occurredOn, description, performedBy);
+        animalEvent.Update(type, occurredOn, description);
         AnimalEventReactionRegistry.For(animalEvent.Type).Apply(this, animalEvent);
     }
 
