@@ -166,8 +166,7 @@ public sealed class Animal : Entity, IAggregateRoot
         AddDomainEvent(new AnimalEventAddedDomainEvent(Id, animalEvent));
     }
 
-    internal void UpdateEvent(Guid eventId, AnimalEventType type, DateTimeOffset occurredOn, string description,
-        string performedBy)
+    internal void UpdateEvent(Guid eventId, AnimalEventType type, DateTimeOffset occurredOn, string description)
     {
         var animalEvent = _events.FirstOrDefault(e => e.Id == eventId);
         if (animalEvent is null)
@@ -176,7 +175,7 @@ public sealed class Animal : Entity, IAggregateRoot
         }
 
         AnimalEventReactionRegistry.For(animalEvent.Type).Undo(this, animalEvent);
-        animalEvent.Update(type, occurredOn, description, performedBy);
+        animalEvent.Update(type, occurredOn, description);
         AnimalEventReactionRegistry.For(animalEvent.Type).Apply(this, animalEvent);
     }
 

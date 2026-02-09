@@ -59,7 +59,6 @@ public class UpdateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
             Type = AnimalEventType.StartOfQuarantine,
             OccurredOn = DateTimeOffset.UtcNow,
             Description = "Updated Description",
-            PerformedBy = "Updated User"
         };
 
         var response =
@@ -72,7 +71,6 @@ public class UpdateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
 
         updatedEvent.Type.Should().Be(updateRequest.Type);
         updatedEvent.Description.Should().Be(updateRequest.Description);
-        updatedEvent.PerformedBy.Should().Be(updateRequest.PerformedBy);
         updatedEvent.OccurredOn.Should().BeCloseTo(updateRequest.OccurredOn, TimeSpan.FromMilliseconds(100));
     }
 }

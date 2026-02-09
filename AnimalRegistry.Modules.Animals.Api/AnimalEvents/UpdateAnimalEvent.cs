@@ -25,8 +25,7 @@ public sealed class UpdateAnimalEvent(IMediator mediator) : Endpoint<UpdateAnima
             req.EventId,
             req.Type,
             req.OccurredOn,
-            req.Description,
-            req.PerformedBy
+            req.Description
         ), ct);
 
         await this.SendResultAsync(result, ct);

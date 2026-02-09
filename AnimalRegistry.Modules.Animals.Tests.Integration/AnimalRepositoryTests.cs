@@ -127,7 +127,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
 
         animal1.UpdateEvent(animal1.Events.First().Id, AnimalEventType.StartOfQuarantine,
             TimeProvider.System.GetUtcNow(),
-            "new description", "new performedBy");
+            "new description");
         await _repository.UpdateAsync(animal1);
 
         var result = await _repository.ListAsync(TestShelterId, 1, 20);
