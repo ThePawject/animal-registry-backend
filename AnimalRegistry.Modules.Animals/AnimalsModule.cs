@@ -50,6 +50,7 @@ public sealed class AnimalsModule : IModule
             options.AccountName = configuration["BlobStorage:AccountName"]!;
         });
         services.AddSingleton<IBlobStorageService, BlobStorageService>();
+        services.AddScoped<IAnimalDtoMapper, AnimalDtoMapper>();
     }
 
     public async Task MigrateAsync(IServiceProvider serviceProvider)

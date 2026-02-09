@@ -9,7 +9,7 @@ namespace AnimalRegistry.Modules.Animals.Application;
 internal sealed class ListAnimalsQueryHandler(
     IAnimalRepository animalRepository,
     ICurrentUser currentUser,
-    IBlobStorageService blobStorageService)
+    IAnimalDtoMapper animalDtoMapper)
     : IRequestHandler<ListAnimalsQuery, Result<PagedResult<AnimalListItemDto>>>
 {
     public async Task<Result<PagedResult<AnimalListItemDto>>> Handle(ListAnimalsQuery request,
@@ -21,7 +21,7 @@ internal sealed class ListAnimalsQueryHandler(
             request.PageSize,
             cancellationToken);
 
-        var items = pagedAnimals.Items.Select(a => AnimalListItemDto.FromDomain(a, blobStorageService)).ToList();
+        var items = pagedAnimals.Items.Select(animalDtoMapper.MapToListItem).ToList();
         var result = new PagedResult<AnimalListItemDto>(
             items,
             pagedAnimals.TotalCount,

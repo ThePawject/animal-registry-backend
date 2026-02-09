@@ -17,25 +17,4 @@ public sealed record AnimalListItemDto(
     string ShelterId,
     Guid? MainPhotoId,
     AnimalPhotoDto? MainPhoto
-)
-{
-    public static AnimalListItemDto FromDomain(Animal a, IBlobStorageService blobStorageService)
-    {
-        return new AnimalListItemDto(
-            a.Id,
-            a.Signature,
-            a.TransponderCode,
-            a.Name,
-            a.Color,
-            a.Species,
-            a.Sex,
-            a.BirthDate,
-            a.CreatedOn,
-            a.ModifiedOn,
-            a.IsActive,
-            a.ShelterId,
-            a.MainPhotoId,
-            a.MainPhoto is not null ? AnimalPhotoDto.FromDomain(a.MainPhoto, blobStorageService) : null
-        );
-    }
-}
+);
