@@ -29,7 +29,7 @@ public sealed class ListAnimalsValidatorTests
     public void Validate_WithValidPagination_ReturnsValid(int page, int pageSize)
     {
         var validator = CreateValidator();
-        var request = new ListAnimalsRequest { Page = page, PageSize = pageSize };
+        var request = new ListAnimalsRequest { Page = page, PageSize = pageSize, KeyWordSearch = "valid" };
 
         var result = validator.Validate(request);
 
@@ -42,7 +42,7 @@ public sealed class ListAnimalsValidatorTests
     public void Validate_WithInvalidPage_ReturnsInvalid(int page, int pageSize)
     {
         var validator = CreateValidator();
-        var request = new ListAnimalsRequest { Page = page, PageSize = pageSize };
+        var request = new ListAnimalsRequest { Page = page, PageSize = pageSize, KeyWordSearch = "valid" };
 
         var result = validator.Validate(request);
 
@@ -58,7 +58,7 @@ public sealed class ListAnimalsValidatorTests
     public void Validate_WithInvalidPageSize_ReturnsInvalid(int page, int pageSize)
     {
         var validator = CreateValidator();
-        var request = new ListAnimalsRequest { Page = page, PageSize = pageSize };
+        var request = new ListAnimalsRequest { Page = page, PageSize = pageSize, KeyWordSearch = "valid" };
 
         var result = validator.Validate(request);
 
@@ -77,7 +77,7 @@ public sealed class ListAnimalsValidatorTests
         };
         var validator = CreateValidator(customSettings);
 
-        var request = new ListAnimalsRequest { Page = 1, PageSize = 50 };
+        var request = new ListAnimalsRequest { Page = 1, PageSize = 50, KeyWordSearch = "valid" };
         var result = validator.Validate(request);
 
         result.IsValid.Should().BeTrue();
@@ -85,5 +85,22 @@ public sealed class ListAnimalsValidatorTests
         request = request with { PageSize = 51 };
         result = validator.Validate(request);
         result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Validate_WithKeyWordSearchTooLong_ReturnsInvalid()
+    {
+        var validator = CreateValidator();
+        var request = new ListAnimalsRequest
+        {
+            Page = 1,
+            PageSize = 20,
+            KeyWordSearch = new string('a', 101)
+        };
+
+        var result = validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "KeyWordSearch");
     }
 }

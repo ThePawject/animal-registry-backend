@@ -1,6 +1,9 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Api.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
+using System.Net.Http.Json;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
@@ -42,6 +45,62 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
         list.Items.Should().Contain(a => a.Id == id1 && a.Name == "ListOne");
         list.Items.Should().Contain(a => a.Id == id2 && a.Name == "ListTwo");
     }
+
+    [Fact]
+    public async Task List_WithKeyWordSearch_ReturnsMatchingItems()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var id1 = await factory.CreateAsync("sig-search-1", "t-search-1", "SearchOne", AnimalSpecies.Cat,
+            AnimalSex.Female);
+        await factory.CreateAsync("sig-search-2", "t-search-2", "SearchTwo", AnimalSpecies.Dog, AnimalSex.Male);
+
+        var list = await factory.ListAsync("archone");
+
+        list.Items.Should().ContainSingle(a => a.Id == id1 && a.Name == "SearchOne");
+    }
+
+    [Fact]
+    public async Task List_WithKeyWordSearch_MatchesEventsAndDates()
+    {
+        var user = TestUser.WithShelterAccess(TestShelterId);
+        var factory = CreateFactory(user);
+
+        var animalId = await factory.CreateAsync("sig-event-1", "t-event-1", "EventAnimal", AnimalSpecies.Dog,
+            AnimalSex.Male);
+
+        var request = new CreateAnimalEventRequest
+        {
+            AnimalId = animalId,
+            Type = AnimalEventType.AdmissionToShelter,
+            OccurredOn = new DateTimeOffset(2024, 01, 15, 10, 0, 0, TimeSpan.Zero),
+            Description = "tesT event description",
+        };
+
+        var client = fixture.CreateAuthenticatedClient(user);
+        var response = await client.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(animalId), request);
+        response.EnsureSuccessStatusCode();
+
+        var list = await factory.ListAsync("es event descript");
+
+        list.Items.Should().ContainSingle(a => a.Id == animalId && a.Name == "EventAnimal");
+    }
+
+    [Fact]
+    public async Task List_WithKeyWordSearch_Empty_ReturnsAll()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var id1 = await factory.CreateAsync("sig-empty-1", "t-empty-1", "Alpha", AnimalSpecies.Cat,
+            AnimalSex.Female);
+        var id2 = await factory.CreateAsync("sig-empty-2", "t-empty-2", "Beta", AnimalSpecies.Dog, AnimalSex.Male);
+
+        var list = await factory.ListAsync("  ");
+
+        list.Items.Should().Contain(a => a.Id == id1);
+        list.Items.Should().Contain(a => a.Id == id2);
+    }
+
 
     [Fact]
     public async Task WithoutShelterRole_ReturnsForbidden()

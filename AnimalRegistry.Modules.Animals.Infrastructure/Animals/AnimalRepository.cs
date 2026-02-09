@@ -46,10 +46,31 @@ internal sealed class AnimalRepository(
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize,
+    public async Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize, string? keyWordSearch,
         CancellationToken cancellationToken = default)
     {
         var query = context.Animals.Where(a => a.ShelterId == shelterId);
+
+        if (!string.IsNullOrWhiteSpace(keyWordSearch))
+        {
+            var terms = keyWordSearch
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(term => term.ToLower())
+                .ToArray();
+
+            foreach (var term in terms)
+            {
+                query = query.Where(a =>
+                    a.Signature.ToLower().Contains(term) ||
+                    a.TransponderCode.ToLower().Contains(term) ||
+                    a.Name.ToLower().Contains(term) ||
+                    a.Color.ToLower().Contains(term) ||
+                    a.ShelterId.ToLower().Contains(term) ||
+                    a.Events.Any(e =>
+                        e.Description.ToLower().Contains(term) ||
+                        e.PerformedBy.ToLower().Contains(term)));
+            }
+        }
 
         var totalCount = await query.CountAsync(cancellationToken);
 
