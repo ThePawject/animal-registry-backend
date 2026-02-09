@@ -4,6 +4,7 @@ using AnimalRegistry.Modules.Animals.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 {
     [DbContext(typeof(AnimalsDbContext))]
-    partial class AnimalsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260209201028_FixPhotoOwnership")]
+    partial class FixPhotoOwnership
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +42,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<bool>("IsInShelter")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<Guid?>("MainPhotoId")

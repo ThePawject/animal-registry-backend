@@ -66,4 +66,57 @@ public sealed class AnimalFactory(ApiClient api)
                      throw new InvalidOperationException("List response null");
         return result;
     }
+
+    public async Task<Guid> UpdateAsync(
+        Guid id,
+        string signature,
+        string transponder,
+        string name,
+        AnimalSpecies species,
+        AnimalSex sex,
+        List<Guid> existingPhotoIds,
+        List<(string FileName, byte[] Data, string ContentType)>? newPhotos = null,
+        Guid? mainPhotoId = null,
+        int? mainPhotoIndex = null)
+    {
+        var content = new MultipartFormDataContent();
+        content.Add(new StringContent(signature), "Signature");
+        content.Add(new StringContent(transponder), "TransponderCode");
+        content.Add(new StringContent(name), "Name");
+        content.Add(new StringContent("UpdatedColor"), "Color");
+        content.Add(new StringContent(((int)species).ToString()), "Species");
+        content.Add(new StringContent(((int)sex).ToString()), "Sex");
+        content.Add(new StringContent(DateTimeOffset.UtcNow.AddYears(-2).ToString("o")), "BirthDate");
+        
+        foreach (var photoId in existingPhotoIds)
+        {
+            content.Add(new StringContent(photoId.ToString()), "ExistingPhotoIds");
+        }
+
+        if (newPhotos != null)
+        {
+            foreach (var (fileName, data, contentType) in newPhotos)
+            {
+                var fileContent = new ByteArrayContent(data);
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+                content.Add(fileContent, "NewPhotos", fileName);
+            }
+        }
+
+        if (mainPhotoId.HasValue)
+            content.Add(new StringContent(mainPhotoId.Value.ToString()), "MainPhotoId");
+        if (mainPhotoIndex.HasValue)
+            content.Add(new StringContent(mainPhotoIndex.Value.ToString()), "MainPhotoIndex");
+
+        var resp = await api.PutFormAsync(UpdateAnimalRequest.BuildRoute(id), content);
+        if (!resp.IsSuccessStatusCode)
+        {
+            var errorContent = await resp.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"Request failed with status {resp.StatusCode}: {errorContent}");
+        }
+
+        var updated = await resp.Content.ReadFromJsonAsync<UpdateAnimalCommandResponse>()
+                      ?? throw new InvalidOperationException("Update response null");
+        return updated.AnimalId;
+    }
 }
