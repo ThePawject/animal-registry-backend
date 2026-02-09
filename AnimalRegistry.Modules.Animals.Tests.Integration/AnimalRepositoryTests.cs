@@ -20,6 +20,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         .Build();
 
     private AnimalsDbContext _dbContext = null!;
+    
     private AnimalRepository _repository = null!;
     private IBlobStorageService _blobStorageService = null!;
 
