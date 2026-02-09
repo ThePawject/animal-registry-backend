@@ -35,10 +35,9 @@ internal sealed class AnimalRepository(
     
     public async Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default)
     {
-        var entityEntry = context.Animals.Update(entity);
         await context.SaveChangesAsync(cancellationToken);
-        PopulatePhotoUrls(entityEntry.Entity);
-        return Result<Animal>.Success(entityEntry.Entity);
+        PopulatePhotoUrls(entity);
+        return Result<Animal>.Success(entity);
     }
 
     public void Remove(Animal entity)
