@@ -5,11 +5,11 @@ using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Animals.Api.AnimalEvents;
 
-public sealed class AddAnimalEvent(IMediator mediator) : Endpoint<AddAnimalEventRequest>
+public sealed class CreateAnimalEvent(IMediator mediator) : Endpoint<CreateAnimalEventRequest>
 {
     public override void Configure()
     {
-        Post(AddAnimalEventRequest.Route);
+        Post(CreateAnimalEventRequest.Route);
         Policies(ShelterAccessHandler.ShelterAccessPolicyName);
         Summary(s =>
         {
@@ -18,14 +18,13 @@ public sealed class AddAnimalEvent(IMediator mediator) : Endpoint<AddAnimalEvent
         });
     }
 
-    public override async Task HandleAsync(AddAnimalEventRequest req, CancellationToken ct)
+    public override async Task HandleAsync(CreateAnimalEventRequest req, CancellationToken ct)
     {
-        var result = await mediator.Send(new AddAnimalEventCommand(
+        var result = await mediator.Send(new CreateAnimalEventCommand(
             req.AnimalId,
             req.Type,
             req.OccurredOn,
-            req.Description,
-            req.PerformedBy
+            req.Description
         ), ct);
 
 

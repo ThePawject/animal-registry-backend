@@ -11,7 +11,6 @@ public sealed class UpdateAnimalEventRequest
     public AnimalEventType Type { get; init; }
     public DateTimeOffset OccurredOn { get; init; }
     public string Description { get; init; } = string.Empty;
-    public string PerformedBy { get; init; } = string.Empty;
 
     public static string BuildRoute(Guid animalId, Guid eventId)
     {

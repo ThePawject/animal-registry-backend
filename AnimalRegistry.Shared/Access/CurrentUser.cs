@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AnimalRegistry.Shared.Access;
+using Microsoft.AspNetCore.Http;
 
 namespace AnimalRegistry.Shared.CurrentUser;
 

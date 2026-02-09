@@ -9,8 +9,8 @@ using System.Net.Http.Json;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional.AnimalEvents;
 
-[TestSubject(typeof(AddAnimalEvent))]
-public class AddAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[TestSubject(typeof(CreateAnimalEvent))]
+public class CreateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     private const string TestShelterId = "test-shelter-1";
 
@@ -33,17 +33,16 @@ public class AddAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<
             AnimalSpecies.Dog,
             AnimalSex.Male);
 
-        var request = new AddAnimalEventRequest
+        var request = new CreateAnimalEventRequest
         {
             AnimalId = animalId,
             Type = AnimalEventType.AdmissionToShelter,
             OccurredOn = DateTimeOffset.UtcNow,
             Description = "Test event description",
-            PerformedBy = "Test User"
         };
 
         var client = fixture.CreateAuthenticatedClient(user);
-        var response = await client.PostAsJsonAsync(AddAnimalEventRequest.BuildRoute(animalId), request);
+        var response = await client.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(animalId), request);
 
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent);
 
@@ -52,7 +51,6 @@ public class AddAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<
         var addedEvent = animal.Events.First();
         addedEvent.Type.Should().Be(request.Type);
         addedEvent.Description.Should().Be(request.Description);
-        addedEvent.PerformedBy.Should().Be(request.PerformedBy);
     }
 
     [Fact]
@@ -71,16 +69,15 @@ public class AddAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<
         var otherUser = TestUser.WithShelterAccess("other-shelter");
         var otherClient = fixture.CreateAuthenticatedClient(otherUser);
 
-        var request = new AddAnimalEventRequest
+        var request = new CreateAnimalEventRequest
         {
             AnimalId = animalId,
             Type = AnimalEventType.AdmissionToShelter,
             OccurredOn = DateTimeOffset.UtcNow,
             Description = "Unauthorized event",
-            PerformedBy = "Intruder"
         };
 
-        var response = await otherClient.PostAsJsonAsync(AddAnimalEventRequest.BuildRoute(animalId), request);
+        var response = await otherClient.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(animalId), request);
 
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.NotFound);
     }

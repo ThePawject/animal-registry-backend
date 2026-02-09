@@ -2,10 +2,11 @@ namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
 public sealed class TestUser
 {
-    public string UserId { get; } = Guid.NewGuid().ToString();
-    public static string Name => "Test User";
+    public const string Name = "Test User";
 
-    public static string Email => "test@example.com";
+    public const string Email = "test@example.com";
+
+    public const string UserId = "TestUser-0000";
 
     public IReadOnlyList<string> Roles { get; init; } = Array.Empty<string>();
     public IReadOnlyDictionary<string, string> CustomClaims { get; init; } = new Dictionary<string, string>();
