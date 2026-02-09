@@ -12,8 +12,10 @@ internal sealed class AnimalRepository(
 {
     public async Task<Animal?> GetByIdAsync(Guid id, string shelterId, CancellationToken cancellationToken = default)
     {
-        var animal = await context.Animals.FirstOrDefaultAsync(a => a.Id == id && a.ShelterId == shelterId,
-            cancellationToken);
+        var animal = await context.Animals
+            .Include(a => a.Photos)
+            .Include(a => a.Events)
+            .FirstOrDefaultAsync(a => a.Id == id && a.ShelterId == shelterId, cancellationToken);
         
         if (animal is not null)
         {

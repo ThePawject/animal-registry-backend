@@ -38,8 +38,8 @@ public sealed class Animal : Entity, IAggregateRoot
     }
 
     public string TransponderCode { get; private set; } = null!;
-    public string Signature { get; } = null!;
-    public string Name { get; } = null!;
+    public string Signature { get; private set; } = null!;
+    public string Name { get; private set; } = null!;
     public string Color { get; private set; } = null!;
     public AnimalSpecies Species { get; private set; }
     public AnimalSex Sex { get; private set; }
@@ -89,6 +89,27 @@ public sealed class Animal : Entity, IAggregateRoot
         animal.AddDomainEvent(new AnimalCreatedDomainEvent(animal.Id, animal.Signature, animal.Name));
 
         return animal;
+    }
+
+    public void Update(
+        string signature,
+        string transponderCode,
+        string name,
+        string color,
+        AnimalSpecies species,
+        AnimalSex sex,
+        DateTimeOffset birthDate)
+    {
+        Signature = signature;
+        TransponderCode = transponderCode;
+        Name = name;
+        Color = color;
+        Species = species;
+        Sex = sex;
+        BirthDate = birthDate;
+        ModifiedOn = DateTimeOffset.UtcNow;
+        
+        AddDomainEvent(new AnimalUpdatedDomainEvent(Id, Name, Signature));
     }
 
     public void Archive()
