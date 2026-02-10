@@ -1,6 +1,5 @@
 name: Build and Deploy to Azure Web App
 
-# Triggers on push to main + allows manual trigger for both dev and prod
 on:
   push:
     branches: [ main ]
