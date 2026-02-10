@@ -47,6 +47,37 @@ public static class ResultEndpointExtensions
         };
     }
 
+    public static Task SendResultAsync<TResponse>(
+        this EndpointWithoutRequest ep,
+        Result<TResponse> result,
+        CancellationToken ct = default)
+    {
+        if (result is { IsSuccess: true, Value: not null })
+        {
+            return ep.HttpContext.Response.SendOkAsync(result.Value, cancellation: ct);
+        }
+
+        return result.Status switch
+        {
+            ResultStatus.ValidationError => SendValidationError(ep, result.Error, ct),
+            ResultStatus.NotFound => ep.HttpContext.Response.SendNotFoundAsync(ct),
+            ResultStatus.Forbidden => ep.HttpContext.Response.SendForbiddenAsync(ct),
+            _ => SendProblem(ep, StatusCodes.Status500InternalServerError, result.Error, ct),
+        };
+    }
+
+    public static async Task<bool> SendResultIfFailureAsync<TResponse>(
+        this EndpointWithoutRequest ep,
+        Result<TResponse> result,
+        CancellationToken ct = default)
+    {
+        if (result is { IsSuccess: true, Value: not null })
+            return false;
+
+        await ep.SendResultAsync(result, ct);
+        return true;
+    }
+
     private static Task<Void> SendValidationError<TRequest, TResponse>(
         Endpoint<TRequest, TResponse> ep,
         string? error,
@@ -67,12 +98,43 @@ public static class ResultEndpointExtensions
         return ep.HttpContext.Response.SendErrorsAsync(ep.ValidationFailures, cancellation: ct);
     }
 
+    private static Task<Void> SendValidationError(
+        EndpointWithoutRequest ep,
+        string? error,
+        CancellationToken ct)
+    {
+        ep.AddError(error ?? "Validation error");
+        return ep.HttpContext.Response.SendErrorsAsync(ep.ValidationFailures, cancellation: ct);
+    }
+
     private static Task SendProblem<TRequest, TResponse>(
         Endpoint<TRequest, TResponse> ep,
         int status,
         string? detail,
         CancellationToken ct)
         where TRequest : notnull
+    {
+        var ctx = ep.HttpContext;
+
+        var pd = new ProblemDetails
+        {
+            Status = status,
+            Instance = $"{ctx.Request.Method} {ctx.Request.Path}",
+            TraceId = Activity.Current?.Id ?? ctx.TraceIdentifier,
+            Detail = detail ?? "An unexpected error occurred.",
+            Errors = [],
+        };
+
+        ctx.Response.StatusCode = status;
+        ctx.Response.ContentType = "application/problem+json";
+        return ctx.Response.WriteAsJsonAsync(pd, ct);
+    }
+
+    private static Task SendProblem(
+        EndpointWithoutRequest ep,
+        int status,
+        string? detail,
+        CancellationToken ct)
     {
         var ctx = ep.HttpContext;
 

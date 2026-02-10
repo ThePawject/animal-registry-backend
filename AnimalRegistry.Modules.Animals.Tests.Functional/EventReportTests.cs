@@ -40,7 +40,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
         await client.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(dogId), dogEventRequest);
         await client.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(catId), catEventRequest);
 
-        var response = await client.PostAsync("/reports/events", null);
+        var response = await client.GetAsync("/reports/events");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.MediaType.Should().Be("application/pdf");
@@ -65,7 +65,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
         var user = TestUser.WithShelterAccess(TestShelterId);
         var client = fixture.CreateAuthenticatedClient(user);
 
-        var response = await client.PostAsync("/reports/events", null);
+        var response = await client.GetAsync("/reports/events");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var contentDisposition = response.Content.Headers.GetValues("Content-Disposition").FirstOrDefault();
@@ -78,7 +78,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
     {
         var client = fixture.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
 
-        var response = await client.PostAsync("/reports/events", null);
+        var response = await client.GetAsync("/reports/events");
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -86,7 +86,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
     [Fact]
     public async Task GenerateEventReport_ShouldReturnUnauthorized_WhenNotAuthenticated()
     {
-        var response = await fixture.Client.PostAsync("/reports/events", null);
+        var response = await fixture.Client.GetAsync("/reports/events");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -124,7 +124,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
             Description = "Weekly event",
         });
 
-        var response = await client.PostAsync("/reports/events", null);
+        var response = await client.GetAsync("/reports/events");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var pdfBytes = await response.Content.ReadAsByteArrayAsync();
