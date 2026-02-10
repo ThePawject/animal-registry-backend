@@ -3,6 +3,7 @@ using AnimalRegistry.Modules.Animals.Domain.Animals;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System.Collections.Generic;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services;
 
@@ -13,7 +14,7 @@ internal sealed class DateRangeAnimalsReportPdfService : IDateRangeAnimalsReport
         QuestPDF.Settings.License = LicenseType.Community;
     }
 
-    public byte[] GenerateReport(DateTimeOffset startDate, DateTimeOffset endDate, List<AnimalSpecies> species, DateTimeOffset generatedAt, string shelterId)
+    public byte[] GenerateReport(DateTimeOffset startDate, DateTimeOffset endDate, List<AnimalSpecies>? species, DateTimeOffset generatedAt, string shelterId)
     {
         var document = Document.Create(container =>
         {

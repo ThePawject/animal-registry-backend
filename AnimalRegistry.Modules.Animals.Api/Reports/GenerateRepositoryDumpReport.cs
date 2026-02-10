@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;

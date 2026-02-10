@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
@@ -5,11 +6,12 @@ using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Animals.Api.Reports;
 
-internal sealed class GenerateSelectedAnimalsReport(IMediator mediator) : Endpoint<GenerateSelectedAnimalsReportRequest>
+internal sealed class GenerateSelectedAnimalsReport(IMediator mediator)
+    : Endpoint<GenerateSelectedAnimalsReportRequest>
 {
     public override void Configure()
     {
-        Get("/reports/animals/selected");
+        Get(GenerateSelectedAnimalsReportRequest.Route);
         Policies(ShelterAccessHandler.ShelterAccessPolicyName);
         Summary(s =>
         {
@@ -22,7 +24,7 @@ internal sealed class GenerateSelectedAnimalsReport(IMediator mediator) : Endpoi
     {
         var command = new GenerateSelectedAnimalsReportCommand
         {
-            Ids = req.Ids,
+            Ids = req.Ids
         };
 
         var result = await mediator.Send(command, ct);
@@ -35,9 +37,4 @@ internal sealed class GenerateSelectedAnimalsReport(IMediator mediator) : Endpoi
         HttpContext.Response.Headers.ContentDisposition = $"attachment; filename=\"{response.FileName}\"";
         await HttpContext.Response.Body.WriteAsync(response.Data, ct);
     }
-}
-
-public sealed class GenerateSelectedAnimalsReportRequest
-{
-    public List<Guid> Ids { get; init; } = [];
 }

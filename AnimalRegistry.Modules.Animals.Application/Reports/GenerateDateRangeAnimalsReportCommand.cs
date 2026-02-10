@@ -1,6 +1,7 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
+using System.Collections.Generic;
 
 namespace AnimalRegistry.Modules.Animals.Application.Reports;
 
@@ -8,7 +9,7 @@ internal sealed class GenerateDateRangeAnimalsReportCommand : IRequest<Result<Ge
 {
     public DateTimeOffset StartDate { get; init; }
     public DateTimeOffset EndDate { get; init; }
-    public List<AnimalSpecies> Species { get; init; } = [];
+    public List<AnimalSpecies>? Species { get; init; }
 }
 
 public sealed record GenerateDateRangeAnimalsReportResponse
@@ -20,5 +21,5 @@ public sealed record GenerateDateRangeAnimalsReportResponse
 
 public interface IDateRangeAnimalsReportPdfService
 {
-    byte[] GenerateReport(DateTimeOffset startDate, DateTimeOffset endDate, List<AnimalSpecies> species, DateTimeOffset generatedAt, string shelterId);
+    byte[] GenerateReport(DateTimeOffset startDate, DateTimeOffset endDate, List<AnimalSpecies>? species, DateTimeOffset generatedAt, string shelterId);
 }
