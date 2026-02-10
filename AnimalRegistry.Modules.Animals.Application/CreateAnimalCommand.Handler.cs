@@ -1,7 +1,6 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
-using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
@@ -31,7 +30,7 @@ internal sealed class CreateAnimalCommandHandler(
             for (var i = 0; i < request.Photos.Count; i++)
             {
                 var photo = request.Photos[i];
-                
+
                 var uploadResult = await blobStorageService.UploadAsync(
                     photo.FileName,
                     photo.Content,

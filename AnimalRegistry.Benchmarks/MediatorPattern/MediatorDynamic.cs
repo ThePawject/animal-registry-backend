@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AnimalRegistry.Benchmarks.MediatorPattern;
 
+// ReSharper disable once UnusedTypeParameter
 public interface IRequest<TResponse>
 {
 }

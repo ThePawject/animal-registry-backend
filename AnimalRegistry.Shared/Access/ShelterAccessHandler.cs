@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
-namespace AnimalRegistry.Shared;
+namespace AnimalRegistry.Shared.Access;
 
 public sealed class ShelterAccessHandler
     : AuthorizationHandler<ShelterAccessRequirement>

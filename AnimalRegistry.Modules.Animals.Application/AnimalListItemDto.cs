@@ -35,12 +35,14 @@ public sealed record AnimalListItemDto(
             a.IsInShelter,
             a.ShelterId,
             a.MainPhotoId,
-            a.MainPhoto is not null ? new AnimalPhotoDto(
-                a.MainPhoto.Id,
-                a.MainPhoto.Url ?? string.Empty,
-                a.MainPhoto.FileName,
-                a.MainPhoto.UploadedOn
-            ) : null
+            a.MainPhoto is not null
+                ? new AnimalPhotoDto(
+                    a.MainPhoto.Id,
+                    a.MainPhoto.Url ?? string.Empty,
+                    a.MainPhoto.FileName,
+                    a.MainPhoto.UploadedOn
+                )
+                : null
         );
     }
 }

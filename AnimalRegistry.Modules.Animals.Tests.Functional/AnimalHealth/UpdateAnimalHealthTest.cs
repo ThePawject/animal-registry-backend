@@ -41,7 +41,7 @@ public class UpdateAnimalHealthTest(IntegrationTestFixture fixture) : IClassFixt
 
         var addRequest = new CreateAnimalHealthRequest
         {
-            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow.AddDays(-1), Description = "Original health"
+            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow.AddDays(-1), Description = "Original health",
         };
         await AddHealthAsync(client, animalId, addRequest);
 
@@ -53,7 +53,7 @@ public class UpdateAnimalHealthTest(IntegrationTestFixture fixture) : IClassFixt
             AnimalId = animalId,
             HealthRecordId = recordId,
             OccurredOn = DateTimeOffset.UtcNow,
-            Description = "Updated health"
+            Description = "Updated health",
         };
 
         var response = await client.PutAsJsonAsync(

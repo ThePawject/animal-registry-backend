@@ -8,11 +8,10 @@ using System.Net;
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
 [TestSubject(typeof(DeleteAnimal))]
-
 public class DeleteAnimalTest(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     private const string TestShelterId = "test-shelter-1";
-    
+
     private AnimalFactory CreateFactory(TestUser user)
     {
         var client = fixture.CreateAuthenticatedClient(user);

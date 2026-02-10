@@ -109,7 +109,7 @@ public abstract class ValueObject : IEquatable<ValueObject>
 
     private int HashValue(int seed, object value)
     {
-        var currentHash = value?.GetHashCode() ?? 0;
+        var currentHash = value.GetHashCode();
 
         return (seed * 23) + currentHash;
     }

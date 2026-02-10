@@ -13,6 +13,6 @@ internal interface IAnimalRepository
     Task<Result<Animal>> AddAsync(Animal entity, CancellationToken cancellationToken = default);
 
     Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default);
-    
+
     Task RemoveAsync(Animal entity, CancellationToken cancellationToken = default);
 }

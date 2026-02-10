@@ -41,7 +41,7 @@ public class DeleteAnimalHealthTest(IntegrationTestFixture fixture) : IClassFixt
 
         var addRequest = new CreateAnimalHealthRequest
         {
-            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "To be deleted"
+            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "To be deleted",
         };
         await AddHealthAsync(client, animalId, addRequest);
 

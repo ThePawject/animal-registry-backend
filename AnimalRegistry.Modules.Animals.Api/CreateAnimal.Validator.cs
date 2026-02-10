@@ -1,4 +1,3 @@
-using AnimalRegistry.Modules.Animals.Domain.Animals;
 using FastEndpoints;
 using FluentValidation;
 

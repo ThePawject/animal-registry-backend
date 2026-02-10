@@ -16,7 +16,7 @@ public class BlobStorageServiceTests
         {
             ConnectionString = "UseDevelopmentStorage=true",
             ContainerName = "test-container",
-            AccountName = "testaccount"
+            AccountName = "testaccount",
         };
         var options = Substitute.For<IOptions<BlobStorageSettings>>();
         options.Value.Returns(settings);
@@ -44,7 +44,9 @@ public class BlobStorageServiceTests
 
         var url = _service.GetBlobUrl(blobPath);
 
-        url.Should().Be("https://testaccount.blob.core.windows.net/test-container/shelter-id/animal-id/20240209123456789_photo.jpg");
+        url.Should()
+            .Be(
+                "https://testaccount.blob.core.windows.net/test-container/shelter-id/animal-id/20240209123456789_photo.jpg");
     }
 }
 
@@ -58,7 +60,7 @@ public class BlobStorageValidationTests
         {
             ConnectionString = "UseDevelopmentStorage=true",
             ContainerName = "test-container",
-            AccountName = "testaccount"
+            AccountName = "testaccount",
         };
         var options = Substitute.For<IOptions<BlobStorageSettings>>();
         options.Value.Returns(settings);

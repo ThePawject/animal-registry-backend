@@ -112,7 +112,7 @@ public sealed class Animal : Entity, IAggregateRoot
         Sex = sex;
         BirthDate = birthDate;
         ModifiedOn = DateTimeOffset.UtcNow;
-        
+
         AddDomainEvent(new AnimalUpdatedDomainEvent(Id, Name, Signature));
     }
 

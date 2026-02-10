@@ -34,7 +34,7 @@ public class CreateAnimalHealthTest(IntegrationTestFixture fixture) : IClassFixt
 
         var request = new CreateAnimalHealthRequest
         {
-            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "Initial health record"
+            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "Initial health record",
         };
 
         var client = fixture.CreateAuthenticatedClient(user);
@@ -66,7 +66,7 @@ public class CreateAnimalHealthTest(IntegrationTestFixture fixture) : IClassFixt
 
         var request = new CreateAnimalHealthRequest
         {
-            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "Unauthorized health record"
+            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "Unauthorized health record",
         };
 
         var response = await otherClient.PostAsJsonAsync(CreateAnimalHealthRequest.BuildRoute(animalId), request);

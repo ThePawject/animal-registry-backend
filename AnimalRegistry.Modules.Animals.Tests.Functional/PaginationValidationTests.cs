@@ -1,5 +1,4 @@
 using AnimalRegistry.Modules.Animals.Api;
-using AnimalRegistry.Shared.Pagination;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using System.Net;

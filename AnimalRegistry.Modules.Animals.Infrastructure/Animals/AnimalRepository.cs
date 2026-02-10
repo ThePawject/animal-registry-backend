@@ -16,12 +16,12 @@ internal sealed class AnimalRepository(
             .Include(a => a.Photos)
             .Include(a => a.Events)
             .FirstOrDefaultAsync(a => a.Id == id && a.ShelterId == shelterId, cancellationToken);
-        
+
         if (animal is not null)
         {
             PopulatePhotoUrls(animal);
         }
-        
+
         return animal;
     }
 
@@ -32,7 +32,7 @@ internal sealed class AnimalRepository(
         PopulatePhotoUrls(entityEntry.Entity);
         return Result<Animal>.Success(entityEntry.Entity);
     }
-    
+
     public async Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default)
     {
         await context.SaveChangesAsync(cancellationToken);
@@ -87,7 +87,7 @@ internal sealed class AnimalRepository(
 
         return new PagedResult<Animal>(items, totalCount, page, pageSize);
     }
-    
+
     private void PopulatePhotoUrls(Animal animal)
     {
         foreach (var photo in animal.Photos)

@@ -2,7 +2,6 @@ global using AnimalRegistry;
 using AnimalRegistry.Modules.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
-using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.Pagination;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -75,6 +74,7 @@ if (app.Environment.IsDevelopment())
     IdentityModelEventSource.LogCompleteSecurityArtifact = true;
     IdentityModelEventSource.ShowPII = true;
 }
+
 app.MapOpenApi();
 app.MapScalarWithAuth0(builder.Configuration);
 
