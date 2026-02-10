@@ -1,5 +1,6 @@
 using AnimalRegistry.Modules.Animals.Api;
 using AnimalRegistry.Modules.Animals.Application;
+using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
@@ -42,6 +43,8 @@ public sealed class AnimalsModule : IModule
         });
 
         services.AddScoped<IAnimalRepository, AnimalRepository>();
+        services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
+        services.AddScoped<IEventReportPdfService, EventReportPdfService>();
 
         services.Configure<BlobStorageSettings>(options =>
         {
