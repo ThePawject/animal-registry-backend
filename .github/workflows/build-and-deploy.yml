@@ -124,13 +124,12 @@ jobs:
 
       - name: Deploy to Azure Web App
         run: |
-          echo "Ensuring error handling is active..."
-          set -e
-          echo "Deploying to ${{ vars.WEB_APP_NAME }}..."
-          az webapp deployment source config-zip \
+          az webapp deploy \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
             --name ${{ vars.WEB_APP_NAME }} \
-            --src ${{ env.ZIP_NAME }}
+            --src-path ${{ env.ZIP_NAME }} \
+            --type zip \
+            --async false
           
           echo "✅ Deployment completed successfully!"
           echo "🌐 App URL: https://${{ vars.WEB_APP_NAME }}.azurewebsites.net"
