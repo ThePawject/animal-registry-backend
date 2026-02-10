@@ -11,16 +11,21 @@ internal sealed class UpdateAnimalValidator : Validator<UpdateAnimalRequest>
             .NotEmpty();
 
         RuleFor(x => x.Signature)
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(100);
 
         RuleFor(x => x.TransponderCode)
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(100);
 
         RuleFor(x => x.Name)
-            .NotEmpty();
+            .NotEmpty()
+            .MinimumLength(2)
+            .MaximumLength(100);
 
         RuleFor(x => x.Color)
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(50);
 
         RuleFor(x => x.Species)
             .NotEmpty()
