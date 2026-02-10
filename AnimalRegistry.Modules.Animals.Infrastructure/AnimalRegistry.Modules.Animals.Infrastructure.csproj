@@ -19,6 +19,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
         <PackageReference Include="Azure.Storage.Blobs"/>
+        <PackageReference Include="QuestPDF"/>
     </ItemGroup>
 
 </Project>
