@@ -58,7 +58,7 @@ internal sealed class BlobStorageService : IBlobStorageService
             {
                 { "shelterId", shelterId },
                 { "animalId", animalId.ToString() },
-                { "originalFileName", fileName },
+                { "originalFileName", safeFileName },
             },
         }, cancellationToken);
 
