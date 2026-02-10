@@ -17,8 +17,7 @@ internal sealed class UpdateAnimalValidator : Validator<UpdateAnimalRequest>
             .NotEmpty();
 
         RuleFor(x => x.Name)
-            .NotEmpty()
-            .MinimumLength(2);
+            .NotEmpty();
 
         RuleFor(x => x.Color)
             .NotEmpty();
@@ -45,6 +44,20 @@ internal sealed class UpdateAnimalValidator : Validator<UpdateAnimalRequest>
         RuleFor(x => x.MainPhotoId)
             .Must((request, mainPhotoId) =>
                 !mainPhotoId.HasValue || request.ExistingPhotoIds.Contains(mainPhotoId.Value))
-            .When(x => x.MainPhotoId.HasValue);
+            .When(x => x.MainPhotoId.HasValue)
+            .WithMessage("MainPhotoId must belong to the provided ExistingPhotoIds");
+
+        RuleFor(x => x.NewPhotos)
+            .NotNull()
+            .Must(photos => photos.Count <= 10)
+            .WithMessage("Maximum 10 photos allowed");
+
+        RuleForEach(x => x.NewPhotos)
+            .Must(file => file.Length <= 10 * 1024 * 1024)
+            .WithMessage("Each photo must be 10MB or less");
+
+        RuleFor(x => x.NewPhotos)
+            .Must(photos => photos.Sum(f => f.Length) <= 100 * 1024 * 1024)
+            .WithMessage("Total photo size must not exceed 100MB");
     }
 }

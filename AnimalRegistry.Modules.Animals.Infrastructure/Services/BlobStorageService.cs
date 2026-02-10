@@ -53,14 +53,11 @@ internal sealed class BlobStorageService : IBlobStorageService
         await blobClient.UploadAsync(content,
             new BlobUploadOptions
             {
-                HttpHeaders = blobHttpHeaders,
-                Metadata = new Dictionary<string, string>
-                {
-                    { "shelterId", shelterId },
-                    { "animalId", animalId.ToString() },
-                    { "originalFileName", fileName },
-                },
-            }, cancellationToken);
+                { "shelterId", shelterId },
+                { "animalId", animalId.ToString() },
+                { "originalFileName", safeFileName },
+            },
+        }, cancellationToken);
 
         return Result<string>.Success(blobPath);
     }

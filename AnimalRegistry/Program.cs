@@ -5,6 +5,7 @@ using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.Pagination;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -13,10 +14,19 @@ var modules = new List<IModule> { new AnimalsModule() };
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 100 * 1024 * 1024; // 100MB
+});
+
 builder.Services.AddSingleton<IAuthorizationHandler, ShelterAccessHandler>();
 
 builder.Services.AddAuth0OpenApi(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 100 * 1024 * 1024; // 100MB
+});
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddPagination(builder.Configuration);
 
