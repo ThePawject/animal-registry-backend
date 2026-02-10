@@ -25,5 +25,6 @@
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.5" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.23.0" />
+    <PackageVersion Include="Azure.Identity" Version="1.14.1" />
   </ItemGroup>
 </Project>

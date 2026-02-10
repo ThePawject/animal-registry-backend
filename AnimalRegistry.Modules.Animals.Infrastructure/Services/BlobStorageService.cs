@@ -1,5 +1,6 @@
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Shared;
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Options;
@@ -9,25 +10,38 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Services;
 
 internal sealed class BlobStorageService : IBlobStorageService
 {
-    private readonly BlobContainerClient _containerClient;
-    private readonly BlobStorageSettings _settings;
-
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".jpg", ".jpeg", ".png", ".webp",
     };
 
+    private readonly BlobContainerClient _containerClient;
+    private readonly BlobStorageSettings _settings;
+
     public BlobStorageService(IOptions<BlobStorageSettings> options)
     {
         _settings = options.Value;
-        var blobServiceClient = new BlobServiceClient(_settings.ConnectionString);
+
+        BlobServiceClient blobServiceClient;
+
+        if (!string.IsNullOrWhiteSpace(_settings.ConnectionString))
+        {
+            blobServiceClient = new BlobServiceClient(_settings.ConnectionString);
+        }
+        else
+        {
+            var credential = new DefaultAzureCredential();
+            var blobServiceUri = new Uri($"https://{_settings.AccountName}.blob.core.windows.net");
+            blobServiceClient = new BlobServiceClient(blobServiceUri, credential);
+        }
+
         _containerClient = blobServiceClient.GetBlobContainerClient(_settings.ContainerName);
         _containerClient.CreateIfNotExists(PublicAccessType.Blob);
     }
 
     public async Task<Result<string>> UploadAsync(
-        string fileName, 
-        Stream content, 
+        string fileName,
+        Stream content,
         string contentType,
         string shelterId,
         Guid animalId,
@@ -42,25 +56,25 @@ internal sealed class BlobStorageService : IBlobStorageService
         var safeFileName = SanitizeFileName(fileName);
         var timestamp = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff");
         var blobPath = $"{shelterId}/{animalId}/{timestamp}_{safeFileName}";
-        
+
         var blobClient = _containerClient.GetBlobClient(blobPath);
 
-        var blobHttpHeaders = new BlobHttpHeaders 
-        { 
-            ContentType = contentType,
-            CacheControl = "public, max-age=31536000",
+        var blobHttpHeaders = new BlobHttpHeaders
+        {
+            ContentType = contentType, CacheControl = "public, max-age=31536000",
         };
 
-        await blobClient.UploadAsync(content, new BlobUploadOptions 
-        { 
-            HttpHeaders = blobHttpHeaders,
-            Metadata = new Dictionary<string, string>
+        await blobClient.UploadAsync(content,
+            new BlobUploadOptions
             {
-                { "shelterId", shelterId },
-                { "animalId", animalId.ToString() },
-                { "originalFileName", safeFileName },
-            },
-        }, cancellationToken);
+                HttpHeaders = blobHttpHeaders,
+                Metadata = new Dictionary<string, string>
+                {
+                    { "shelterId", shelterId },
+                    { "animalId", animalId.ToString() },
+                    { "originalFileName", safeFileName },
+                },
+            }, cancellationToken);
 
         return Result<string>.Success(blobPath);
     }
@@ -100,12 +114,12 @@ internal sealed class BlobStorageService : IBlobStorageService
         var name = Path.GetFileName(fileName);
         name = name.Replace(" ", "_");
         name = Regex.Replace(name, "[^a-zA-Z0-9._-]", "_");
-        
+
         if (string.IsNullOrWhiteSpace(name) || name == "_")
         {
             name = $"photo_{Guid.NewGuid():N}";
         }
-        
+
         return name;
     }
 }
