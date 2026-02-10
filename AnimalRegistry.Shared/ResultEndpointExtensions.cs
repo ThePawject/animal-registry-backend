@@ -78,6 +78,19 @@ public static class ResultEndpointExtensions
         return true;
     }
 
+    public static async Task<bool> SendResultIfFailureAsync<TRequest, TResponse>(
+        this Endpoint<TRequest> ep,
+        Result<TResponse> result,
+        CancellationToken ct = default)
+        where TRequest : notnull
+    {
+        if (result is { IsSuccess: true, Value: not null })
+            return false;
+
+        await ep.SendResultAsync(result, ct);
+        return true;
+    }
+
     private static Task<Void> SendValidationError<TRequest, TResponse>(
         Endpoint<TRequest, TResponse> ep,
         string? error,

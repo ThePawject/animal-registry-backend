@@ -45,6 +45,9 @@ public sealed class AnimalsModule : IModule
         services.AddScoped<IAnimalRepository, AnimalRepository>();
         services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
         services.AddScoped<IEventReportPdfService, EventReportPdfService>();
+        services.AddScoped<IDateRangeAnimalsReportPdfService, DateRangeAnimalsReportPdfService>();
+        services.AddScoped<ISelectedAnimalsReportPdfService, SelectedAnimalsReportPdfService>();
+        services.AddScoped<IRepositoryDumpReportPdfService, RepositoryDumpReportPdfService>();
 
         services.Configure<BlobStorageSettings>(options =>
         {
