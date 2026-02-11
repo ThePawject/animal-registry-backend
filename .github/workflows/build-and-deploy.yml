@@ -1,4 +1,4 @@
-name: Build and Deploy to Azure Web App
+name: Build, Test and Deploy
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
   # JOB 1: BUILD AND TEST
   # ============================================
   build:
-    name: Build, Test, and Package
+    name: Build and Test
     runs-on: ubuntu-latest
     
     steps:
