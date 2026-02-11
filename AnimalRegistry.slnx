@@ -19,8 +19,6 @@
     <File Path=".editorconfig" />
     <File Path=".env" />
       <File Path=".github/workflows/build-and-deploy.yml"/>
-    <File Path=".github\workflows\docker.yml" />
-    <File Path=".github\workflows\dotnet-ci.yml" />
     <File Path="Directory.Build.props" />
   </Folder>
   <Folder Name="/Tests/">

@@ -1,18 +1,19 @@
 using AnimalRegistry.Modules.Animals.Api;
-using AnimalRegistry.Shared.Pagination;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using System.Net;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
-public sealed class PaginationValidationTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public sealed class PaginationValidationTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-paging";
 
     private HttpClient CreateAuthenticatedClient()
     {
-        return fixture.CreateAuthenticatedClient(TestUser.WithShelterAccess(TestShelterId));
+        return Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(TestShelterId));
     }
 
     [Theory]

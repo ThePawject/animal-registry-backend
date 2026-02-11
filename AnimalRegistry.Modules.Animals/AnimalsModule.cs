@@ -31,10 +31,9 @@ public sealed class AnimalsModule : IModule
 
         services.AddMediator(typeof(CreateAnimalCommandHandler).Assembly);
 
-        var connectionString = configuration.GetConnectionString("AnimalsDb");
         services.Configure<AnimalsDatabaseSettings>(options =>
         {
-            options.ConnectionString = connectionString!;
+            options.ConnectionString = configuration["Database:ConnectionString"]!;
         });
         services.AddDbContext<AnimalsDbContext>((serviceProvider, options) =>
         {
@@ -51,7 +50,7 @@ public sealed class AnimalsModule : IModule
 
         services.Configure<BlobStorageSettings>(options =>
         {
-            options.ConnectionString = configuration["BlobStorage:ConnectionString"]!;
+            options.ConnectionString = configuration["BlobStorage:ConnectionString"];
             options.ContainerName = configuration["BlobStorage:ContainerName"]!;
             options.AccountName = configuration["BlobStorage:AccountName"]!;
         });

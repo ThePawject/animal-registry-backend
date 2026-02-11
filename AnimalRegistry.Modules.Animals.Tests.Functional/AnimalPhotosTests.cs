@@ -1,16 +1,18 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
-public sealed class AnimalPhotosTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-photos";
 
     private AnimalFactory CreateFactory(TestUser user)
     {
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         return new AnimalFactory(new ApiClient(client));
     }
 

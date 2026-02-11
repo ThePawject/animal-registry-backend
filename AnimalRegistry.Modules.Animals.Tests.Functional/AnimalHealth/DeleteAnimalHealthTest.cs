@@ -1,5 +1,6 @@
-﻿using AnimalRegistry.Modules.Animals.Api.AnimalHealth;
+using AnimalRegistry.Modules.Animals.Api.AnimalHealth;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using JetBrains.Annotations;
@@ -9,13 +10,14 @@ using System.Net.Http.Json;
 namespace AnimalRegistry.Modules.Animals.Tests.Functional.AnimalHealth;
 
 [TestSubject(typeof(DeleteAnimalHealth))]
-public class DeleteAnimalHealthTest(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public class DeleteAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-1";
 
     private AnimalFactory CreateFactory(TestUser user)
     {
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         return new AnimalFactory(new ApiClient(client));
     }
 
@@ -30,7 +32,7 @@ public class DeleteAnimalHealthTest(IntegrationTestFixture fixture) : IClassFixt
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
         var factory = CreateFactory(user);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
 
         var animalId = await factory.CreateAsync(
             "SIG-HEALTH-4",

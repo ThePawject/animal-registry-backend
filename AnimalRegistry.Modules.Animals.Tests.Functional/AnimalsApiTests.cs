@@ -1,19 +1,21 @@
-using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Api.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using System.Net.Http.Json;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
-public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-1";
 
     private AnimalFactory CreateFactory(TestUser user)
     {
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         return new AnimalFactory(new ApiClient(client));
     }
 
@@ -77,7 +79,7 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
             Description = "tesT event description",
         };
 
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         var response = await client.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(animalId), request);
         response.EnsureSuccessStatusCode();
 
@@ -105,7 +107,7 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
     [Fact]
     public async Task WithoutShelterRole_ReturnsForbidden()
     {
-        var client = fixture.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
+        var client = Factory.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
@@ -117,7 +119,7 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
     [Fact]
     public async Task WithoutAuthentication_ReturnsUnauthorized()
     {
-        var factory = new AnimalFactory(new ApiClient(fixture.Client));
+        var factory = new AnimalFactory(new ApiClient(Client));
 
         var act = async () =>
             await factory.CreateAsync("sig-unauth", "t-unauth", "Unauthorized", AnimalSpecies.Dog, AnimalSex.Male);
@@ -128,7 +130,7 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
     [Fact]
     public async Task WithTwoShelterRoles_ReturnsForbidden()
     {
-        var client = fixture.CreateAuthenticatedClient(TestUser.WithMultipleShelters("shelter-1", "shelter-2"));
+        var client = Factory.CreateAuthenticatedClient(TestUser.WithMultipleShelters("shelter-1", "shelter-2"));
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () => await factory.CreateAsync("sig-two", "t-two", "Two", AnimalSpecies.Dog, AnimalSex.Male);
@@ -139,7 +141,7 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
     [Fact]
     public async Task WithCustomRole_ReturnsForbidden()
     {
-        var client = fixture.CreateAuthenticatedClient(TestUser.WithCustomRole("Admin"));
+        var client = Factory.CreateAuthenticatedClient(TestUser.WithCustomRole("Admin"));
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
@@ -151,7 +153,7 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
     [Fact]
     public async Task WithEmptyRoles_ReturnsForbidden()
     {
-        var client = fixture.CreateAuthenticatedClient(new TestUser { Roles = [] });
+        var client = Factory.CreateAuthenticatedClient(new TestUser { Roles = [] });
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
@@ -163,7 +165,7 @@ public sealed class AnimalsApiTests(IntegrationTestFixture fixture) : IClassFixt
     [Fact]
     public async Task WithWrongShelterPrefix_ReturnsForbidden()
     {
-        var client = fixture.CreateAuthenticatedClient(new TestUser { Roles = ["WrongPrefix_123"] });
+        var client = Factory.CreateAuthenticatedClient(new TestUser { Roles = ["WrongPrefix_123"] });
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>

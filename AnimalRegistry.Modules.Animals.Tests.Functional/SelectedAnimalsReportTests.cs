@@ -1,11 +1,13 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using System.Net;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
-public sealed class SelectedAnimalsReportTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public sealed class SelectedAnimalsReportTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-selected";
 
@@ -13,7 +15,7 @@ public sealed class SelectedAnimalsReportTests(IntegrationTestFixture fixture) :
     public async Task GenerateSelectedAnimalsReport_ShouldReturnPdf_WhenUserHasShelterAccess()
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         var factory = new AnimalFactory(new ApiClient(client));
 
         var dogId = await factory.CreateAsync("sig-dog-sel-1", "trans-dog-sel-1", "DoggoSel", AnimalSpecies.Dog, AnimalSex.Male);
@@ -43,7 +45,7 @@ public sealed class SelectedAnimalsReportTests(IntegrationTestFixture fixture) :
     public async Task GenerateSelectedAnimalsReport_ShouldReturnValidationError_WhenNoIdsProvided()
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
 
         var response = await client.GetAsync("/reports/animals/selected");
 
@@ -53,7 +55,7 @@ public sealed class SelectedAnimalsReportTests(IntegrationTestFixture fixture) :
     [Fact]
     public async Task GenerateSelectedAnimalsReport_ShouldReturnForbidden_WhenUserHasNoShelterAccess()
     {
-        var client = fixture.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
+        var client = Factory.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
         var id = Guid.NewGuid();
 
         var response = await client.GetAsync($"/reports/animals/selected?ids={id}");
@@ -66,7 +68,7 @@ public sealed class SelectedAnimalsReportTests(IntegrationTestFixture fixture) :
     {
         var id = Guid.NewGuid();
 
-        var response = await fixture.Client.GetAsync($"/reports/animals/selected?ids={id}");
+        var response = await Client.GetAsync($"/reports/animals/selected?ids={id}");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

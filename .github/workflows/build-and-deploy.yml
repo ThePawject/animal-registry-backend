@@ -1,10 +1,12 @@
-name: Build and Deploy to Azure Web App
+name: Build, Test and Deploy
 
 on:
   push:
     branches:
       - main
-      - feat/**
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -29,7 +31,7 @@ jobs:
   # JOB 1: BUILD AND TEST
   # ============================================
   build:
-    name: Build, Test, and Package
+    name: Build and Test
     runs-on: ubuntu-latest
     
     steps:
@@ -47,8 +49,8 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-#      - name: Test
-#        run: dotnet test --configuration Release --no-build --verbosity normal
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal --filter "Category!=Integration"
 
       - name: Publish
         run: |
@@ -80,8 +82,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: azure-dev
     if: |
-      github.event_name == 'push' || 
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'azure-dev')
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'azure-dev'))
     
     steps:
       - name: Download artifact
@@ -124,13 +127,12 @@ jobs:
 
       - name: Deploy to Azure Web App
         run: |
-          echo "Ensuring error handling is active..."
-          set -e
-          echo "Deploying to ${{ vars.WEB_APP_NAME }}..."
-          az webapp deployment source config-zip \
+          az webapp deploy \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
             --name ${{ vars.WEB_APP_NAME }} \
-            --src ${{ env.ZIP_NAME }}
+            --src-path ${{ env.ZIP_NAME }} \
+            --type zip \
+            --async false
           
           echo "✅ Deployment completed successfully!"
           echo "🌐 App URL: https://${{ vars.WEB_APP_NAME }}.azurewebsites.net"
@@ -148,8 +150,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: azure-prod
     if: |
-      github.event_name == 'push' || 
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'azure-prod')
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'azure-prod'))
     
     steps:
       - name: Download artifact

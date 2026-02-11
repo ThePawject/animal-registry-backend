@@ -1,10 +1,11 @@
-using AnimalRegistry.Shared.Testing;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using FluentAssertions;
 using System.Net;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
-public sealed class RepositoryDumpReportTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public sealed class RepositoryDumpReportTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-dump";
 
@@ -12,7 +13,7 @@ public sealed class RepositoryDumpReportTests(IntegrationTestFixture fixture) : 
     public async Task GenerateRepositoryDumpReport_ShouldReturnPdf_WhenUserHasShelterAccess()
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
 
         var response = await client.GetAsync("/reports/animals/dump");
 
@@ -37,7 +38,7 @@ public sealed class RepositoryDumpReportTests(IntegrationTestFixture fixture) : 
     [Fact]
     public async Task GenerateRepositoryDumpReport_ShouldReturnForbidden_WhenUserHasNoShelterAccess()
     {
-        var client = fixture.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
+        var client = Factory.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
 
         var response = await client.GetAsync("/reports/animals/dump");
 
@@ -47,7 +48,7 @@ public sealed class RepositoryDumpReportTests(IntegrationTestFixture fixture) : 
     [Fact]
     public async Task GenerateRepositoryDumpReport_ShouldReturnUnauthorized_WhenNotAuthenticated()
     {
-        var response = await fixture.Client.GetAsync("/reports/animals/dump");
+        var response = await Client.GetAsync("/reports/animals/dump");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

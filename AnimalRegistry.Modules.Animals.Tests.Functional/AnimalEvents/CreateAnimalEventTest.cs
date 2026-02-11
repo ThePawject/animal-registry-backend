@@ -1,6 +1,7 @@
 using AnimalRegistry.Modules.Animals.Api.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using JetBrains.Annotations;
@@ -10,13 +11,14 @@ using System.Net.Http.Json;
 namespace AnimalRegistry.Modules.Animals.Tests.Functional.AnimalEvents;
 
 [TestSubject(typeof(CreateAnimalEvent))]
-public class CreateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public class CreateAnimalEventTest(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-1";
 
     private AnimalFactory CreateFactory(TestUser user)
     {
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         return new AnimalFactory(new ApiClient(client));
     }
 
@@ -41,7 +43,7 @@ public class CreateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
             Description = "Test event description",
         };
 
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         var response = await client.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(animalId), request);
 
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent);
@@ -67,7 +69,7 @@ public class CreateAnimalEventTest(IntegrationTestFixture fixture) : IClassFixtu
             AnimalSex.Female);
 
         var otherUser = TestUser.WithShelterAccess("other-shelter");
-        var otherClient = fixture.CreateAuthenticatedClient(otherUser);
+        var otherClient = Factory.CreateAuthenticatedClient(otherUser);
 
         var request = new CreateAnimalEventRequest
         {
