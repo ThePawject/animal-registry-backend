@@ -1,5 +1,6 @@
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services;
+using Azure.Storage.Blobs;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -20,7 +21,9 @@ public class BlobStorageServiceTests
         };
         var options = Substitute.For<IOptions<BlobStorageSettings>>();
         options.Value.Returns(settings);
-        _service = new BlobStorageService(options);
+
+        var containerClient = Substitute.For<BlobContainerClient>();
+        _service = new BlobStorageService(options, containerClient);
     }
 
     [Theory]
@@ -51,6 +54,7 @@ public class BlobStorageServiceTests
 public class BlobStorageValidationTests
 {
     private readonly BlobStorageService _service;
+    private readonly BlobContainerClient _containerClient;
 
     public BlobStorageValidationTests()
     {
@@ -62,7 +66,9 @@ public class BlobStorageValidationTests
         };
         var options = Substitute.For<IOptions<BlobStorageSettings>>();
         options.Value.Returns(settings);
-        _service = new BlobStorageService(options);
+
+        _containerClient = Substitute.For<BlobContainerClient>();
+        _service = new BlobStorageService(options, _containerClient);
     }
 
     [Theory]
@@ -101,6 +107,8 @@ public class BlobStorageValidationTests
     public async Task ValidateFile_With_Valid_Extension_Should_Not_Return_ValidationError(string fileName)
     {
         var content = new MemoryStream(new byte[1024 * 1024]);
+        var blobClient = Substitute.For<BlobClient>();
+        _containerClient.GetBlobClient(Arg.Any<string>()).Returns(blobClient);
 
         var result = await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
 

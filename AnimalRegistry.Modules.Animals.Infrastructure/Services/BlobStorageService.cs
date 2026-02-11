@@ -39,6 +39,12 @@ internal sealed class BlobStorageService : IBlobStorageService
         _containerClient.CreateIfNotExists(PublicAccessType.Blob);
     }
 
+    internal BlobStorageService(IOptions<BlobStorageSettings> options, BlobContainerClient containerClient)
+    {
+        _settings = options.Value;
+        _containerClient = containerClient;
+    }
+
     public async Task<Result<string>> UploadAsync(
         string fileName,
         Stream content,
