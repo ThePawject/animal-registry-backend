@@ -80,6 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: azure-dev
     if: |
+      
       github.event_name == 'push' || 
       (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'azure-dev')
     
@@ -147,8 +148,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: azure-prod
     if: |
-      github.event_name == 'push' || 
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'azure-prod')
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'azure-prod'))
     
     steps:
       - name: Download artifact

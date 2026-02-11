@@ -1,6 +1,7 @@
 using AnimalRegistry.Modules.Animals.Api.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using System.Net;
@@ -8,7 +9,8 @@ using System.Net.Http.Json;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
-public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public sealed class EventReportTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-1";
 
@@ -16,7 +18,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
     public async Task GenerateEventReport_ShouldReturnPdf_WhenUserHasShelterAccess()
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         var factory = new AnimalFactory(new ApiClient(client));
 
         var dogId = await factory.CreateAsync("sig-dog-1", "trans-dog-1", "Doggo", AnimalSpecies.Dog, AnimalSex.Male);
@@ -63,7 +65,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
     public async Task GenerateEventReport_ShouldReturnPdf_WithCorrectFilename()
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
 
         var response = await client.GetAsync("/reports/events");
 
@@ -76,7 +78,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
     [Fact]
     public async Task GenerateEventReport_ShouldReturnForbidden_WhenUserHasNoShelterAccess()
     {
-        var client = fixture.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
+        var client = Factory.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
 
         var response = await client.GetAsync("/reports/events");
 
@@ -86,7 +88,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
     [Fact]
     public async Task GenerateEventReport_ShouldReturnUnauthorized_WhenNotAuthenticated()
     {
-        var response = await fixture.Client.GetAsync("/reports/events");
+        var response = await Client.GetAsync("/reports/events");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -95,7 +97,7 @@ public sealed class EventReportTests(IntegrationTestFixture fixture) : IClassFix
     public async Task GenerateEventReport_ShouldIncludeAllPeriodsInPdf()
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         var factory = new AnimalFactory(new ApiClient(client));
 
         var dogId = await factory.CreateAsync("sig-dog-2", "trans-dog-2", "Doggo2", AnimalSpecies.Dog, AnimalSex.Male);

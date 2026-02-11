@@ -1,11 +1,13 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using System.Net;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
-public sealed class DateRangeAnimalsReportTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public sealed class DateRangeAnimalsReportTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-daterange";
 
@@ -13,7 +15,7 @@ public sealed class DateRangeAnimalsReportTests(IntegrationTestFixture fixture) 
     public async Task GenerateDateRangeAnimalsReport_ShouldReturnPdf_WhenUserHasShelterAccess()
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         var factory = new AnimalFactory(new ApiClient(client));
 
         var dogId = await factory.CreateAsync("sig-dog-dr-1", "trans-dog-dr-1", "DoggoDR", AnimalSpecies.Dog, AnimalSex.Male);
@@ -45,7 +47,7 @@ public sealed class DateRangeAnimalsReportTests(IntegrationTestFixture fixture) 
     public async Task GenerateDateRangeAnimalsReport_ShouldReturnValidationError_WhenStartDateAfterEndDate()
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
 
         var startDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd");
         var endDate = DateTimeOffset.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
@@ -58,7 +60,7 @@ public sealed class DateRangeAnimalsReportTests(IntegrationTestFixture fixture) 
     [Fact]
     public async Task GenerateDateRangeAnimalsReport_ShouldReturnForbidden_WhenUserHasNoShelterAccess()
     {
-        var client = fixture.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
+        var client = Factory.CreateAuthenticatedClient(TestUser.WithoutShelterAccess());
 
         var startDate = DateTimeOffset.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
         var endDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd");
@@ -74,7 +76,7 @@ public sealed class DateRangeAnimalsReportTests(IntegrationTestFixture fixture) 
         var startDate = DateTimeOffset.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
         var endDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd");
 
-        var response = await fixture.Client.GetAsync($"/reports/animals/date-range?startDate={startDate}&endDate={endDate}");
+        var response = await Client.GetAsync($"/reports/animals/date-range?startDate={startDate}&endDate={endDate}");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

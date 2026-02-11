@@ -1,5 +1,6 @@
-﻿using AnimalRegistry.Modules.Animals.Api;
+using AnimalRegistry.Modules.Animals.Api;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using JetBrains.Annotations;
@@ -8,14 +9,14 @@ using System.Net;
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
 [TestSubject(typeof(DeleteAnimal))]
-
-public class DeleteAnimalTest(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+[Collection("Sequential")]
+public class DeleteAnimalTest(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-1";
     
     private AnimalFactory CreateFactory(TestUser user)
     {
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
         return new AnimalFactory(new ApiClient(client));
     }
 
@@ -24,7 +25,7 @@ public class DeleteAnimalTest(IntegrationTestFixture fixture) : IClassFixture<In
     {
         var user = TestUser.WithShelterAccess(TestShelterId);
         var factory = CreateFactory(user);
-        var client = fixture.CreateAuthenticatedClient(user);
+        var client = Factory.CreateAuthenticatedClient(user);
 
         var animalId = await factory.CreateAsync(
             "SIG-DEL-1",
@@ -55,7 +56,7 @@ public class DeleteAnimalTest(IntegrationTestFixture fixture) : IClassFixture<In
             AnimalSex.Female);
 
         var otherUser = TestUser.WithShelterAccess("other-shelter");
-        var otherClient = fixture.CreateAuthenticatedClient(otherUser);
+        var otherClient = Factory.CreateAuthenticatedClient(otherUser);
 
         var response = await otherClient.DeleteAsync(DeleteAnimalRequest.BuildRoute(animalId));
 
