@@ -3,7 +3,7 @@ namespace AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 public abstract class IntegrationTestBase : IAsyncLifetime
 {
     protected readonly HttpClient Client;
-    protected readonly IntegrationTestWebApplicationFactory Factory;
+    protected readonly FunctionalTestWebApplicationFactory Factory;
 
     protected IntegrationTestBase(ApiTestFixture fixture)
     {

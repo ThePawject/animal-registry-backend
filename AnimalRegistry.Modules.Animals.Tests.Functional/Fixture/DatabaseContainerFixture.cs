@@ -1,4 +1,5 @@
 using DotNet.Testcontainers.Builders;
+using Testcontainers.Azurite;
 using Testcontainers.MsSql;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
@@ -15,15 +16,26 @@ public sealed class DatabaseContainerFixture : IAsyncLifetime
             .UntilCommandIsCompleted("/opt/mssql-tools18/bin/sqlcmd", "-C", "-Q", "SELECT 1;"))
         .Build();
 
+    private readonly AzuriteContainer _azuriteContainer = new AzuriteBuilder()
+        .WithImage("mcr.microsoft.com/azure-storage/azurite:latest")
+        .Build();
+
     public string ConnectionString => _dbContainer.GetConnectionString();
+    public string BlobStorageConnectionString => _azuriteContainer.GetConnectionString();
 
     public async Task InitializeAsync()
     {
-        await _dbContainer.StartAsync();
+        await Task.WhenAll(
+            _dbContainer.StartAsync(),
+            _azuriteContainer.StartAsync()
+        );
     }
 
     public async Task DisposeAsync()
     {
-        await _dbContainer.DisposeAsync();
+        await Task.WhenAll(
+            _dbContainer.DisposeAsync().AsTask(),
+            _azuriteContainer.DisposeAsync().AsTask()
+        );
     }
 }

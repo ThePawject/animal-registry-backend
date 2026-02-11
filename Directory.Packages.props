@@ -21,6 +21,7 @@
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageVersion Include="Testcontainers" Version="4.8.1" />
     <PackageVersion Include="Testcontainers.MsSql" Version="4.8.1" />
+    <PackageVersion Include="Testcontainers.Azurite" Version="4.8.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.9" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.5" />

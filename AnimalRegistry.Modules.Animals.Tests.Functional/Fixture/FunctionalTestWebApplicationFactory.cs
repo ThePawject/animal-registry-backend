@@ -1,6 +1,4 @@
-using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Infrastructure;
-using AnimalRegistry.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -8,18 +6,18 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using NSubstitute;
 using Respawn;
 using System.Data.Common;
 using System.Net.Http.Headers;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 
-public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public sealed class FunctionalTestWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private DbConnection _dbConnection = null!;
     private Respawner _respawner = null!;
     public string ConnectionString { get; set; } = string.Empty;
+    public string BlobStorageConnectionString { get; set; } = string.Empty;
     private TestJwtTokenGenerator TokenGenerator { get; set; } = null!;
 
     public async Task InitializeAsync()
@@ -71,28 +69,19 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
                 opts.UseSqlServer(ConnectionString);
             });
 
-            var blobStorageDescriptor = services.FirstOrDefault(d =>
-                d.ServiceType == typeof(IBlobStorageService));
-            if (blobStorageDescriptor != null)
+            var blobStorageSettingsDescriptor = services.FirstOrDefault(d =>
+                d.ServiceType == typeof(IConfigureOptions<BlobStorageSettings>));
+            if (blobStorageSettingsDescriptor != null)
             {
-                services.Remove(blobStorageDescriptor);
+                services.Remove(blobStorageSettingsDescriptor);
             }
 
-            var mockBlobStorage = Substitute.For<IBlobStorageService>();
-            mockBlobStorage.UploadAsync(
-                    Arg.Any<string>(),
-                    Arg.Any<Stream>(),
-                    Arg.Any<string>(),
-                    Arg.Any<string>(),
-                    Arg.Any<Guid>(),
-                    Arg.Any<CancellationToken>())
-                .Returns(ci => Task.FromResult(Result<string>.Success(
-                    $"test-shelter/{Guid.NewGuid()}/{DateTimeOffset.UtcNow:yyyyMMddHHmmssfff}_{ci.ArgAt<string>(0)}")));
-
-            mockBlobStorage.GetBlobUrl(Arg.Any<string>())
-                .Returns(ci => $"http://test-blob-storage/{ci.ArgAt<string>(0)}");
-
-            services.AddSingleton(mockBlobStorage);
+            services.Configure<BlobStorageSettings>(options =>
+            {
+                options.ConnectionString = BlobStorageConnectionString;
+                options.ContainerName = "test-animals";
+                options.AccountName = "devstoreaccount1";
+            });
 
             var jwtDescriptor = services.FirstOrDefault(d =>
                 d.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>));
