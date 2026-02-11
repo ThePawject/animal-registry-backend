@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Application;
+using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
@@ -17,6 +18,14 @@ internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRe
 
     public override async Task HandleAsync(CreateAnimalRequest req, CancellationToken ct)
     {
+        var signatureResult = AnimalSignature.Create(req.Signature);
+        if (signatureResult.IsFailure)
+        {
+            await this.SendResultAsync(
+                Result<CreateAnimalCommandResponse>.ValidationError(signatureResult.Error!), ct);
+            return;
+        }
+
         var photos = new List<PhotoUploadInfo>();
         foreach (var file in req.Photos)
         {
@@ -25,7 +34,7 @@ internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRe
         }
 
         var result = await mediator.Send(new CreateAnimalCommand(
-            req.Signature,
+            signatureResult.Value!,
             req.TransponderCode,
             req.Name,
             req.Color,

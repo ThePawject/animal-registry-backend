@@ -1,13 +1,13 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
-using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
 
 internal sealed class CreateAnimalCommandHandler(
     IAnimalRepository animalRepository,
+    IAnimalSignatureService signatureService,
     ICurrentUser currentUser,
     IBlobStorageService blobStorageService)
     : IRequestHandler<CreateAnimalCommand, Result<CreateAnimalCommandResponse>>
@@ -15,6 +15,18 @@ internal sealed class CreateAnimalCommandHandler(
     public async Task<Result<CreateAnimalCommandResponse>> Handle(CreateAnimalCommand request,
         CancellationToken cancellationToken)
     {
+        var isUnique = await signatureService.IsSignatureUniqueAsync(
+            request.Signature.Value,
+            currentUser.ShelterId,
+            null,
+            cancellationToken);
+
+        if (!isUnique)
+        {
+            return Result<CreateAnimalCommandResponse>.ValidationError(
+                $"Signature '{request.Signature.Value}' is already in use.");
+        }
+
         var animal = Animal.Create(
             request.Signature,
             request.TransponderCode,
@@ -31,7 +43,7 @@ internal sealed class CreateAnimalCommandHandler(
             for (var i = 0; i < request.Photos.Count; i++)
             {
                 var photo = request.Photos[i];
-                
+
                 var uploadResult = await blobStorageService.UploadAsync(
                     photo.FileName,
                     photo.Content,

@@ -10,7 +10,8 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
     {
         RuleFor(x => x.Signature)
             .NotEmpty()
-            .MaximumLength(100);
+            .Must(BeValidSignature)
+            .WithMessage("Invalid signature format. Expected format: YYYY/NNNN (e.g., 2026/0001).");
         RuleFor(x => x.TransponderCode)
             .NotEmpty()
             .MaximumLength(100);
@@ -44,5 +45,15 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
         RuleFor(x => x.Photos)
             .Must(photos => photos.Sum(f => f.Length) <= 100 * 1024 * 1024)
             .WithMessage("Total photo size must not exceed 100MB");
+    }
+
+    private static bool BeValidSignature(string? signature)
+    {
+        if (string.IsNullOrWhiteSpace(signature))
+        {
+            return false;
+        }
+
+        return AnimalSignature.Create(signature).IsSuccess;
     }
 }

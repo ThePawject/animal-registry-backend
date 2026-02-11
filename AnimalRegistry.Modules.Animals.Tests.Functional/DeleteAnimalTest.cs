@@ -13,7 +13,7 @@ namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 public class DeleteAnimalTest(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-1";
-    
+
     private AnimalFactory CreateFactory(TestUser user)
     {
         var client = Factory.CreateAuthenticatedClient(user);
@@ -28,7 +28,7 @@ public class DeleteAnimalTest(ApiTestFixture fixture) : IntegrationTestBase(fixt
         var client = Factory.CreateAuthenticatedClient(user);
 
         var animalId = await factory.CreateAsync(
-            "SIG-DEL-1",
+            "2024/9401",
             "TRANS-DEL-1",
             "Delete Test Animal",
             AnimalSpecies.Cat,
@@ -49,7 +49,7 @@ public class DeleteAnimalTest(ApiTestFixture fixture) : IntegrationTestBase(fixt
         var factory = CreateFactory(ownerUser);
 
         var animalId = await factory.CreateAsync(
-            "SIG-DEL-2",
+            "2024/9402",
             "TRANS-DEL-2",
             "Other Shelter Animal",
             AnimalSpecies.Dog,

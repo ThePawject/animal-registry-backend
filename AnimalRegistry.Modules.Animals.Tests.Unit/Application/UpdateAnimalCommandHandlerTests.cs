@@ -18,11 +18,16 @@ public class UpdateAnimalCommandHandlerTests
         return currentUserMock;
     }
 
+    private static AnimalSignature Sig(string signature)
+    {
+        return AnimalSignature.Create(signature).Value!;
+    }
+
     [Fact]
     public async Task Handle_ShouldUpdateAnimal_WhenRequestIsValid()
     {
         var existingAnimal = Animal.Create(
-            "SIG123",
+            Sig("2024/0001"),
             "TR123",
             "Burek",
             "Brown",
@@ -33,7 +38,7 @@ public class UpdateAnimalCommandHandlerTests
         );
         var command = new UpdateAnimalCommand(
             existingAnimal.Id,
-            "SIG456",
+            Sig("2024/0002"),
             "TR456",
             "Reksio",
             "Black",
@@ -52,8 +57,12 @@ public class UpdateAnimalCommandHandlerTests
             .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
+        var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
+        signatureServiceMock
+            .IsSignatureUniqueAsync("2024/0002", TestShelterId, existingAnimal.Id, Arg.Any<CancellationToken>())
+            .Returns(true);
 
-        var handler = new UpdateAnimalCommandHandler(repoMock, currentUserMock, blobStorageMock);
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -69,7 +78,7 @@ public class UpdateAnimalCommandHandlerTests
     {
         var command = new UpdateAnimalCommand(
             Guid.NewGuid(),
-            "SIG456",
+            Sig("2024/0003"),
             "TR456",
             "Reksio",
             "Black",
@@ -86,8 +95,9 @@ public class UpdateAnimalCommandHandlerTests
             .Returns(Task.FromResult<Animal?>(null));
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
+        var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
 
-        var handler = new UpdateAnimalCommandHandler(repoMock, currentUserMock, blobStorageMock);
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -100,7 +110,7 @@ public class UpdateAnimalCommandHandlerTests
     public async Task Handle_ShouldWork_WithDifferentSpeciesAndSex()
     {
         var existingAnimal = Animal.Create(
-            "SIG999",
+            Sig("2024/0004"),
             "TR999",
             "Mruczek",
             "Gray",
@@ -111,7 +121,7 @@ public class UpdateAnimalCommandHandlerTests
         );
         var command = new UpdateAnimalCommand(
             existingAnimal.Id,
-            "SIG888",
+            Sig("2024/0005"),
             "TR888",
             "Kitty",
             "White",
@@ -130,8 +140,12 @@ public class UpdateAnimalCommandHandlerTests
             .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
+        var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
+        signatureServiceMock
+            .IsSignatureUniqueAsync("2024/0005", TestShelterId, existingAnimal.Id, Arg.Any<CancellationToken>())
+            .Returns(true);
 
-        var handler = new UpdateAnimalCommandHandler(repoMock, currentUserMock, blobStorageMock);
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -139,5 +153,96 @@ public class UpdateAnimalCommandHandlerTests
         response.IsSuccess.Should().BeTrue();
         response.Value.Should().NotBeNull();
         response.Value.Should().BeOfType<UpdateAnimalCommandResponse>();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnValidationError_WhenSignatureNotUnique()
+    {
+        var existingAnimal = Animal.Create(
+            Sig("2024/0006"),
+            "TR123",
+            "Burek",
+            "Brown",
+            AnimalSpecies.Dog,
+            AnimalSex.Male,
+            new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            TestShelterId
+        );
+        var command = new UpdateAnimalCommand(
+            existingAnimal.Id,
+            Sig("2024/0007"),
+            "TR456",
+            "Reksio",
+            "Black",
+            AnimalSpecies.Dog,
+            AnimalSex.Male,
+            new DateTimeOffset(2019, 6, 15, 0, 0, 0, TimeSpan.Zero),
+            [],
+            [],
+            null,
+            null
+        );
+        var repoMock = Substitute.For<IAnimalRepository>();
+        repoMock.GetByIdAsync(existingAnimal.Id, TestShelterId, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Animal?>(existingAnimal));
+        var currentUserMock = CreateCurrentUserMock();
+        var blobStorageMock = Substitute.For<IBlobStorageService>();
+        var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
+        signatureServiceMock
+            .IsSignatureUniqueAsync("2024/0007", TestShelterId, existingAnimal.Id, Arg.Any<CancellationToken>())
+            .Returns(false);
+
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
+
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response.IsSuccess.Should().BeFalse();
+        response.Status.Should().Be(ResultStatus.ValidationError);
+        response.Error.Should().Contain("2024/0007");
+    }
+
+    [Fact]
+    public async Task Handle_ShouldAllowUpdate_WhenSignatureUnchanged()
+    {
+        var existingAnimal = Animal.Create(
+            Sig("2024/0008"),
+            "TR123",
+            "Burek",
+            "Brown",
+            AnimalSpecies.Dog,
+            AnimalSex.Male,
+            new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero),
+            TestShelterId
+        );
+        var command = new UpdateAnimalCommand(
+            existingAnimal.Id,
+            Sig("2024/0008"),
+            "TR456",
+            "Reksio",
+            "Black",
+            AnimalSpecies.Dog,
+            AnimalSex.Male,
+            new DateTimeOffset(2019, 6, 15, 0, 0, 0, TimeSpan.Zero),
+            [],
+            [],
+            null,
+            null
+        );
+        var repoMock = Substitute.For<IAnimalRepository>();
+        repoMock.GetByIdAsync(existingAnimal.Id, TestShelterId, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Animal?>(existingAnimal));
+        repoMock.UpdateAsync(Arg.Any<Animal>(), Arg.Any<CancellationToken>())
+            .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
+        var currentUserMock = CreateCurrentUserMock();
+        var blobStorageMock = Substitute.For<IBlobStorageService>();
+        var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
+
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
+
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response.IsSuccess.Should().BeTrue();
     }
 }

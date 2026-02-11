@@ -36,7 +36,7 @@ public class DeleteAnimalEventTest(ApiTestFixture fixture) : IntegrationTestBase
         var client = Factory.CreateAuthenticatedClient(user);
 
         var animalId = await factory.CreateAsync(
-            "SIG-DEL-1",
+            "2024/9201",
             "TRANS-DEL-1",
             "Delete Test Animal",
             AnimalSpecies.Cat,

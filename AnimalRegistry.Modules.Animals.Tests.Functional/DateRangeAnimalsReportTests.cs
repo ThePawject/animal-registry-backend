@@ -18,12 +18,15 @@ public sealed class DateRangeAnimalsReportTests(ApiTestFixture fixture) : Integr
         var client = Factory.CreateAuthenticatedClient(user);
         var factory = new AnimalFactory(new ApiClient(client));
 
-        var dogId = await factory.CreateAsync("sig-dog-dr-1", "trans-dog-dr-1", "DoggoDR", AnimalSpecies.Dog, AnimalSex.Male);
+        var dogId = await factory.CreateAsync("2024/6001", "trans-dog-dr-1", "DoggoDR", AnimalSpecies.Dog,
+            AnimalSex.Male);
 
         var startDate = DateTimeOffset.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
         var endDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd");
 
-        var response = await client.GetAsync($"/reports/animals/date-range?startDate={startDate}&endDate={endDate}&species={(int)AnimalSpecies.Dog}");
+        var response =
+            await client.GetAsync(
+                $"/reports/animals/date-range?startDate={startDate}&endDate={endDate}&species={(int)AnimalSpecies.Dog}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.MediaType.Should().Be("application/pdf");

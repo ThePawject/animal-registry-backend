@@ -36,7 +36,7 @@ public class UpdateAnimalEventTest(ApiTestFixture fixture) : IntegrationTestBase
         var client = Factory.CreateAuthenticatedClient(user);
 
         var animalId = await factory.CreateAsync(
-            "SIG-UPD-1",
+            "2024/9301",
             "TRANS-UPD-1",
             "Update Test Animal",
             AnimalSpecies.Dog,
