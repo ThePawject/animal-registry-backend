@@ -70,7 +70,15 @@ public sealed class AnimalsModule : IModule
     public async Task MigrateAsync(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<AnimalsDbContext>();
-        await dbContext.Database.MigrateAsync();
+        var db = scope.ServiceProvider.GetRequiredService<AnimalsDbContext>();
+
+        var pending = await db.Database.GetPendingMigrationsAsync();
+
+        if (!pending.Any())
+        {
+            return;
+        }
+
+        await db.Database.MigrateAsync();
     }
 }
