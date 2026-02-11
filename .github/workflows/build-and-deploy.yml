@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feat/**
   workflow_dispatch:
     inputs:
       environment:
@@ -80,9 +79,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: azure-dev
     if: |
-      
-      github.event_name == 'push' || 
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'azure-dev')
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'azure-dev'))
     
     steps:
       - name: Download artifact
