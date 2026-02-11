@@ -12,6 +12,7 @@ namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
     private const string TestShelterId = "test-shelter-1";
+    private static int _signatureCounter = 100;
 
     private AnimalFactory CreateFactory(TestUser user)
     {
@@ -19,12 +20,17 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         return new AnimalFactory(new ApiClient(client));
     }
 
+    private string NextSig()
+    {
+        return $"2024/{_signatureCounter++:D4}";
+    }
+
     [Fact]
     public async Task Create_Get_List_Workflow_WithShelterRole()
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var createdId = await factory.CreateAsync("sig-integ-1", "trans-123", "Integration", AnimalSpecies.Dog,
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", AnimalSpecies.Dog,
             AnimalSex.Male);
         var dto = await factory.GetAsync(createdId);
 
@@ -39,8 +45,8 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var id1 = await factory.CreateAsync("sig-list-1", "t-1", "ListOne", AnimalSpecies.Cat, AnimalSex.Female);
-        var id2 = await factory.CreateAsync("sig-list-2", "t-2", "ListTwo", AnimalSpecies.Dog, AnimalSex.Male);
+        var id1 = await factory.CreateAsync(NextSig(), "t-1", "ListOne", AnimalSpecies.Cat, AnimalSex.Female);
+        var id2 = await factory.CreateAsync(NextSig(), "t-2", "ListTwo", AnimalSpecies.Dog, AnimalSex.Male);
 
         var list = await factory.ListAsync();
 
@@ -53,9 +59,9 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var id1 = await factory.CreateAsync("sig-search-1", "t-search-1", "SearchOne", AnimalSpecies.Cat,
+        var id1 = await factory.CreateAsync(NextSig(), "t-search-1", "SearchOne", AnimalSpecies.Cat,
             AnimalSex.Female);
-        await factory.CreateAsync("sig-search-2", "t-search-2", "SearchTwo", AnimalSpecies.Dog, AnimalSex.Male);
+        await factory.CreateAsync(NextSig(), "t-search-2", "SearchTwo", AnimalSpecies.Dog, AnimalSex.Male);
 
         var list = await factory.ListAsync("archone");
 
@@ -68,7 +74,7 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var user = TestUser.WithShelterAccess(TestShelterId);
         var factory = CreateFactory(user);
 
-        var animalId = await factory.CreateAsync("sig-event-1", "t-event-1", "EventAnimal", AnimalSpecies.Dog,
+        var animalId = await factory.CreateAsync(NextSig(), "t-event-1", "EventAnimal", AnimalSpecies.Dog,
             AnimalSex.Male);
 
         var request = new CreateAnimalEventRequest
@@ -93,9 +99,9 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var id1 = await factory.CreateAsync("sig-empty-1", "t-empty-1", "Alpha", AnimalSpecies.Cat,
+        var id1 = await factory.CreateAsync(NextSig(), "t-empty-1", "Alpha", AnimalSpecies.Cat,
             AnimalSex.Female);
-        var id2 = await factory.CreateAsync("sig-empty-2", "t-empty-2", "Beta", AnimalSpecies.Dog, AnimalSex.Male);
+        var id2 = await factory.CreateAsync(NextSig(), "t-empty-2", "Beta", AnimalSpecies.Dog, AnimalSex.Male);
 
         var list = await factory.ListAsync("  ");
 
@@ -111,7 +117,7 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
-            await factory.CreateAsync("sig-forbidden", "t-forbidden", "Forbidden", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-forbidden", "Forbidden", AnimalSpecies.Dog, AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -122,7 +128,7 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(Client));
 
         var act = async () =>
-            await factory.CreateAsync("sig-unauth", "t-unauth", "Unauthorized", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-unauth", "Unauthorized", AnimalSpecies.Dog, AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -133,7 +139,7 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var client = Factory.CreateAuthenticatedClient(TestUser.WithMultipleShelters("shelter-1", "shelter-2"));
         var factory = new AnimalFactory(new ApiClient(client));
 
-        var act = async () => await factory.CreateAsync("sig-two", "t-two", "Two", AnimalSpecies.Dog, AnimalSex.Male);
+        var act = async () => await factory.CreateAsync(NextSig(), "t-two", "Two", AnimalSpecies.Dog, AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -145,7 +151,7 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
-            await factory.CreateAsync("sig-admin", "t-admin", "Admin", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-admin", "Admin", AnimalSpecies.Dog, AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -157,7 +163,7 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
-            await factory.CreateAsync("sig-empty", "t-empty", "Empty", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-empty", "Empty", AnimalSpecies.Dog, AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -169,7 +175,7 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
-            await factory.CreateAsync("sig-wrong", "t-wrong", "Wrong", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-wrong", "Wrong", AnimalSpecies.Dog, AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }

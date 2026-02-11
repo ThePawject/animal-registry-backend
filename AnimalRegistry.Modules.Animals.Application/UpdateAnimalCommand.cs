@@ -6,7 +6,7 @@ namespace AnimalRegistry.Modules.Animals.Application;
 
 internal sealed class UpdateAnimalCommand(
     Guid id,
-    string signature,
+    AnimalSignature signature,
     string transponderCode,
     string name,
     string color,
@@ -20,7 +20,7 @@ internal sealed class UpdateAnimalCommand(
     : IRequest<Result<UpdateAnimalCommandResponse>>
 {
     public Guid Id { get; } = id;
-    public string Signature { get; } = signature;
+    public AnimalSignature Signature { get; } = signature;
     public string TransponderCode { get; } = transponderCode;
     public string Name { get; } = name;
     public string Color { get; } = color;

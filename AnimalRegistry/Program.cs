@@ -6,8 +6,8 @@ using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.Pagination;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -38,7 +38,9 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(corsOrigins)
             .AllowAnyHeader()
             .AllowCredentials()
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .WithExposedHeaders("Content-Disposition")
+    );
 });
 
 var domain = builder.Configuration["Auth0:Domain"];
@@ -85,6 +87,7 @@ if (app.Environment.IsDevelopment())
     IdentityModelEventSource.LogCompleteSecurityArtifact = true;
     IdentityModelEventSource.ShowPII = true;
 }
+
 app.MapOpenApi();
 app.MapScalarWithAuth0(builder.Configuration);
 

@@ -13,6 +13,12 @@ internal interface IAnimalRepository
     Task<Result<Animal>> AddAsync(Animal entity, CancellationToken cancellationToken = default);
 
     Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default);
-    
+
     Task RemoveAsync(Animal entity, CancellationToken cancellationToken = default);
+
+    Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId,
+        CancellationToken cancellationToken = default);
 }

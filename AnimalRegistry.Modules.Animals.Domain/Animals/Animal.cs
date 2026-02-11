@@ -17,7 +17,7 @@ public sealed class Animal : Entity, IAggregateRoot
     }
 
     private Animal(
-        string signature,
+        AnimalSignature signature,
         string transponderCode,
         string name,
         string color,
@@ -41,7 +41,7 @@ public sealed class Animal : Entity, IAggregateRoot
     }
 
     public string TransponderCode { get; private set; } = null!;
-    public string Signature { get; private set; } = null!;
+    public AnimalSignature Signature { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string Color { get; private set; } = null!;
     public AnimalSpecies Species { get; private set; }
@@ -79,7 +79,7 @@ public sealed class Animal : Entity, IAggregateRoot
     }
 
     public static Animal Create(
-        string signature,
+        AnimalSignature signature,
         string transponderCode,
         string name,
         string color,
@@ -90,13 +90,13 @@ public sealed class Animal : Entity, IAggregateRoot
     {
         var animal = new Animal(signature, transponderCode, name, color, species, sex, birthDate, shelterId);
 
-        animal.AddDomainEvent(new AnimalCreatedDomainEvent(animal.Id, animal.Signature, animal.Name));
+        animal.AddDomainEvent(new AnimalCreatedDomainEvent(animal.Id, animal.Signature.Value, animal.Name));
 
         return animal;
     }
 
     public void Update(
-        string signature,
+        AnimalSignature signature,
         string transponderCode,
         string name,
         string color,
@@ -112,8 +112,8 @@ public sealed class Animal : Entity, IAggregateRoot
         Sex = sex;
         BirthDate = birthDate;
         ModifiedOn = DateTimeOffset.UtcNow;
-        
-        AddDomainEvent(new AnimalUpdatedDomainEvent(Id, Name, Signature));
+
+        AddDomainEvent(new AnimalUpdatedDomainEvent(Id, Name, Signature.Value));
     }
 
     internal void SetOutOfShelter()
