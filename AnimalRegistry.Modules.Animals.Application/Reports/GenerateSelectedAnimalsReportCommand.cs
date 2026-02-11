@@ -14,8 +14,3 @@ public sealed record GenerateSelectedAnimalsReportResponse
     public required string ContentType { get; init; }
     public required byte[] Data { get; init; }
 }
-
-public interface ISelectedAnimalsReportPdfService
-{
-    byte[] GenerateReport(List<Guid> ids, DateTimeOffset generatedAt, string shelterId);
-}

@@ -1,12 +1,7 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 
-namespace AnimalRegistry.Modules.Animals.Application.Reports;
-
-public interface IEventReportPdfService
-{
-    byte[] GenerateReport(EventReportData data, DateTimeOffset generatedAt);
-}
+namespace AnimalRegistry.Modules.Animals.Application.Reports.Models;
 
 public sealed class EventReportData
 {

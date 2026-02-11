@@ -46,7 +46,48 @@ internal sealed class AnimalRepository(
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+    public async Task<IReadOnlyList<Animal>> GetAllByShelterIdAsync(string shelterId,
+        CancellationToken cancellationToken = default)
+    {
+        var animals = await context.Animals
+            .AsNoTracking()
+            .Include(a => a.Photos)
+            .Include(a => a.Events)
+            .Include(a => a.HealthRecords)
+            .Where(a => a.ShelterId == shelterId)
+            .OrderBy(a => a.Name)
+            .ToListAsync(cancellationToken);
+
+        foreach (var animal in animals)
+        {
+            PopulatePhotoUrls(animal);
+        }
+
+        return animals;
+    }
+
+    public async Task<IReadOnlyList<Animal>> GetByIdsAsync(IEnumerable<Guid> ids, string shelterId,
+        CancellationToken cancellationToken = default)
+    {
+        var idList = ids.ToList();
+
+        var animals = await context.Animals
+            .AsNoTracking()
+            .Include(a => a.Photos)
+            .Include(a => a.Events)
+            .Include(a => a.HealthRecords)
+            .Where(a => a.ShelterId == shelterId && idList.Contains(a.Id))
+            .OrderBy(a => a.Name)
+            .ToListAsync(cancellationToken);
+
+        foreach (var animal in animals)
+        {
+            PopulatePhotoUrls(animal);
+        }
+
+        return animals;
+}
+public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
         CancellationToken cancellationToken = default)
     {
         var animals = await context.Animals
