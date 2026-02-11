@@ -9,14 +9,18 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
     public CreateAnimalValidator()
     {
         RuleFor(x => x.Signature)
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(100);
         RuleFor(x => x.TransponderCode)
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(100);
         RuleFor(x => x.Name)
             .NotEmpty()
-            .MinimumLength(2);
+            .MinimumLength(2)
+            .MaximumLength(100);
         RuleFor(x => x.Color)
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(50);
         RuleFor(x => x.Species)
             .NotEmpty()
             .IsInEnum();
@@ -40,9 +44,5 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
         RuleFor(x => x.Photos)
             .Must(photos => photos.Sum(f => f.Length) <= 100 * 1024 * 1024)
             .WithMessage("Total photo size must not exceed 100MB");
-
-        RuleFor(x => x.MainPhotoIndex)
-            .Must((request, index) => !index.HasValue || (index.Value < request.Photos.Count && index.Value >= 0))
-            .WithMessage("MainPhotoIndex must point to one of the uploaded photos");
     }
 }
