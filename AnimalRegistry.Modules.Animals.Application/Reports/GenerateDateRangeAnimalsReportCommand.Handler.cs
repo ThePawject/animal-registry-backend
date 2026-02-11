@@ -6,22 +6,28 @@ namespace AnimalRegistry.Modules.Animals.Application.Reports;
 
 internal sealed class GenerateDateRangeAnimalsReportCommandHandler(
     ICurrentUser currentUser,
+    IDateRangeAnimalsDataService dataService,
     IDateRangeAnimalsReportPdfService pdfService)
     : IRequestHandler<GenerateDateRangeAnimalsReportCommand, Result<GenerateDateRangeAnimalsReportResponse>>
 {
-    public async Task<Result<GenerateDateRangeAnimalsReportResponse>> Handle(GenerateDateRangeAnimalsReportCommand request,
+    public async Task<Result<GenerateDateRangeAnimalsReportResponse>> Handle(
+        GenerateDateRangeAnimalsReportCommand request,
         CancellationToken cancellationToken)
     {
         var generatedAt = DateTimeOffset.UtcNow;
 
-        var pdfBytes = pdfService.GenerateReport(request.StartDate, request.EndDate, request.Species, generatedAt, currentUser.ShelterId);
+        var reportData = await dataService.PrepareReportDataAsync(
+            currentUser.ShelterId,
+            request.StartDate,
+            request.EndDate,
+            cancellationToken);
+
+        var pdfBytes = pdfService.GenerateReport(reportData, generatedAt);
         var fileName = $"RaportZwierzatZakresDat_{generatedAt:dd_MM_yyyy}.pdf";
 
-        return await Task.FromResult(Result<GenerateDateRangeAnimalsReportResponse>.Success(new GenerateDateRangeAnimalsReportResponse
+        return Result<GenerateDateRangeAnimalsReportResponse>.Success(new GenerateDateRangeAnimalsReportResponse
         {
-            FileName = fileName,
-            ContentType = "application/pdf",
-            Data = pdfBytes
-        }));
+            FileName = fileName, ContentType = "application/pdf", Data = pdfBytes,
+        });
     }
 }

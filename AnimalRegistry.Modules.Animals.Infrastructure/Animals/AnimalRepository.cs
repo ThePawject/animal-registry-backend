@@ -16,12 +16,12 @@ internal sealed class AnimalRepository(
             .Include(a => a.Photos)
             .Include(a => a.Events)
             .FirstOrDefaultAsync(a => a.Id == id && a.ShelterId == shelterId, cancellationToken);
-        
+
         if (animal is not null)
         {
             PopulatePhotoUrls(animal);
         }
-        
+
         return animal;
     }
 
@@ -32,7 +32,7 @@ internal sealed class AnimalRepository(
         PopulatePhotoUrls(entityEntry.Entity);
         return Result<Animal>.Success(entityEntry.Entity);
     }
-    
+
     public async Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default)
     {
         await context.SaveChangesAsync(cancellationToken);
@@ -44,6 +44,48 @@ internal sealed class AnimalRepository(
     {
         context.Animals.Remove(entity);
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Animal>> GetAllByShelterIdAsync(string shelterId,
+        CancellationToken cancellationToken = default)
+    {
+        var animals = await context.Animals
+            .AsNoTracking()
+            .Include(a => a.Photos)
+            .Include(a => a.Events)
+            .Include(a => a.HealthRecords)
+            .Where(a => a.ShelterId == shelterId)
+            .OrderBy(a => a.Name)
+            .ToListAsync(cancellationToken);
+
+        foreach (var animal in animals)
+        {
+            PopulatePhotoUrls(animal);
+        }
+
+        return animals;
+    }
+
+    public async Task<IReadOnlyList<Animal>> GetByIdsAsync(IEnumerable<Guid> ids, string shelterId,
+        CancellationToken cancellationToken = default)
+    {
+        var idList = ids.ToList();
+
+        var animals = await context.Animals
+            .AsNoTracking()
+            .Include(a => a.Photos)
+            .Include(a => a.Events)
+            .Include(a => a.HealthRecords)
+            .Where(a => a.ShelterId == shelterId && idList.Contains(a.Id))
+            .OrderBy(a => a.Name)
+            .ToListAsync(cancellationToken);
+
+        foreach (var animal in animals)
+        {
+            PopulatePhotoUrls(animal);
+        }
+
+        return animals;
     }
 
     public async Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize, string? keyWordSearch,
@@ -87,7 +129,7 @@ internal sealed class AnimalRepository(
 
         return new PagedResult<Animal>(items, totalCount, page, pageSize);
     }
-    
+
     private void PopulatePhotoUrls(Animal animal)
     {
         foreach (var photo in animal.Photos)

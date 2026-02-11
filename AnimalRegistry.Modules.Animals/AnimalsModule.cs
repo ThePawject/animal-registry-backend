@@ -5,6 +5,8 @@ using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services;
+using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
+using AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
@@ -41,8 +43,16 @@ public sealed class AnimalsModule : IModule
             options.UseSqlServer(dbSettings.ConnectionString);
         });
 
+        // Repositories
         services.AddScoped<IAnimalRepository, AnimalRepository>();
         services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
+
+        // Report Data Services
+        services.AddScoped<IRepositoryDumpDataService, RepositoryDumpDataService>();
+        services.AddScoped<ISelectedAnimalsDataService, SelectedAnimalsDataService>();
+        services.AddScoped<IDateRangeAnimalsDataService, DateRangeAnimalsDataService>();
+
+        // Report PDF Services
         services.AddScoped<IEventReportPdfService, EventReportPdfService>();
         services.AddScoped<IDateRangeAnimalsReportPdfService, DateRangeAnimalsReportPdfService>();
         services.AddScoped<ISelectedAnimalsReportPdfService, SelectedAnimalsReportPdfService>();

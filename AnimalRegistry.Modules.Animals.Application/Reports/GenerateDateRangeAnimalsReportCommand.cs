@@ -1,7 +1,6 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
-using System.Collections.Generic;
 
 namespace AnimalRegistry.Modules.Animals.Application.Reports;
 
@@ -17,9 +16,4 @@ public sealed record GenerateDateRangeAnimalsReportResponse
     public required string FileName { get; init; }
     public required string ContentType { get; init; }
     public required byte[] Data { get; init; }
-}
-
-public interface IDateRangeAnimalsReportPdfService
-{
-    byte[] GenerateReport(DateTimeOffset startDate, DateTimeOffset endDate, List<AnimalSpecies>? species, DateTimeOffset generatedAt, string shelterId);
 }
