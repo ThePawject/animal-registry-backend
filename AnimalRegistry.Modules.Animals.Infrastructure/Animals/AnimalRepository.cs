@@ -86,6 +86,47 @@ internal sealed class AnimalRepository(
         }
 
         return animals;
+}
+public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var animals = await context.Animals
+            .Where(a => a.ShelterId == shelterId)
+            .ToListAsync(cancellationToken);
+
+        var query = animals.Where(a => a.Signature.Value == signature);
+
+        if (excludeAnimalId.HasValue)
+        {
+            query = query.Where(a => a.Id != excludeAnimalId.Value);
+        }
+
+        return !query.Any();
+    }
+
+    public async Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId,
+        CancellationToken cancellationToken = default)
+    {
+        var prefix = $"{year:D4}/";
+
+        var animals = await context.Animals
+            .Where(a => a.ShelterId == shelterId)
+            .ToListAsync(cancellationToken);
+
+        var numbers = new List<int>();
+        foreach (var animal in animals)
+        {
+            if (animal.Signature.Value.StartsWith(prefix))
+            {
+                var parts = animal.Signature.Value.Split('/');
+                if (parts.Length == 2 && int.TryParse(parts[1], out var number))
+                {
+                    numbers.Add(number);
+                }
+            }
+        }
+
+        return numbers.AsReadOnly();
     }
 
     public async Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize, string? keyWordSearch,
@@ -100,18 +141,27 @@ internal sealed class AnimalRepository(
                 .Select(term => term.ToLower())
                 .ToArray();
 
-            foreach (var term in terms)
+            var animals = await query.ToListAsync(cancellationToken);
+            var filteredAnimals = animals.Where(a =>
             {
-                query = query.Where(a =>
-                    a.Signature.ToLower().Contains(term) ||
-                    a.TransponderCode.ToLower().Contains(term) ||
-                    a.Name.ToLower().Contains(term) ||
-                    a.Color.ToLower().Contains(term) ||
-                    a.ShelterId.ToLower().Contains(term) ||
-                    a.Events.Any(e =>
-                        e.Description.ToLower().Contains(term) ||
-                        e.PerformedBy.ToLower().Contains(term)));
+                var searchableText = $"{a.Signature.Value} {a.TransponderCode} {a.Name} {a.Color} {a.ShelterId} " +
+                                     string.Join(" ", a.Events.Select(e => $"{e.Description} {e.PerformedBy}"));
+                return terms.All(term => searchableText.Contains(term, StringComparison.OrdinalIgnoreCase));
+            }).ToList();
+
+            var filteredTotalCount = filteredAnimals.Count;
+            var filteredItems = filteredAnimals
+                .OrderByDescending(x => x.ModifiedOn)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            foreach (var animal in filteredItems)
+            {
+                PopulatePhotoUrls(animal);
             }
+
+            return new PagedResult<Animal>(filteredItems, filteredTotalCount, page, pageSize);
         }
 
         var totalCount = await query.CountAsync(cancellationToken);

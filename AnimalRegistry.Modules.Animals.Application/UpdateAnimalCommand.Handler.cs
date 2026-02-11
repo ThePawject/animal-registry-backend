@@ -1,13 +1,13 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
-using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
 
 internal sealed class UpdateAnimalCommandHandler(
     IAnimalRepository animalRepository,
+    IAnimalSignatureService signatureService,
     ICurrentUser currentUser,
     IBlobStorageService blobStorageService)
     : IRequestHandler<UpdateAnimalCommand, Result<UpdateAnimalCommandResponse>>
@@ -25,6 +25,21 @@ internal sealed class UpdateAnimalCommandHandler(
         {
             return Result<UpdateAnimalCommandResponse>.NotFound(
                 $"Animal with id {request.Id} not found.");
+        }
+
+        if (request.Signature.Value != animal.Signature.Value)
+        {
+            var isUnique = await signatureService.IsSignatureUniqueAsync(
+                request.Signature.Value,
+                currentUser.ShelterId,
+                request.Id,
+                cancellationToken);
+
+            if (!isUnique)
+            {
+                return Result<UpdateAnimalCommandResponse>.ValidationError(
+                    $"Signature '{request.Signature.Value}' is already in use.");
+            }
         }
 
         animal.Update(

@@ -28,7 +28,7 @@ public class CreateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
         var factory = CreateFactory(user);
 
         var animalId = await factory.CreateAsync(
-            "SIG-HEALTH-1",
+            "2024/9101",
             "TRANS-HEALTH-1",
             "Health Animal",
             AnimalSpecies.Dog,
@@ -36,7 +36,7 @@ public class CreateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
 
         var request = new CreateAnimalHealthRequest
         {
-            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "Initial health record"
+            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "Initial health record",
         };
 
         var client = Factory.CreateAuthenticatedClient(user);
@@ -57,7 +57,7 @@ public class CreateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
         var factory = CreateFactory(ownerUser);
 
         var animalId = await factory.CreateAsync(
-            "SIG-HEALTH-2",
+            "2024/9102",
             "TRANS-HEALTH-2",
             "Health Animal 2",
             AnimalSpecies.Cat,
@@ -68,7 +68,7 @@ public class CreateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
 
         var request = new CreateAnimalHealthRequest
         {
-            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "Unauthorized health record"
+            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "Unauthorized health record",
         };
 
         var response = await otherClient.PostAsJsonAsync(CreateAnimalHealthRequest.BuildRoute(animalId), request);

@@ -21,9 +21,9 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var animalId1 = await factory.CreateAsync("sig-opt-1", "trans-opt-1", "Optional1", AnimalSpecies.Dog,
+        var animalId1 = await factory.CreateAsync("2024/8001", "trans-opt-1", "Optional1", AnimalSpecies.Dog,
             AnimalSex.Male);
-        var animalId2 = await factory.CreateAsync("sig-opt-2", "trans-opt-2", "Optional2", AnimalSpecies.Cat,
+        var animalId2 = await factory.CreateAsync("2024/8002", "trans-opt-2", "Optional2", AnimalSpecies.Cat,
             AnimalSex.Female);
 
         var listResult = await factory.ListAsync();
@@ -43,7 +43,7 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
             ("dog1.jpg", photo1, "image/jpeg"), ("dog2.jpg", photo2, "image/jpeg"),
         };
         var animalId = await factory.CreateAsync(
-            "sig-photo-main2", "trans-photo-main2", "MainDog", AnimalSpecies.Dog, AnimalSex.Female, photos, 1);
+            "2024/8003", "trans-photo-main2", "MainDog", AnimalSpecies.Dog, AnimalSex.Female, photos, 1);
         var dto = await factory.GetAsync(animalId);
 
         dto.Photos.Should().NotBeNullOrEmpty();
@@ -73,7 +73,7 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
         };
 
         var animalId = await factory.CreateAsync(
-            "sig-update-photo", "trans-update-photo", "UpdateDog", AnimalSpecies.Dog, AnimalSex.Male, photos, 0);
+            "2024/8004", "trans-update-photo", "UpdateDog", AnimalSpecies.Dog, AnimalSex.Male, photos, 0);
 
         var dtoBeforeUpdate = await factory.GetAsync(animalId);
         dtoBeforeUpdate.Photos.Count.Should().Be(2);
@@ -88,7 +88,7 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
 
         await factory.UpdateAsync(
             animalId,
-            "sig-updated",
+            "2024/8005",
             "trans-updated",
             "UpdatedDog",
             AnimalSpecies.Dog,
@@ -101,7 +101,7 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
         var dtoAfterUpdate = await factory.GetAsync(animalId);
 
         dtoAfterUpdate.Name.Should().Be("UpdatedDog");
-        dtoAfterUpdate.Signature.Should().Be("sig-updated");
+        dtoAfterUpdate.Signature.Should().Be("2024/8005");
         dtoAfterUpdate.TransponderCode.Should().Be("trans-updated");
         dtoAfterUpdate.Sex.Should().Be(AnimalSex.Female);
         dtoAfterUpdate.Color.Should().Be("UpdatedColor");

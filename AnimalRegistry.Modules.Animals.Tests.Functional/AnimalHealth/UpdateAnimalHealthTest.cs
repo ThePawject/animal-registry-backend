@@ -35,7 +35,7 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
         var client = Factory.CreateAuthenticatedClient(user);
 
         var animalId = await factory.CreateAsync(
-            "SIG-HEALTH-3",
+            "2024/9104",
             "TRANS-HEALTH-3",
             "Health Update Animal",
             AnimalSpecies.Dog,
@@ -43,7 +43,7 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
 
         var addRequest = new CreateAnimalHealthRequest
         {
-            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow.AddDays(-1), Description = "Original health"
+            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow.AddDays(-1), Description = "Original health",
         };
         await AddHealthAsync(client, animalId, addRequest);
 
@@ -55,7 +55,7 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             AnimalId = animalId,
             HealthRecordId = recordId,
             OccurredOn = DateTimeOffset.UtcNow,
-            Description = "Updated health"
+            Description = "Updated health",
         };
 
         var response = await client.PutAsJsonAsync(

@@ -35,7 +35,7 @@ public class DeleteAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
         var client = Factory.CreateAuthenticatedClient(user);
 
         var animalId = await factory.CreateAsync(
-            "SIG-HEALTH-4",
+            "2024/9103",
             "TRANS-HEALTH-4",
             "Health Delete Animal",
             AnimalSpecies.Cat,
@@ -43,7 +43,7 @@ public class DeleteAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
 
         var addRequest = new CreateAnimalHealthRequest
         {
-            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "To be deleted"
+            AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "To be deleted",
         };
         await AddHealthAsync(client, animalId, addRequest);
 

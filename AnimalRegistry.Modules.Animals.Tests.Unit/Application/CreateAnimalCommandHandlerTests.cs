@@ -2,7 +2,6 @@ using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
-using AnimalRegistry.Shared.CurrentUser;
 using FluentAssertions;
 using NSubstitute;
 
@@ -19,11 +18,16 @@ public class CreateAnimalCommandHandlerTests
         return currentUserMock;
     }
 
+    private static AnimalSignature Sig(string signature)
+    {
+        return AnimalSignature.Create(signature).Value!;
+    }
+
     [Fact]
     public async Task Handle_ShouldCreateAnimal_WhenRequestIsValid()
     {
         var command = new CreateAnimalCommand(
-            "SIG123",
+            Sig("2024/0001"),
             "TR123",
             "Burek",
             "Brown",
@@ -36,8 +40,12 @@ public class CreateAnimalCommandHandlerTests
             .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
+        var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
+        signatureServiceMock.IsSignatureUniqueAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Guid?>(),
+                Arg.Any<CancellationToken>())
+            .Returns(true);
 
-        var handler = new CreateAnimalCommandHandler(repoMock, currentUserMock, blobStorageMock);
+        var handler = new CreateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -51,7 +59,7 @@ public class CreateAnimalCommandHandlerTests
     public async Task Handle_ShouldWork_WithDifferentSpeciesAndSex()
     {
         var command = new CreateAnimalCommand(
-            "SIG999",
+            Sig("2024/0002"),
             "TR999",
             "Mruczek",
             "Gray",
@@ -64,8 +72,12 @@ public class CreateAnimalCommandHandlerTests
             .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
+        var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
+        signatureServiceMock.IsSignatureUniqueAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Guid?>(),
+                Arg.Any<CancellationToken>())
+            .Returns(true);
 
-        var handler = new CreateAnimalCommandHandler(repoMock, currentUserMock, blobStorageMock);
+        var handler = new CreateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -73,5 +85,34 @@ public class CreateAnimalCommandHandlerTests
         response.IsSuccess.Should().BeTrue();
         response.Value.Should().NotBeNull();
         response.Value.Should().BeOfType<CreateAnimalCommandResponse>();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnValidationError_WhenSignatureNotUnique()
+    {
+        var command = new CreateAnimalCommand(
+            Sig("2024/0003"),
+            "TR123",
+            "Burek",
+            "Brown",
+            AnimalSpecies.Dog,
+            AnimalSex.Male,
+            new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)
+        );
+        var repoMock = Substitute.For<IAnimalRepository>();
+        var currentUserMock = CreateCurrentUserMock();
+        var blobStorageMock = Substitute.For<IBlobStorageService>();
+        var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
+        signatureServiceMock.IsSignatureUniqueAsync("2024/0003", TestShelterId, null, Arg.Any<CancellationToken>())
+            .Returns(false);
+
+        var handler = new CreateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
+
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        response.Should().NotBeNull();
+        response.IsSuccess.Should().BeFalse();
+        response.Status.Should().Be(ResultStatus.ValidationError);
+        response.Error.Should().Contain("2024/0003");
     }
 }

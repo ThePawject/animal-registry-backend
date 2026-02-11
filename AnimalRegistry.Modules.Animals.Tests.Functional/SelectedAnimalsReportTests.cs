@@ -18,8 +18,10 @@ public sealed class SelectedAnimalsReportTests(ApiTestFixture fixture) : Integra
         var client = Factory.CreateAuthenticatedClient(user);
         var factory = new AnimalFactory(new ApiClient(client));
 
-        var dogId = await factory.CreateAsync("sig-dog-sel-1", "trans-dog-sel-1", "DoggoSel", AnimalSpecies.Dog, AnimalSex.Male);
-        var catId = await factory.CreateAsync("sig-cat-sel-1", "trans-cat-sel-1", "KittySel", AnimalSpecies.Cat, AnimalSex.Female);
+        var dogId = await factory.CreateAsync("2024/5001", "trans-dog-sel-1", "DoggoSel", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var catId = await factory.CreateAsync("2024/5002", "trans-cat-sel-1", "KittySel", AnimalSpecies.Cat,
+            AnimalSex.Female);
 
         var response = await client.GetAsync($"/reports/animals/selected?ids={dogId}&ids={catId}");
 

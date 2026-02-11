@@ -25,7 +25,7 @@ public sealed record AnimalDto(
     {
         return new AnimalDto(
             a.Id,
-            a.Signature,
+            a.Signature.Value,
             a.TransponderCode,
             a.Name,
             a.Color,

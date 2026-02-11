@@ -9,7 +9,18 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
     public void Configure(EntityTypeBuilder<Animal> builder)
     {
         builder.HasKey(a => a.Id);
-        builder.Property(a => a.Signature).IsRequired().HasMaxLength(100);
+
+        builder.Property(a => a.Signature)
+            .IsRequired()
+            .HasMaxLength(9)
+            .HasConversion(
+                v => v.Value,
+                v => ParseSignature(v));
+
+        builder.HasIndex(a => new { a.Signature, a.ShelterId })
+            .IsUnique()
+            .HasDatabaseName("IX_Animals_Signature_ShelterId");
+
         builder.Property(a => a.TransponderCode).IsRequired().HasMaxLength(100);
         builder.Property(a => a.Name).IsRequired().HasMaxLength(100);
         builder.Property(a => a.Color).IsRequired().HasMaxLength(50);
@@ -56,5 +67,16 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
             healthBuilder.Property(h => h.OccurredOn)
                 .IsRequired();
         });
+    }
+
+    private static AnimalSignature ParseSignature(string value)
+    {
+        var result = AnimalSignature.Create(value);
+        if (result.IsFailure)
+        {
+            throw new InvalidOperationException($"Invalid signature format in database: '{value}'. {result.Error}");
+        }
+
+        return result.Value!;
     }
 }

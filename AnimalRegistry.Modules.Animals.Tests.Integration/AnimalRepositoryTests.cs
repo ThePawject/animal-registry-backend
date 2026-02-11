@@ -19,9 +19,10 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         .WithPassword("yourStrong(!)Password")
         .Build();
 
+    private IBlobStorageService _blobStorageService = null!;
+
     private AnimalsDbContext _dbContext = null!;
     private AnimalRepository _repository = null!;
-    private IBlobStorageService _blobStorageService = null!;
 
     public async Task InitializeAsync()
     {
@@ -42,11 +43,17 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         await _dbContainer.DisposeAsync();
     }
 
+    private static AnimalSignature Sig(string signature)
+    {
+        return AnimalSignature.Create(signature).Value!;
+    }
+
     [Fact(Skip = "TBD")]
     public async Task AddAndGetAnimal_WorksCorrectly()
     {
         var animal = Animal.Create(
-            "sig1", "trans1", "Burek", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-2),
+            Sig("2024/0001"), "trans1", "Burek", "Brown", AnimalSpecies.Dog, AnimalSex.Male,
+            DateTimeOffset.UtcNow.AddYears(-2),
             TestShelterId);
         await _repository.AddAsync(animal);
         var loaded = await _repository.GetByIdAsync(animal.Id, TestShelterId);
@@ -59,7 +66,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
     public async Task RemoveAnimal_WorksCorrectly()
     {
         var animal = Animal.Create(
-            "sig2", "trans2", "Mruczek", "Gray", AnimalSpecies.Cat, AnimalSex.Female,
+            Sig("2024/0002"), "trans2", "Mruczek", "Gray", AnimalSpecies.Cat, AnimalSex.Female,
             DateTimeOffset.UtcNow.AddYears(-3), TestShelterId);
         await _repository.AddAsync(animal);
         await _repository.RemoveAsync(animal);
@@ -71,7 +78,8 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
     public async Task GetByIdAsync_WithWrongShelterId_ReturnsNull()
     {
         var animal = Animal.Create(
-            "sig3", "trans3", "Reksio", "Black", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            Sig("2024/0003"), "trans3", "Reksio", "Black", AnimalSpecies.Dog, AnimalSex.Male,
+            DateTimeOffset.UtcNow.AddYears(-1),
             TestShelterId);
         await _repository.AddAsync(animal);
         var loaded = await _repository.GetByIdAsync(animal.Id, "wrong-shelter-id");
@@ -82,10 +90,11 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
     public async Task ListAsync_WithShelterId_ReturnsOnlyMatchingAnimals()
     {
         var animal1 = Animal.Create(
-            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            Sig("2024/0004"), "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male,
+            DateTimeOffset.UtcNow.AddYears(-1),
             TestShelterId);
         var animal2 = Animal.Create(
-            "sig5", "trans5", "Animal2", "Gray", AnimalSpecies.Cat, AnimalSex.Female,
+            Sig("2024/0005"), "trans5", "Animal2", "Gray", AnimalSpecies.Cat, AnimalSex.Female,
             DateTimeOffset.UtcNow.AddYears(-2), "other-shelter-id");
         await _repository.AddAsync(animal1);
         await _repository.AddAsync(animal2);
@@ -101,7 +110,8 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
     public async Task AddEvent_WithCorrectEvent_AddsEvent()
     {
         var animal1 = Animal.Create(
-            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            Sig("2024/0006"), "trans6", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male,
+            DateTimeOffset.UtcNow.AddYears(-1),
             TestShelterId);
         animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
             "performedBy");
@@ -119,7 +129,8 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
     public async Task UpdateEvent_WithCorrectEvent_UpdatesEvent()
     {
         var animal1 = Animal.Create(
-            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            Sig("2024/0007"), "trans7", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male,
+            DateTimeOffset.UtcNow.AddYears(-1),
             TestShelterId);
         animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
             "performedBy");
@@ -139,7 +150,8 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
     public async Task RemoveEvent_WithCorrectEvent_RemovesEvent()
     {
         var animal1 = Animal.Create(
-            "sig4", "trans4", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male, DateTimeOffset.UtcNow.AddYears(-1),
+            Sig("2024/0008"), "trans8", "Animal1", "Brown", AnimalSpecies.Dog, AnimalSex.Male,
+            DateTimeOffset.UtcNow.AddYears(-1),
             TestShelterId);
         animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
             "performedBy");
@@ -159,13 +171,13 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
     {
         var birthDate = new DateTimeOffset(2024, 01, 15, 0, 0, 0, TimeSpan.Zero);
         var animal1 = Animal.Create(
-            "sig-search", "trans-search", "Tosia", "Black", AnimalSpecies.Dog, AnimalSex.Female, birthDate,
+            Sig("2024/0009"), "trans-search", "Tosia", "Black", AnimalSpecies.Dog, AnimalSex.Female, birthDate,
             TestShelterId);
         animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "tesT description",
             "PerformedByUser");
 
         var animal2 = Animal.Create(
-            "sig-other", "trans-other", "Burek", "Brown", AnimalSpecies.Dog, AnimalSex.Male,
+            Sig("2024/0010"), "trans-other", "Burek", "Brown", AnimalSpecies.Dog, AnimalSex.Male,
             DateTimeOffset.UtcNow.AddYears(-1), TestShelterId);
 
         await _repository.AddAsync(animal1);

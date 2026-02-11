@@ -53,6 +53,7 @@ public sealed class AnimalsModule : IModule
         services.AddScoped<IDateRangeAnimalsDataService, DateRangeAnimalsDataService>();
 
         // Report PDF Services
+        services.AddScoped<IAnimalSignatureService, AnimalSignatureService>();
         services.AddScoped<IEventReportPdfService, EventReportPdfService>();
         services.AddScoped<IDateRangeAnimalsReportPdfService, DateRangeAnimalsReportPdfService>();
         services.AddScoped<ISelectedAnimalsReportPdfService, SelectedAnimalsReportPdfService>();
