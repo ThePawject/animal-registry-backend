@@ -73,7 +73,7 @@ internal sealed class DateRangeAnimalsReportPdfService : ReportPdfBase, IDateRan
         var basicInfo = new Dictionary<string, string>
         {
             { "ID", animal.Id.ToString() },
-            { "Sygnatura", animal.Signature },
+            { "Sygnatura", animal.Signature.Value },
             { "Gatunek", AnimalPdfComponents.GetSpeciesName(animal.Species) },
             { "Płeć", AnimalPdfComponents.GetSexName(animal.Sex) },
             { "Kolor", animal.Color },

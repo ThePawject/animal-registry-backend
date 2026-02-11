@@ -23,4 +23,5 @@ internal interface IAnimalRepository
     Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId,
+        CancellationToken cancellationToken = default);
 }

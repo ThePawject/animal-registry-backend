@@ -2,7 +2,6 @@ using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalHealths;
 using QuestPDF.Fluent;
-using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
@@ -45,7 +44,7 @@ internal static class AnimalPdfComponents
         var info = new Dictionary<string, string>
         {
             { "ID", animal.Id.ToString() },
-            { "Sygnatura", animal.Signature },
+            { "Sygnatura", animal.Signature.Value },
             { "Kod transpondera", string.IsNullOrEmpty(animal.TransponderCode) ? "-" : animal.TransponderCode },
             { "Gatunek", GetSpeciesName(animal.Species) },
             { "Płeć", GetSexName(animal.Sex) },
