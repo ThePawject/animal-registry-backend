@@ -11,6 +11,20 @@ internal abstract class ReportPdfBase
         QuestPDF.Settings.License = LicenseType.Community;
     }
 
+    protected static void AddCoverPage(PageDescriptor page, string shelterId)
+    {
+        page.Size(PageSizes.A4);
+        page.Margin(2f, Unit.Centimetre);
+        page.PageColor(Colors.White);
+
+        page.Content().AlignCenter().AlignMiddle().Column(column =>
+        {
+            column.Item().Text("Moje Schronisko").FontSize(48).Bold();
+            column.Item().Height(0.5f, Unit.Centimetre);
+            column.Item().Text($"Schronisko: {shelterId}").FontSize(18);
+        });
+    }
+
     protected static void AddReportTitle(ColumnDescriptor column, string title, string shelterId, DateTimeOffset generatedAt)
     {
         column.Item().AlignCenter().Text(title).FontSize(24).Bold();
@@ -31,10 +45,10 @@ internal abstract class ReportPdfBase
         column.Item().Text(title).FontSize(14).Bold();
     }
 
-    protected static void AddFooter(PageDescriptor page, DateTimeOffset generatedAt)
+    protected static void AddFooter(PageDescriptor page, DateTimeOffset generatedAt, string shelterId)
     {
         page.Footer().AlignCenter()
-            .Text($"Raport wygenerowany: {generatedAt:dd.MM.yyyy HH:mm} | Animal Registry System")
+            .Text($"Raport wygenerowany: {generatedAt:dd.MM.yyyy HH:mm} | Moje Schronisko | {shelterId}")
             .FontSize(9);
     }
 

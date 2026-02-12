@@ -16,6 +16,11 @@ internal sealed class DateRangeAnimalsReportPdfService : ReportPdfBase, IDateRan
         {
             container.Page(page =>
             {
+                AddCoverPage(page, data.ShelterId);
+            });
+
+            container.Page(page =>
+            {
                 AddPageConfiguration(page);
                 
                 page.Content().Column(column =>
@@ -25,16 +30,7 @@ internal sealed class DateRangeAnimalsReportPdfService : ReportPdfBase, IDateRan
                         "Raport Zwierząt z Zakresem Dat",
                         data.ShelterId,
                         generatedAt);
-                    
-                    column.Item().Text($"Okres: {data.StartDate:dd.MM.yyyy} - {data.EndDate:dd.MM.yyyy}")
-                        .FontSize(12)
-                        .Bold();
-                    column.Item().Text($"Liczba zwierząt z wydarzeniami w tym okresie: {data.TotalAnimals}")
-                        .FontSize(12);
-                    column.Item().Text($"Łączna liczba wydarzeń: {data.TotalEvents}")
-                        .FontSize(12);
-                    column.Item().Height(1f, Unit.Centimetre);
-                    
+
                     if (data.Animals.Count == 0)
                     {
                         ReportComponents.AddEmptyState(column, "Brak zwierząt z wydarzeniami w wybranym okresie.");
@@ -48,7 +44,7 @@ internal sealed class DateRangeAnimalsReportPdfService : ReportPdfBase, IDateRan
                     }
                 });
                 
-                AddFooter(page, generatedAt);
+                AddFooter(page, generatedAt, data.ShelterId);
             });
         });
     }

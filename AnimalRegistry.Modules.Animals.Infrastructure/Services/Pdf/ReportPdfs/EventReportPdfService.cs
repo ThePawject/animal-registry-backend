@@ -16,6 +16,11 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
         {
             container.Page(page =>
             {
+                AddCoverPage(page, data.ShelterId);
+            });
+
+            container.Page(page =>
+            {
                 AddPageConfiguration(page);
                 
                 page.Content().Column(column =>
@@ -25,18 +30,14 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
                         "Raport Zdarzeń Zwierząt",
                         data.ShelterId,
                         generatedAt);
-                    
-                    column.Item().Text("Raport zawiera zestawienie zdarzeń dla psów i kotów w podziale na okresy: ostatni kwartał, ostatni miesiąc oraz ostatni tydzień.")
-                        .FontSize(12);
-                    column.Item().Height(1f, Unit.Centimetre);
-                    
+
                     foreach (var speciesStats in data.SpeciesStats)
                     {
                         AddSpeciesSection(column, speciesStats);
                     }
                 });
                 
-                AddFooter(page, generatedAt);
+                AddFooter(page, generatedAt, data.ShelterId);
             });
         });
     }
