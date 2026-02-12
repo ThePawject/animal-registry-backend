@@ -1,7 +1,7 @@
 using AnimalRegistry.Modules.Animals.Application.Reports;
+using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
-using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using FluentAssertions;
 using NSubstitute;
@@ -52,10 +52,14 @@ public class GenerateEventReportCommandHandlerTests
         var now = DateTimeOffset.UtcNow;
         var events = new List<AnimalEventWithAnimalInfo>
         {
-            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-5), "Adopted", "User1"), AnimalSpecies.Dog),
-            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-3), "Adopted", "User1"), AnimalSpecies.Cat),
-            new(AnimalEvent.Create(AnimalEventType.Sterilization, now.AddDays(-10), "Sterilized", "User2"), AnimalSpecies.Dog),
-            new(AnimalEvent.Create(AnimalEventType.RabiesVaccination, now.AddDays(-20), "Vaccinated", "User3"), AnimalSpecies.Cat)
+            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-5), "Adopted", "User1"), AnimalSpecies.Dog,
+                Guid.NewGuid(), "Dog1"),
+            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-3), "Adopted", "User1"), AnimalSpecies.Cat,
+                Guid.NewGuid(), "Cat1"),
+            new(AnimalEvent.Create(AnimalEventType.Sterilization, now.AddDays(-10), "Sterilized", "User2"),
+                AnimalSpecies.Dog, Guid.NewGuid(), "Dog2"),
+            new(AnimalEvent.Create(AnimalEventType.RabiesVaccination, now.AddDays(-20), "Vaccinated", "User3"),
+                AnimalSpecies.Cat, Guid.NewGuid(), "Cat2"),
         };
 
         var repoMock = Substitute.For<IAnimalEventRepository>();
@@ -90,9 +94,12 @@ public class GenerateEventReportCommandHandlerTests
         var now = DateTimeOffset.UtcNow;
         var events = new List<AnimalEventWithAnimalInfo>
         {
-            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-5), "Adopted", "User1"), AnimalSpecies.Dog),
-            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-3), "Adopted", "User1"), AnimalSpecies.Dog),
-            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-40), "Adopted", "User1"), AnimalSpecies.Dog)
+            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-5), "Adopted", "User1"),
+                AnimalSpecies.Dog, Guid.NewGuid(), "Dog1"),
+            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-3), "Adopted", "User1"),
+                AnimalSpecies.Dog, Guid.NewGuid(), "Dog2"),
+            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-40), "Adopted", "User1"),
+                AnimalSpecies.Dog, Guid.NewGuid(), "Dog3"),
         };
 
         var repoMock = Substitute.For<IAnimalEventRepository>();
@@ -115,7 +122,8 @@ public class GenerateEventReportCommandHandlerTests
         receivedData.Should().NotBeNull();
         var dogStats = receivedData!.SpeciesStats.First(s => s.Species == AnimalSpecies.Dog);
         var weekAdoptions = dogStats.WeekStats.EventCounts.FirstOrDefault(e => e.EventType == AnimalEventType.Adoption);
-        var quarterAdoptions = dogStats.QuarterStats.EventCounts.FirstOrDefault(e => e.EventType == AnimalEventType.Adoption);
+        var quarterAdoptions =
+            dogStats.QuarterStats.EventCounts.FirstOrDefault(e => e.EventType == AnimalEventType.Adoption);
 
         weekAdoptions.Should().NotBeNull();
         weekAdoptions!.Count.Should().Be(2);

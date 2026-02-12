@@ -6,22 +6,27 @@ namespace AnimalRegistry.Modules.Animals.Application.Reports;
 
 internal sealed class GenerateSelectedAnimalsReportCommandHandler(
     ICurrentUser currentUser,
+    ISelectedAnimalsDataService dataService,
     ISelectedAnimalsReportPdfService pdfService)
     : IRequestHandler<GenerateSelectedAnimalsReportCommand, Result<GenerateSelectedAnimalsReportResponse>>
 {
-    public async Task<Result<GenerateSelectedAnimalsReportResponse>> Handle(GenerateSelectedAnimalsReportCommand request,
+    public async Task<Result<GenerateSelectedAnimalsReportResponse>> Handle(
+        GenerateSelectedAnimalsReportCommand request,
         CancellationToken cancellationToken)
     {
         var generatedAt = DateTimeOffset.UtcNow;
 
-        var pdfBytes = pdfService.GenerateReport(request.Ids, generatedAt, currentUser.ShelterId);
+        var reportData = await dataService.PrepareReportDataAsync(
+            currentUser.ShelterId,
+            request.Ids,
+            cancellationToken);
+
+        var pdfBytes = pdfService.GenerateReport(reportData, generatedAt);
         var fileName = $"RaportWybranychZwierzat_{generatedAt:dd_MM_yyyy}.pdf";
 
-        return await Task.FromResult(Result<GenerateSelectedAnimalsReportResponse>.Success(new GenerateSelectedAnimalsReportResponse
+        return Result<GenerateSelectedAnimalsReportResponse>.Success(new GenerateSelectedAnimalsReportResponse
         {
-            FileName = fileName,
-            ContentType = "application/pdf",
-            Data = pdfBytes
-        }));
+            FileName = fileName, ContentType = "application/pdf", Data = pdfBytes,
+        });
     }
 }

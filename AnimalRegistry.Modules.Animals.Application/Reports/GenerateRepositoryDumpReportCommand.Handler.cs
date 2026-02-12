@@ -6,6 +6,7 @@ namespace AnimalRegistry.Modules.Animals.Application.Reports;
 
 internal sealed class GenerateRepositoryDumpReportCommandHandler(
     ICurrentUser currentUser,
+    IRepositoryDumpDataService dataService,
     IRepositoryDumpReportPdfService pdfService)
     : IRequestHandler<GenerateRepositoryDumpReportCommand, Result<GenerateRepositoryDumpReportResponse>>
 {
@@ -14,14 +15,13 @@ internal sealed class GenerateRepositoryDumpReportCommandHandler(
     {
         var generatedAt = DateTimeOffset.UtcNow;
 
-        var pdfBytes = pdfService.GenerateReport(generatedAt, currentUser.ShelterId);
+        var reportData = await dataService.PrepareReportDataAsync(currentUser.ShelterId, cancellationToken);
+        var pdfBytes = pdfService.GenerateReport(reportData, generatedAt);
         var fileName = $"ZrzutRepozytorium_{generatedAt:dd_MM_yyyy}.pdf";
 
-        return await Task.FromResult(Result<GenerateRepositoryDumpReportResponse>.Success(new GenerateRepositoryDumpReportResponse
+        return Result<GenerateRepositoryDumpReportResponse>.Success(new GenerateRepositoryDumpReportResponse
         {
-            FileName = fileName,
-            ContentType = "application/pdf",
-            Data = pdfBytes
-        }));
+            FileName = fileName, ContentType = "application/pdf", Data = pdfBytes,
+        });
     }
 }

@@ -11,8 +11,3 @@ public sealed record GenerateRepositoryDumpReportResponse
     public required string ContentType { get; init; }
     public required byte[] Data { get; init; }
 }
-
-public interface IRepositoryDumpReportPdfService
-{
-    byte[] GenerateReport(DateTimeOffset generatedAt, string shelterId);
-}

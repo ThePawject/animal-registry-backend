@@ -5,6 +5,8 @@ using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services;
+using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
+using AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
@@ -41,8 +43,16 @@ public sealed class AnimalsModule : IModule
             options.UseSqlServer(dbSettings.ConnectionString);
         });
 
+        // Repositories
         services.AddScoped<IAnimalRepository, AnimalRepository>();
         services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
+
+        // Report Data Services
+        services.AddScoped<IRepositoryDumpDataService, RepositoryDumpDataService>();
+        services.AddScoped<ISelectedAnimalsDataService, SelectedAnimalsDataService>();
+        services.AddScoped<IDateRangeAnimalsDataService, DateRangeAnimalsDataService>();
+
+        // Report PDF Services
         services.AddScoped<IAnimalSignatureService, AnimalSignatureService>();
         services.AddScoped<IEventReportPdfService, EventReportPdfService>();
         services.AddScoped<IDateRangeAnimalsReportPdfService, DateRangeAnimalsReportPdfService>();
@@ -61,7 +71,15 @@ public sealed class AnimalsModule : IModule
     public async Task MigrateAsync(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<AnimalsDbContext>();
-        await dbContext.Database.MigrateAsync();
+        var db = scope.ServiceProvider.GetRequiredService<AnimalsDbContext>();
+
+        var pending = await db.Database.GetPendingMigrationsAsync();
+
+        if (!pending.Any())
+        {
+            return;
+        }
+
+        await db.Database.MigrateAsync();
     }
 }
