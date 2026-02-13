@@ -25,9 +25,10 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
 
                 page.Content().Column(column =>
                 {
-                    foreach (var speciesStats in data.SpeciesStats)
+                    var speciesList = data.SpeciesStats.ToList();
+                    for (var i = 0; i < speciesList.Count; i++)
                     {
-                        AddSpeciesSection(column, speciesStats);
+                        AddSpeciesSection(column, speciesList[i], i == 0);
                     }
                 });
 
@@ -38,10 +39,18 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
         });
     }
     
-    private static void AddSpeciesSection(ColumnDescriptor column, SpeciesEventStats stats)
+    private static void AddSpeciesSection(ColumnDescriptor column, SpeciesEventStats stats, bool isFirst)
     {
         var speciesName = stats.Species == AnimalSpecies.Dog ? "PSY" : "KOTY";
-        AddSectionTitle(column, speciesName);
+        
+        if (isFirst)
+        {
+            column.Item().Text(speciesName).FontSize(18).Bold();
+        }
+        else
+        {
+            AddSectionTitle(column, speciesName);
+        }
         
         AddPeriodTable(column, "Okres kwartalny", stats.QuarterStats);
         AddPeriodTable(column, "Okres miesięczny", stats.MonthStats);

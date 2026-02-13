@@ -21,6 +21,7 @@ public sealed class SelectedAnimalsReportData
     public IReadOnlyList<Guid> RequestedIds { get; init; } = [];
     public int FoundAnimals => Animals.Count;
     public int MissingAnimals => RequestedIds.Count - FoundAnimals;
+    public Dictionary<string, byte[]> PhotoData { get; init; } = new();
 }
 
 public sealed class DateRangeAnimalsReportData
