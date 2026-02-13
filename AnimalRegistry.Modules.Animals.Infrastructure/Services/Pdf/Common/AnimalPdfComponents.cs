@@ -8,7 +8,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 
 internal static class AnimalPdfComponents
 {
-    public static void AddAnimalSection(ColumnDescriptor column, Animal animal, int index, int total, bool showPhotosAsImages = false)
+    public static void AddAnimalSection(ColumnDescriptor column, Animal animal, int index, int total, bool showPhotosAsImages = false, Dictionary<string, byte[]>? photoData = null)
     {
         if (index > 0)
         {
@@ -35,9 +35,9 @@ internal static class AnimalPdfComponents
         if (animal.Photos.Any())
         {
             column.Item().Height(0.5f, Unit.Centimetre);
-            if (showPhotosAsImages)
+            if (showPhotosAsImages && photoData != null)
             {
-                AddAnimalPhotosGrid(column, animal.Photos);
+                AddAnimalPhotosGrid(column, animal.Photos, photoData);
             }
             else
             {
@@ -155,10 +155,45 @@ internal static class AnimalPdfComponents
         }
     }
 
-    private static void AddAnimalPhotosGrid(ColumnDescriptor column, IEnumerable<AnimalPhoto> photos)
+    private static void AddAnimalPhotosGrid(ColumnDescriptor column, IEnumerable<AnimalPhoto> photos, Dictionary<string, byte[]> photoData)
     {
-        var urls = photos.Select(p => p.Url).Where(url => !string.IsNullOrEmpty(url)).Cast<string>().ToList();
-        PdfImageHelper.AddPhotoGrid(column, urls);
+        var photosList = photos.ToList();
+        if (photosList.Count == 0) return;
+
+        column.Item().Text($"Zdjęcia: {photosList.Count}").FontSize(12).Bold();
+        column.Item().Height(0.3f, Unit.Centimetre);
+
+        var images = photosList
+            .Select(p => p.Url)
+            .Where(url => !string.IsNullOrEmpty(url) && photoData.ContainsKey(url!))
+            .Select(url => photoData[url!])
+            .ToList();
+
+        if (images.Count == 0)
+        {
+            column.Item().Text("Nie udało się załadować zdjęć").FontSize(10);
+            return;
+        }
+
+        for (var i = 0; i < images.Count; i += 3)
+        {
+            var rowImages = images.Skip(i).Take(3).ToList();
+
+            column.Item().Row(row =>
+            {
+                foreach (var imageBytes in rowImages)
+                {
+                    row.RelativeItem().Padding(2).Height(5f, Unit.Centimetre).Width(5f, Unit.Centimetre)
+                        .Image(imageBytes)
+                        .FitArea();
+                }
+
+                for (var j = rowImages.Count; j < 3; j++)
+                {
+                    row.RelativeItem();
+                }
+            });
+        }
     }
 
     public static string GetSpeciesName(AnimalSpecies species)
