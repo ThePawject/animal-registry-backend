@@ -22,22 +22,18 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
             container.Page(page =>
             {
                 AddPageConfiguration(page);
-                
+
                 page.Content().Column(column =>
                 {
-                    AddReportTitle(
-                        column,
-                        "Raport Zdarzeń Zwierząt",
-                        data.ShelterId,
-                        generatedAt);
-
                     foreach (var speciesStats in data.SpeciesStats)
                     {
                         AddSpeciesSection(column, speciesStats);
                     }
                 });
-                
-                AddFooter(page, generatedAt, data.ShelterId);
+
+                page.Footer().AlignCenter()
+                    .Text($"Raport wygenerowany: {generatedAt:dd.MM.yyyy HH:mm} | Raport-Zdarzen | {data.ShelterId}")
+                    .FontSize(9);
             });
         });
     }

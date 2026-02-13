@@ -17,7 +17,7 @@ internal abstract class ReportPdfBase
         page.Margin(2f, Unit.Centimetre);
         page.PageColor(Colors.White);
 
-        page.Content().AlignCenter().AlignMiddle().Column(column =>
+        page.Content().PaddingTop(7f, Unit.Centimetre).AlignCenter().Column(column =>
         {
             column.Item().Text("Moje Schronisko").FontSize(48).Bold();
             column.Item().Height(0.5f, Unit.Centimetre);

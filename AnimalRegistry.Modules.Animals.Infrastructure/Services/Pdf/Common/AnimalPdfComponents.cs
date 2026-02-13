@@ -8,7 +8,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 
 internal static class AnimalPdfComponents
 {
-    public static void AddAnimalSection(ColumnDescriptor column, Animal animal, int index, int total)
+    public static void AddAnimalSection(ColumnDescriptor column, Animal animal, int index, int total, bool showPhotosAsImages = false)
     {
         if (index > 0)
         {
@@ -35,7 +35,14 @@ internal static class AnimalPdfComponents
         if (animal.Photos.Any())
         {
             column.Item().Height(0.5f, Unit.Centimetre);
-            AddAnimalPhotosInfo(column, animal.Photos, animal.MainPhotoId);
+            if (showPhotosAsImages)
+            {
+                AddAnimalPhotosGrid(column, animal.Photos);
+            }
+            else
+            {
+                AddAnimalPhotosInfo(column, animal.Photos, animal.MainPhotoId);
+            }
         }
     }
 
@@ -146,6 +153,12 @@ internal static class AnimalPdfComponents
                 column.Item().Text($"  • {photo.FileName}{mainIndicator} - dodano {photo.UploadedOn:dd.MM.yyyy}").FontSize(9);
             }
         }
+    }
+
+    private static void AddAnimalPhotosGrid(ColumnDescriptor column, IEnumerable<AnimalPhoto> photos)
+    {
+        var urls = photos.Select(p => p.Url).Where(url => !string.IsNullOrEmpty(url)).Cast<string>().ToList();
+        PdfImageHelper.AddPhotoGrid(column, urls);
     }
 
     public static string GetSpeciesName(AnimalSpecies species)
