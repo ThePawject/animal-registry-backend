@@ -22,7 +22,7 @@ public class RepositoryDumpReportPdfServiceTests
     public void GenerateReport_WithAnimal_ShouldCreateLargerPdf()
     {
         var animal = CreateTestAnimal("Burek", AnimalSpecies.Dog, AnimalSex.Male);
-        var reportData = CreateReportDataWithAnimals(new List<Animal> { animal });
+        var reportData = CreateReportDataWithAnimals([animal]);
         var pdfBytes = _pdfService.GenerateReport(reportData, DateTimeOffset.UtcNow);
         PdfTestHelpers.AssertValidPdfStructure(pdfBytes);
         pdfBytes.Length.Should().BeGreaterThan(2000);
@@ -45,7 +45,7 @@ public class RepositoryDumpReportPdfServiceTests
     [Fact]
     public void GenerateReport_WithEmptyAnimalsList_ShouldCreateValidPdf()
     {
-        var reportData = CreateReportDataWithAnimals(new List<Animal>());
+        var reportData = CreateReportDataWithAnimals([]);
         var pdfBytes = _pdfService.GenerateReport(reportData, DateTimeOffset.UtcNow);
         PdfTestHelpers.AssertValidPdfStructure(pdfBytes);
     }
@@ -54,7 +54,7 @@ public class RepositoryDumpReportPdfServiceTests
     public void GenerateReport_WithAnimalWithPhotos_ShouldCreatePdfWithoutPhotoSection()
     {
         var animal = CreateTestAnimalWithPhotos("Burek", AnimalSpecies.Dog, AnimalSex.Male);
-        var reportData = CreateReportDataWithAnimals(new List<Animal> { animal });
+        var reportData = CreateReportDataWithAnimals([animal]);
         var pdfBytes = _pdfService.GenerateReport(reportData, DateTimeOffset.UtcNow);
         PdfTestHelpers.AssertValidPdfStructure(pdfBytes);
     }
@@ -62,7 +62,7 @@ public class RepositoryDumpReportPdfServiceTests
     private static RepositoryDumpReportData CreateValidReportData()
     {
         var animal = CreateTestAnimal("Burek", AnimalSpecies.Dog, AnimalSex.Male);
-        return CreateReportDataWithAnimals(new List<Animal> { animal });
+        return CreateReportDataWithAnimals([animal]);
     }
 
     private static RepositoryDumpReportData CreateReportDataWithAnimals(List<Animal> animals)
