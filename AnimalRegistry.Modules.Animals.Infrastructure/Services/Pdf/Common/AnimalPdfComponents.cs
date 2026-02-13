@@ -50,7 +50,6 @@ internal static class AnimalPdfComponents
     {
         var info = new Dictionary<string, string>
         {
-            { "ID", animal.Id.ToString() },
             { "Sygnatura", animal.Signature.Value },
             { "Kod transpondera", string.IsNullOrEmpty(animal.TransponderCode) ? "-" : animal.TransponderCode },
             { "Gatunek", GetSpeciesName(animal.Species) },
