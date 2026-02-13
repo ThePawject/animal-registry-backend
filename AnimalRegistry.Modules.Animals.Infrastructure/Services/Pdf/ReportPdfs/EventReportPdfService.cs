@@ -16,35 +16,41 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
         {
             container.Page(page =>
             {
+                AddCoverPage(page, data.ShelterId);
+            });
+
+            container.Page(page =>
+            {
                 AddPageConfiguration(page);
-                
+
                 page.Content().Column(column =>
                 {
-                    AddReportTitle(
-                        column,
-                        "Raport Zdarzeń Zwierząt",
-                        data.ShelterId,
-                        generatedAt);
-                    
-                    column.Item().Text("Raport zawiera zestawienie zdarzeń dla psów i kotów w podziale na okresy: ostatni kwartał, ostatni miesiąc oraz ostatni tydzień.")
-                        .FontSize(12);
-                    column.Item().Height(1f, Unit.Centimetre);
-                    
-                    foreach (var speciesStats in data.SpeciesStats)
+                    var speciesList = data.SpeciesStats.ToList();
+                    for (var i = 0; i < speciesList.Count; i++)
                     {
-                        AddSpeciesSection(column, speciesStats);
+                        AddSpeciesSection(column, speciesList[i], i == 0);
                     }
                 });
-                
-                AddFooter(page, generatedAt);
+
+                page.Footer().AlignCenter()
+                    .Text($"Raport wygenerowany: {generatedAt:dd.MM.yyyy HH:mm} | Raport-Zdarzen | {data.ShelterId}")
+                    .FontSize(9);
             });
         });
     }
     
-    private static void AddSpeciesSection(ColumnDescriptor column, SpeciesEventStats stats)
+    private static void AddSpeciesSection(ColumnDescriptor column, SpeciesEventStats stats, bool isFirst)
     {
         var speciesName = stats.Species == AnimalSpecies.Dog ? "PSY" : "KOTY";
-        AddSectionTitle(column, speciesName);
+        
+        if (isFirst)
+        {
+            column.Item().Text(speciesName).FontSize(18).Bold();
+        }
+        else
+        {
+            AddSectionTitle(column, speciesName);
+        }
         
         AddPeriodTable(column, "Okres kwartalny", stats.QuarterStats);
         AddPeriodTable(column, "Okres miesięczny", stats.MonthStats);
