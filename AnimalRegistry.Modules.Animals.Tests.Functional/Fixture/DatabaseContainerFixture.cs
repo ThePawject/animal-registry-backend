@@ -6,6 +6,10 @@ namespace AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 
 public sealed class DatabaseContainerFixture : IAsyncLifetime
 {
+    private readonly AzuriteContainer _azuriteContainer = new AzuriteBuilder()
+        .WithImage("mcr.microsoft.com/azure-storage/azurite:latest")
+        .Build();
+
     private readonly MsSqlContainer _dbContainer = new MsSqlBuilder()
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
         .WithEnvironment("ACCEPT_EULA", "Y")
@@ -14,10 +18,6 @@ public sealed class DatabaseContainerFixture : IAsyncLifetime
         .WithPortBinding(1433, true)
         .WithWaitStrategy(Wait.ForUnixContainer()
             .UntilCommandIsCompleted("/opt/mssql-tools18/bin/sqlcmd", "-C", "-Q", "SELECT 1;"))
-        .Build();
-
-    private readonly AzuriteContainer _azuriteContainer = new AzuriteBuilder()
-        .WithImage("mcr.microsoft.com/azure-storage/azurite:latest")
         .Build();
 
     public string ConnectionString => _dbContainer.GetConnectionString();

@@ -1,4 +1,3 @@
-using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
@@ -22,15 +21,14 @@ internal sealed class GenerateSelectedAnimalsReport(IMediator mediator)
 
     public override async Task HandleAsync(GenerateSelectedAnimalsReportRequest req, CancellationToken ct)
     {
-        var command = new GenerateSelectedAnimalsReportCommand
-        {
-            Ids = req.Ids
-        };
+        var command = new GenerateSelectedAnimalsReportCommand { Ids = req.Ids };
 
         var result = await mediator.Send(command, ct);
 
         if (await this.SendResultIfFailureAsync(result, ct))
+        {
             return;
+        }
 
         var response = result.Value!;
         HttpContext.Response.ContentType = response.ContentType;

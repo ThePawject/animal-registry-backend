@@ -2,7 +2,6 @@ using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 using QuestPDF.Fluent;
-using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
@@ -16,7 +15,7 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
             container.Page(page =>
             {
                 AddPageConfiguration(page);
-                
+
                 page.Content().Column(column =>
                 {
                     AddReportTitle(
@@ -24,14 +23,14 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
                         "Zrzut Repozytorium Zwierząt",
                         data.ShelterId,
                         generatedAt);
-                    
-                    column.Item().Text($"Raport zawiera pełny zrzut wszystkich danych o zwierzętach w systemie.")
+
+                    column.Item().Text("Raport zawiera pełny zrzut wszystkich danych o zwierzętach w systemie.")
                         .FontSize(12);
                     column.Item().Text($"Łączna liczba zwierząt: {data.TotalAnimals}")
                         .FontSize(12)
                         .Bold();
                     column.Item().Height(1f, Unit.Centimetre);
-                    
+
                     if (data.Animals.Count == 0)
                     {
                         ReportComponents.AddEmptyState(column, "Brak zwierząt w bazie danych.");
@@ -44,7 +43,7 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
                         }
                     }
                 });
-                
+
                 AddFooter(page, generatedAt);
             });
         });

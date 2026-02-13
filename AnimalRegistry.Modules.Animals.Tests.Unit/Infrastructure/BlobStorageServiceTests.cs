@@ -1,5 +1,7 @@
+using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services;
+using AnimalRegistry.Shared;
 using Azure.Storage.Blobs;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
@@ -9,6 +11,7 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Infrastructure;
 
 public class BlobStorageServiceTests
 {
+    private readonly IImageOptimizationService _imageOptimizationService;
     private readonly BlobStorageService _service;
 
     public BlobStorageServiceTests()
@@ -17,13 +20,14 @@ public class BlobStorageServiceTests
         {
             ConnectionString = "UseDevelopmentStorage=true",
             ContainerName = "test-container",
-            AccountName = "testaccount"
+            AccountName = "testaccount",
         };
         var options = Substitute.For<IOptions<BlobStorageSettings>>();
         options.Value.Returns(settings);
 
         var containerClient = Substitute.For<BlobContainerClient>();
-        _service = new BlobStorageService(options, containerClient);
+        _imageOptimizationService = Substitute.For<IImageOptimizationService>();
+        _service = new BlobStorageService(options, containerClient, _imageOptimizationService);
     }
 
     [Theory]
@@ -47,14 +51,17 @@ public class BlobStorageServiceTests
 
         var url = _service.GetBlobUrl(blobPath);
 
-        url.Should().Be("https://testaccount.blob.core.windows.net/test-container/shelter-id/animal-id/20240209123456789_photo.jpg");
+        url.Should()
+            .Be(
+                "https://testaccount.blob.core.windows.net/test-container/shelter-id/animal-id/20240209123456789_photo.jpg");
     }
 }
 
 public class BlobStorageValidationTests
 {
-    private readonly BlobStorageService _service;
     private readonly BlobContainerClient _containerClient;
+    private readonly IImageOptimizationService _imageOptimizationService;
+    private readonly BlobStorageService _service;
 
     public BlobStorageValidationTests()
     {
@@ -62,13 +69,14 @@ public class BlobStorageValidationTests
         {
             ConnectionString = "UseDevelopmentStorage=true",
             ContainerName = "test-container",
-            AccountName = "testaccount"
+            AccountName = "testaccount",
         };
         var options = Substitute.For<IOptions<BlobStorageSettings>>();
         options.Value.Returns(settings);
 
         _containerClient = Substitute.For<BlobContainerClient>();
-        _service = new BlobStorageService(options, _containerClient);
+        _imageOptimizationService = Substitute.For<IImageOptimizationService>();
+        _service = new BlobStorageService(options, _containerClient, _imageOptimizationService);
     }
 
     [Theory]
@@ -77,14 +85,20 @@ public class BlobStorageValidationTests
     [InlineData("photo.pdf")]
     [InlineData("photo.txt")]
     [InlineData("photo.exe")]
-    public async Task UploadAsync_With_Invalid_Extension_Should_Return_ValidationError(string fileName)
+    public async Task UploadAsync_With_Invalid_Image_File_Should_Return_ValidationError(string fileName)
     {
         var content = new MemoryStream([1, 2, 3]);
+
+        // Mock ImageOptimizationService to return validation error
+        _imageOptimizationService
+            .OptimizeImageAsync(Arg.Any<Stream>(), Arg.Any<CancellationToken>())
+            .Returns(Result<Stream>.ValidationError(
+                "Invalid image file. The file format is not supported or the file is corrupted."));
 
         var result = await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Should().Contain("Invalid file extension");
+        result.Error.Should().Contain("Invalid image file");
     }
 
     [Fact]
@@ -104,14 +118,20 @@ public class BlobStorageValidationTests
     [InlineData("photo.jpeg")]
     [InlineData("photo.png")]
     [InlineData("photo.webp")]
-    public async Task ValidateFile_With_Valid_Extension_Should_Not_Return_ValidationError(string fileName)
+    public async Task UploadAsync_With_Valid_Image_Should_Convert_To_Webp(string fileName)
     {
         var content = new MemoryStream(new byte[1024 * 1024]);
+        var optimizedStream = new MemoryStream(new byte[512 * 1024]); // Smaller after optimization
         var blobClient = Substitute.For<BlobClient>();
         _containerClient.GetBlobClient(Arg.Any<string>()).Returns(blobClient);
+
+        _imageOptimizationService
+            .OptimizeImageAsync(Arg.Any<Stream>(), Arg.Any<CancellationToken>())
+            .Returns(Result<Stream>.Success(optimizedStream));
 
         var result = await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
 
         result.IsSuccess.Should().BeTrue();
+        result.Value.Should().EndWith(".webp");
     }
 }

@@ -9,10 +9,7 @@ public sealed class ListAnimalsValidatorTests
 {
     private readonly PaginationSettings _defaultSettings = new()
     {
-        DefaultPageSize = 20,
-        MaxPageSize = 100,
-        MinPageSize = 1,
-        MinPage = 1
+        DefaultPageSize = 20, MaxPageSize = 100, MinPageSize = 1, MinPage = 1,
     };
 
     private ListAnimalsValidator CreateValidator(PaginationSettings? settings = null)
@@ -69,12 +66,7 @@ public sealed class ListAnimalsValidatorTests
     [Fact]
     public void Validate_WithCustomMaxPageSize_RespectsConfiguration()
     {
-        var customSettings = new PaginationSettings
-        {
-            MaxPageSize = 50,
-            MinPageSize = 1,
-            MinPage = 1
-        };
+        var customSettings = new PaginationSettings { MaxPageSize = 50, MinPageSize = 1, MinPage = 1 };
         var validator = CreateValidator(customSettings);
 
         var request = new ListAnimalsRequest { Page = 1, PageSize = 50, KeyWordSearch = "valid" };
@@ -91,12 +83,7 @@ public sealed class ListAnimalsValidatorTests
     public void Validate_WithKeyWordSearchTooLong_ReturnsInvalid()
     {
         var validator = CreateValidator();
-        var request = new ListAnimalsRequest
-        {
-            Page = 1,
-            PageSize = 20,
-            KeyWordSearch = new string('a', 101)
-        };
+        var request = new ListAnimalsRequest { Page = 1, PageSize = 20, KeyWordSearch = new string('a', 101) };
 
         var result = validator.Validate(request);
 

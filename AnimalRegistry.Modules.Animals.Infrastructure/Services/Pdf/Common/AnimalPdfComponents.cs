@@ -52,14 +52,14 @@ internal static class AnimalPdfComponents
             { "Data urodzenia", animal.BirthDate.ToString("dd.MM.yyyy") },
             { "W schronisku", animal.IsInShelter ? "Tak" : "Nie" },
             { "Data utworzenia", animal.CreatedOn.ToString("dd.MM.yyyy HH:mm") },
-            { "Ostatnia modyfikacja", animal.ModifiedOn.ToString("dd.MM.yyyy HH:mm") }
+            { "Ostatnia modyfikacja", animal.ModifiedOn.ToString("dd.MM.yyyy HH:mm") },
         };
 
         column.Item().Table(table =>
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(1);
+                columns.RelativeColumn();
                 columns.RelativeColumn(2);
             });
 
@@ -143,7 +143,8 @@ internal static class AnimalPdfComponents
             {
                 var isMain = mainPhotoId.HasValue && photo.Id == mainPhotoId.Value;
                 var mainIndicator = isMain ? " (główne)" : "";
-                column.Item().Text($"  • {photo.FileName}{mainIndicator} - dodano {photo.UploadedOn:dd.MM.yyyy}").FontSize(9);
+                column.Item().Text($"  • {photo.FileName}{mainIndicator} - dodano {photo.UploadedOn:dd.MM.yyyy}")
+                    .FontSize(9);
             }
         }
     }
@@ -154,7 +155,7 @@ internal static class AnimalPdfComponents
         {
             AnimalSpecies.Dog => "Pies",
             AnimalSpecies.Cat => "Kot",
-            _ => species.ToString()
+            _ => species.ToString(),
         };
     }
 
@@ -164,7 +165,7 @@ internal static class AnimalPdfComponents
         {
             AnimalSex.Male => "Samiec",
             AnimalSex.Female => "Samica",
-            _ => sex.ToString()
+            _ => sex.ToString(),
         };
     }
 
@@ -188,7 +189,7 @@ internal static class AnimalPdfComponents
             AnimalEventType.Weighing => "Ważenie",
             AnimalEventType.Euthanasia => "Eutanazja",
             AnimalEventType.Death => "Śmierć",
-            _ => eventType.ToString()
+            _ => eventType.ToString(),
         };
     }
 }

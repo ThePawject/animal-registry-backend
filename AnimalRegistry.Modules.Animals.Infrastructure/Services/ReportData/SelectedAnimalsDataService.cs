@@ -15,10 +15,7 @@ internal sealed class SelectedAnimalsDataService(IAnimalRepository animalReposit
 
         return new SelectedAnimalsReportData
         {
-            ShelterId = shelterId,
-            Animals = animals,
-            RequestedIds = animalIds,
-            ReportDate = DateTimeOffset.UtcNow
+            ShelterId = shelterId, Animals = animals, RequestedIds = animalIds, ReportDate = DateTimeOffset.UtcNow,
         };
     }
 }

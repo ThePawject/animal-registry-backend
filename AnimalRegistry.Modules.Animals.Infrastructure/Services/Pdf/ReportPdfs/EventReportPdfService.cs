@@ -3,7 +3,6 @@ using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 using QuestPDF.Fluent;
-using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
@@ -17,7 +16,7 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
             container.Page(page =>
             {
                 AddPageConfiguration(page);
-                
+
                 page.Content().Column(column =>
                 {
                     AddReportTitle(
@@ -25,61 +24,64 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
                         "Raport Zdarzeń Zwierząt",
                         data.ShelterId,
                         generatedAt);
-                    
-                    column.Item().Text("Raport zawiera zestawienie zdarzeń dla psów i kotów w podziale na okresy: ostatni kwartał, ostatni miesiąc oraz ostatni tydzień.")
+
+                    column.Item()
+                        .Text(
+                            "Raport zawiera zestawienie zdarzeń dla psów i kotów w podziale na okresy: ostatni kwartał, ostatni miesiąc oraz ostatni tydzień.")
                         .FontSize(12);
                     column.Item().Height(1f, Unit.Centimetre);
-                    
+
                     foreach (var speciesStats in data.SpeciesStats)
                     {
                         AddSpeciesSection(column, speciesStats);
                     }
                 });
-                
+
                 AddFooter(page, generatedAt);
             });
         });
     }
-    
+
     private static void AddSpeciesSection(ColumnDescriptor column, SpeciesEventStats stats)
     {
         var speciesName = stats.Species == AnimalSpecies.Dog ? "PSY" : "KOTY";
         AddSectionTitle(column, speciesName);
-        
+
         AddPeriodTable(column, "Okres kwartalny", stats.QuarterStats);
         AddPeriodTable(column, "Okres miesięczny", stats.MonthStats);
         AddPeriodTable(column, "Okres tygodniowy", stats.WeekStats);
     }
-    
+
     private static void AddPeriodTable(ColumnDescriptor column, string periodTitle, PeriodStats stats)
     {
         AddSubsectionTitle(column, periodTitle);
         column.Item().Text($"{stats.PeriodFrom:dd.MM.yyyy} – {stats.PeriodTo:dd.MM.yyyy}").FontSize(11);
         column.Item().Height(0.3f, Unit.Centimetre);
-        
+
         if (stats.EventCounts.Count == 0)
         {
             ReportComponents.AddEmptyState(column, "Brak zdarzeń w tym okresie.");
             return;
         }
-        
+
         column.Item().Table(table =>
         {
             table.ColumnsDefinition(columns =>
             {
                 columns.RelativeColumn(3);
-                columns.RelativeColumn(1);
+                columns.RelativeColumn();
             });
-            
+
             table.Header(header =>
             {
                 header.Cell().Element(ReportStyles.HeaderStyle).Text("Typ zdarzenia").Bold();
                 header.Cell().Element(ReportStyles.HeaderStyle).AlignCenter().Text("Liczba").Bold();
             });
-            
+
             foreach (var eventCount in stats.EventCounts)
             {
-                table.Cell().Element(ReportStyles.CellStyle).Text(AnimalPdfComponents.GetEventTypeName(eventCount.EventType));
+                table.Cell().Element(ReportStyles.CellStyle)
+                    .Text(AnimalPdfComponents.GetEventTypeName(eventCount.EventType));
                 table.Cell().Element(ReportStyles.CellStyle).AlignCenter().Text(eventCount.Count.ToString());
             }
         });

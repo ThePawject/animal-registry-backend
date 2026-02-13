@@ -7,5 +7,7 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
 {
     public string UserId => httpContextAccessor.HttpContext?.User.FindFirst("https://ThePawject/user_id")?.Value!;
     public string Email => httpContextAccessor.HttpContext?.User.FindFirst("https://ThePawject/email")?.Value!;
-    public string ShelterId => httpContextAccessor.HttpContext?.User.FindFirst(ShelterAccessHandler.ShelterIdClaimType)?.Value!;
+
+    public string ShelterId =>
+        httpContextAccessor.HttpContext?.User.FindFirst(ShelterAccessHandler.ShelterIdClaimType)?.Value!;
 }

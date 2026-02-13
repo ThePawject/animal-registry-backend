@@ -46,7 +46,7 @@ public enum ResultStatus
     Ok = 1,
     NotFound = 2,
     ValidationError = 3,
-    Forbidden = 4
+    Forbidden = 4,
 }
 
 public class Result<T> : Result

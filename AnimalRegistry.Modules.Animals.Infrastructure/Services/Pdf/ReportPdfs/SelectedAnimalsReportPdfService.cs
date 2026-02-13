@@ -16,7 +16,7 @@ internal sealed class SelectedAnimalsReportPdfService : ReportPdfBase, ISelected
             container.Page(page =>
             {
                 AddPageConfiguration(page);
-                
+
                 page.Content().Column(column =>
                 {
                     AddReportTitle(
@@ -24,13 +24,13 @@ internal sealed class SelectedAnimalsReportPdfService : ReportPdfBase, ISelected
                         "Raport Wybranych Zwierząt",
                         data.ShelterId,
                         generatedAt);
-                    
+
                     column.Item().Text($"Liczba wybranych zwierząt: {data.RequestedIds.Count}")
                         .FontSize(12);
                     column.Item().Text($"Znaleziono: {data.FoundAnimals}")
                         .FontSize(12)
                         .Bold();
-                    
+
                     if (data.MissingAnimals > 0)
                     {
                         column.Item().Text($"Brak w bazie: {data.MissingAnimals}")
@@ -38,9 +38,9 @@ internal sealed class SelectedAnimalsReportPdfService : ReportPdfBase, ISelected
                             .FontColor(Colors.Red.Medium)
                             .Bold();
                     }
-                    
+
                     column.Item().Height(1f, Unit.Centimetre);
-                    
+
                     if (data.Animals.Count == 0)
                     {
                         ReportComponents.AddEmptyState(column, "Nie znaleziono żadnych zwierząt o podanych ID.");
@@ -53,7 +53,7 @@ internal sealed class SelectedAnimalsReportPdfService : ReportPdfBase, ISelected
                         }
                     }
                 });
-                
+
                 AddFooter(page, generatedAt);
             });
         });

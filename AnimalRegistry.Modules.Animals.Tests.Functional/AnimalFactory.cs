@@ -3,6 +3,7 @@ using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared.Pagination;
 using AnimalRegistry.Shared.Testing;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
@@ -27,14 +28,16 @@ public sealed class AnimalFactory(ApiClient api)
         content.Add(new StringContent(((int)sex).ToString()), "Sex");
         content.Add(new StringContent(DateTimeOffset.UtcNow.AddYears(-1).ToString("o")), "BirthDate");
         if (mainPhotoIndex != null)
+        {
             content.Add(new StringContent(mainPhotoIndex.Value.ToString()), "MainPhotoIndex");
+        }
 
         if (photos != null)
         {
             foreach (var (fileName, data, contentType) in photos)
             {
                 var fileContent = new ByteArrayContent(data);
-                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
                 content.Add(fileContent, "Photos", fileName);
             }
         }
@@ -95,7 +98,7 @@ public sealed class AnimalFactory(ApiClient api)
         content.Add(new StringContent(((int)species).ToString()), "Species");
         content.Add(new StringContent(((int)sex).ToString()), "Sex");
         content.Add(new StringContent(DateTimeOffset.UtcNow.AddYears(-2).ToString("o")), "BirthDate");
-        
+
         foreach (var photoId in existingPhotoIds)
         {
             content.Add(new StringContent(photoId.ToString()), "ExistingPhotoIds");
@@ -106,15 +109,20 @@ public sealed class AnimalFactory(ApiClient api)
             foreach (var (fileName, data, contentType) in newPhotos)
             {
                 var fileContent = new ByteArrayContent(data);
-                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
                 content.Add(fileContent, "NewPhotos", fileName);
             }
         }
 
         if (mainPhotoId.HasValue)
+        {
             content.Add(new StringContent(mainPhotoId.Value.ToString()), "MainPhotoId");
+        }
+
         if (mainPhotoIndex.HasValue)
+        {
             content.Add(new StringContent(mainPhotoIndex.Value.ToString()), "MainPhotoIndex");
+        }
 
         var resp = await api.PutFormAsync(UpdateAnimalRequest.BuildRoute(id), content);
         if (!resp.IsSuccessStatusCode)

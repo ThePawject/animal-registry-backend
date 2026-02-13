@@ -43,16 +43,13 @@ public sealed class AnimalsModule : IModule
             options.UseSqlServer(dbSettings.ConnectionString);
         });
 
-        // Repositories
         services.AddScoped<IAnimalRepository, AnimalRepository>();
         services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
 
-        // Report Data Services
         services.AddScoped<IRepositoryDumpDataService, RepositoryDumpDataService>();
         services.AddScoped<ISelectedAnimalsDataService, SelectedAnimalsDataService>();
         services.AddScoped<IDateRangeAnimalsDataService, DateRangeAnimalsDataService>();
 
-        // Report PDF Services
         services.AddScoped<IAnimalSignatureService, AnimalSignatureService>();
         services.AddScoped<IEventReportPdfService, EventReportPdfService>();
         services.AddScoped<IDateRangeAnimalsReportPdfService, DateRangeAnimalsReportPdfService>();
@@ -65,6 +62,7 @@ public sealed class AnimalsModule : IModule
             options.ContainerName = configuration["BlobStorage:ContainerName"]!;
             options.AccountName = configuration["BlobStorage:AccountName"]!;
         });
+        services.AddSingleton<IImageOptimizationService, ImageOptimizationService>();
         services.AddSingleton<IBlobStorageService, BlobStorageService>();
     }
 

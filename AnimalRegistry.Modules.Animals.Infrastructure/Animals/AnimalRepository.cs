@@ -86,8 +86,9 @@ internal sealed class AnimalRepository(
         }
 
         return animals;
-}
-public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+    }
+
+    public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
         CancellationToken cancellationToken = default)
     {
         var animals = await context.Animals

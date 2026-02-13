@@ -17,5 +17,5 @@ public enum AnimalEventType
     PickedUpByOwner = 12,
     Weighing = 13,
     Euthanasia = 14,
-    Death = 15
+    Death = 15,
 }

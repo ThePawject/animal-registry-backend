@@ -1,4 +1,3 @@
-using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
@@ -22,10 +21,12 @@ internal sealed class GenerateEventReport(IMediator mediator) : EndpointWithoutR
     public override async Task HandleAsync(CancellationToken ct)
     {
         var result = await mediator.Send(new GenerateEventReportCommand(), ct);
-        
+
         if (await this.SendResultIfFailureAsync(result, ct))
+        {
             return;
-        
+        }
+
         var response = result.Value!;
         HttpContext.Response.ContentType = response.ContentType;
         HttpContext.Response.Headers.ContentDisposition = $"attachment; filename=\"{response.FileName}\"";

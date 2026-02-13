@@ -14,9 +14,7 @@ internal sealed class RepositoryDumpDataService(IAnimalRepository animalReposito
 
         return new RepositoryDumpReportData
         {
-            ShelterId = shelterId,
-            Animals = animals,
-            ReportDate = DateTimeOffset.UtcNow
+            ShelterId = shelterId, Animals = animals, ReportDate = DateTimeOffset.UtcNow,
         };
     }
 }

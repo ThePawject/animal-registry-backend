@@ -29,10 +29,7 @@ public class EventReportPdfServiceTests
                             PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90),
                             PeriodTo = DateTimeOffset.UtcNow,
                             EventCounts =
-                                new List<EventTypeCount>
-                                {
-                                    new() { EventType = AnimalEventType.Adoption, Count = 5 },
-                                },
+                                new List<EventTypeCount> { new() { EventType = AnimalEventType.Adoption, Count = 5 } },
                         },
                     MonthStats =
                         new PeriodStats
