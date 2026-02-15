@@ -1,16 +1,20 @@
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Shared;
+using Microsoft.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Processing;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services;
 
 internal sealed class ImageOptimizationService : IImageOptimizationService
 {
-    private const int WebpQuality = 60;
+    private const int WebpQuality = 75;
+    private const int MaxImageDimension = 2048;
 
-    public async Task<Result<Stream>> OptimizeImageAsync(Stream sourceStream,
-        CancellationToken cancellationToken = default)
+    private readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
+
+    public async Task<Result<Stream>> OptimizeImageAsync(Stream sourceStream, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -25,9 +29,21 @@ internal sealed class ImageOptimizationService : IImageOptimizationService
             image.Metadata.IptcProfile = null;
             image.Metadata.XmpProfile = null;
 
-            var outputStream = new MemoryStream();
+            var originalWidth = image.Width;
+            var originalHeight = image.Height;
+
+            var outputStream = _memoryStreamManager.GetStream();
 
             var encoder = new WebpEncoder { Quality = WebpQuality, FileFormat = WebpFileFormatType.Lossy };
+
+            if (originalWidth > MaxImageDimension || originalHeight > MaxImageDimension)
+            {
+                image.Mutate(x => x.Resize(new ResizeOptions
+                {
+                    Mode = ResizeMode.Max,
+                    Size = new Size(MaxImageDimension, MaxImageDimension)
+                }));
+            }
 
             await image.SaveAsWebpAsync(outputStream, encoder, cancellationToken);
 

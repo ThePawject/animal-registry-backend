@@ -75,7 +75,8 @@ internal sealed class BlobStorageService : IBlobStorageService
 
         var blobHttpHeaders = new BlobHttpHeaders
         {
-            ContentType = "image/webp", CacheControl = "public, max-age=31536000",
+            ContentType = "image/webp",
+            CacheControl = "public, max-age=31536000"
         };
 
         try
@@ -88,8 +89,8 @@ internal sealed class BlobStorageService : IBlobStorageService
                     {
                         { "shelterId", shelterId },
                         { "animalId", animalId.ToString() },
-                        { "originalFileName", fileName },
-                    },
+                        { "originalFileName", fileName }
+                    }
                 }, cancellationToken);
 
             return Result<string>.Success(blobPath);
@@ -113,11 +114,11 @@ internal sealed class BlobStorageService : IBlobStorageService
 
     private static Result ValidateFile(string fileName, Stream content)
     {
-        const long maxSize = 10 * 1024 * 1024;
+        const long maxSize = 20 * 1024 * 1024;
         if (content.Length > maxSize)
         {
             return Result.ValidationError(
-                $"File is too large: {content.Length / 1024 / 1024}MB. Maximum size: 10MB");
+                $"File is too large: {content.Length / 1024 / 1024}MB. Maximum size: 20MB");
         }
 
         return Result.Success();

@@ -55,7 +55,7 @@ internal sealed class UpdateAnimalCommandHandler(
         var requestedPhotoIds = request.ExistingPhotoIds.ToHashSet();
 
         var photosToRemove = currentPhotoIds.Except(requestedPhotoIds).ToList();
-        foreach (var photoId in photosToRemove)
+        var deleteTasks = photosToRemove.Select(async photoId =>
         {
             var photo = animal.Photos.FirstOrDefault(p => p.Id == photoId);
             if (photo != null)
@@ -63,28 +63,26 @@ internal sealed class UpdateAnimalCommandHandler(
                 await blobStorageService.DeleteAsync(photo.BlobPath, cancellationToken);
                 animal.RemovePhoto(photoId);
             }
-        }
+        });
+        await Task.WhenAll(deleteTasks);
 
-        for (var i = 0; i < request.NewPhotos.Count; i++)
+        if (request.NewPhotos.Count > 0)
         {
-            var photo = request.NewPhotos[i];
+            var uploadTasks = request.NewPhotos.Select((photo, index) =>
+                UploadPhotoAsync(photo, index, animal.Id, cancellationToken));
 
-            var uploadResult = await blobStorageService.UploadAsync(
-                photo.FileName,
-                photo.Content,
-                photo.ContentType,
-                currentUser.ShelterId,
-                animal.Id,
-                cancellationToken);
+            var results = await Task.WhenAll(uploadTasks);
 
-            if (uploadResult.IsFailure)
+            foreach (var (uploadResult, index) in results.Select((r, i) => (r, i)))
             {
-                return Result<UpdateAnimalCommandResponse>.ValidationError(
-                    $"Error uploading photo '{photo.FileName}': {uploadResult.Error}");
-            }
+                if (uploadResult.IsFailure)
+                {
+                    return Result<UpdateAnimalCommandResponse>.ValidationError(uploadResult.Error!);
+                }
 
-            var isMain = request.MainPhotoIndex.HasValue && request.MainPhotoIndex.Value == i;
-            animal.AddPhoto(uploadResult.Value!, photo.FileName, isMain);
+                var isMain = request.MainPhotoIndex.HasValue && request.MainPhotoIndex.Value == index;
+                animal.AddPhoto(uploadResult.Value!, request.NewPhotos[index].FileName, isMain);
+            }
         }
 
         if (request.MainPhotoId.HasValue)
@@ -101,5 +99,16 @@ internal sealed class UpdateAnimalCommandHandler(
 
         return Result<UpdateAnimalCommandResponse>.Success(
             new UpdateAnimalCommandResponse(animal.Id));
+    }
+
+    private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, int index, Guid animalId, CancellationToken cancellationToken)
+    {
+        return await blobStorageService.UploadAsync(
+            photo.FileName,
+            photo.Content,
+            photo.ContentType,
+            currentUser.ShelterId,
+            animalId,
+            cancellationToken);
     }
 }

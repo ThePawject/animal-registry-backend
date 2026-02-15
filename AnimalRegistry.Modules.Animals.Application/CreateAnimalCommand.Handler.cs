@@ -40,26 +40,20 @@ internal sealed class CreateAnimalCommandHandler(
 
         if (request.Photos.Count > 0)
         {
-            for (var i = 0; i < request.Photos.Count; i++)
+            var uploadTasks = request.Photos.Select((photo, index) =>
+                UploadPhotoAsync(photo, index, animal.Id, cancellationToken));
+
+            var results = await Task.WhenAll(uploadTasks);
+
+            foreach (var (uploadResult, index) in results.Select((r, i) => (r, i)))
             {
-                var photo = request.Photos[i];
-
-                var uploadResult = await blobStorageService.UploadAsync(
-                    photo.FileName,
-                    photo.Content,
-                    photo.ContentType,
-                    currentUser.ShelterId,
-                    animal.Id,
-                    cancellationToken);
-
                 if (uploadResult.IsFailure)
                 {
-                    return Result<CreateAnimalCommandResponse>.ValidationError(
-                        $"Error uploading photo '{photo.FileName}': {uploadResult.Error}");
+                    return Result<CreateAnimalCommandResponse>.ValidationError(uploadResult.Error!);
                 }
 
-                var isMain = request.MainPhotoIndex.HasValue && request.MainPhotoIndex.Value == i;
-                animal.AddPhoto(uploadResult.Value!, photo.FileName, isMain);
+                var isMain = request.MainPhotoIndex.HasValue && request.MainPhotoIndex.Value == index;
+                animal.AddPhoto(uploadResult.Value!, request.Photos[index].FileName, isMain);
             }
         }
 
@@ -70,5 +64,16 @@ internal sealed class CreateAnimalCommandHandler(
         }
 
         return Result<CreateAnimalCommandResponse>.Success(new CreateAnimalCommandResponse(result.Value.Id));
+    }
+
+    private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, int index, Guid animalId, CancellationToken cancellationToken)
+    {
+        return await blobStorageService.UploadAsync(
+            photo.FileName,
+            photo.Content,
+            photo.ContentType,
+            currentUser.ShelterId,
+            animalId,
+            cancellationToken);
     }
 }

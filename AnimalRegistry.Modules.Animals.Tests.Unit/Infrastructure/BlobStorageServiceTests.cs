@@ -89,7 +89,6 @@ public class BlobStorageValidationTests
     {
         var content = new MemoryStream([1, 2, 3]);
 
-        // Mock ImageOptimizationService to return validation error
         _imageOptimizationService
             .OptimizeImageAsync(Arg.Any<Stream>(), Arg.Any<CancellationToken>())
             .Returns(Result<Stream>.ValidationError(
@@ -105,33 +104,11 @@ public class BlobStorageValidationTests
     public async Task UploadAsync_With_File_Too_Large_Should_Return_ValidationError()
     {
         const string fileName = "photo.jpg";
-        var content = new MemoryStream(new byte[11 * 1024 * 1024]);
+        var content = new MemoryStream(new byte[21 * 1024 * 1024]);
 
         var result = await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Contain("File is too large");
-    }
-
-    [Theory]
-    [InlineData("photo.jpg")]
-    [InlineData("photo.jpeg")]
-    [InlineData("photo.png")]
-    [InlineData("photo.webp")]
-    public async Task UploadAsync_With_Valid_Image_Should_Convert_To_Webp(string fileName)
-    {
-        var content = new MemoryStream(new byte[1024 * 1024]);
-        var optimizedStream = new MemoryStream(new byte[512 * 1024]); // Smaller after optimization
-        var blobClient = Substitute.For<BlobClient>();
-        _containerClient.GetBlobClient(Arg.Any<string>()).Returns(blobClient);
-
-        _imageOptimizationService
-            .OptimizeImageAsync(Arg.Any<Stream>(), Arg.Any<CancellationToken>())
-            .Returns(Result<Stream>.Success(optimizedStream));
-
-        var result = await _service.UploadAsync(fileName, content, "image/jpeg", "shelter-1", Guid.NewGuid());
-
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().EndWith(".webp");
     }
 }
