@@ -18,9 +18,11 @@ internal interface IAnimalRepository
 
     Task<IReadOnlyList<Animal>> GetAllByShelterIdAsync(string shelterId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Animal>> GetByIdsAsync(IEnumerable<Guid> ids, string shelterId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Animal>> GetByIdsAsync(IEnumerable<Guid> ids, string shelterId,
+        CancellationToken cancellationToken = default);
 
-    Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null, CancellationToken cancellationToken = default);
+    Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+        CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId,
         CancellationToken cancellationToken = default);

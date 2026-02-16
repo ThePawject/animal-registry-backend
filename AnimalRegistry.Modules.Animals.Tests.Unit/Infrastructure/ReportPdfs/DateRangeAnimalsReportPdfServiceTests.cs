@@ -94,7 +94,8 @@ public class DateRangeAnimalsReportPdfServiceTests
         });
     }
 
-    private static DateRangeAnimalsReportData CreateReportDataWithDateRange(DateTimeOffset startDate, DateTimeOffset endDate)
+    private static DateRangeAnimalsReportData CreateReportDataWithDateRange(DateTimeOffset startDate,
+        DateTimeOffset endDate)
     {
         var animal = CreateTestAnimal("Burek", AnimalSpecies.Dog, AnimalSex.Male);
         return new DateRangeAnimalsReportData

@@ -13,7 +13,7 @@ public class ApiTestFixture : IAsyncLifetime
         Factory = new FunctionalTestWebApplicationFactory();
         Factory.ConnectionString = _dbFixture.ConnectionString;
         Factory.BlobStorageConnectionString = _dbFixture.BlobStorageConnectionString;
-        
+
         await Factory.InitializeAsync();
     }
 

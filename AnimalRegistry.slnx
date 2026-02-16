@@ -1,29 +1,32 @@
 <Solution>
-  <Folder Name="/Modules/" />
-  <Folder Name="/Modules/Accounts/" />
-  <Folder Name="/Modules/Animals/">
-    <Project Path="AnimalRegistry.Modules.Animals.Api\AnimalRegistry.Modules.Animals.Api.csproj" />
-    <Project Path="AnimalRegistry.Modules.Animals.Application\AnimalRegistry.Modules.Animals.Application.csproj" />
-    <Project Path="AnimalRegistry.Modules.Animals.Domain\AnimalRegistry.Modules.Animals.Domain.csproj" />
-    <Project Path="AnimalRegistry.Modules.Animals.Infrastructure\AnimalRegistry.Modules.Animals.Infrastructure.csproj" />
-    <Project Path="AnimalRegistry.Modules.Animals.Tests.Functional/AnimalRegistry.Modules.Animals.Tests.Functional.csproj" />
-    <Project Path="AnimalRegistry.Modules.Animals.Tests.Integration\AnimalRegistry.Modules.Animals.Tests.Integration.csproj" />
-    <Project Path="AnimalRegistry.Modules.Animals.Tests.Unit\AnimalRegistry.Modules.Animals.Tests.Unit.csproj" />
-    <Project Path="AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj" />
-  </Folder>
-  <Folder Name="/Solution Items/">
-    <File Path="docker-compose.yml" />
-    <File Path="github/git-commit-instructions.md" />
-    <File Path="LICENSE" />
-    <File Path="README.md" />
-    <File Path=".editorconfig" />
-    <File Path=".env" />
-      <File Path=".github/workflows/build-and-deploy.yml"/>
-    <File Path="Directory.Build.props" />
-  </Folder>
-  <Folder Name="/Tests/">
-    <Project Path="AnimalRegistry.Benchmarks\AnimalRegistry.Benchmarks.csproj" />
-  </Folder>
-  <Project Path="AnimalRegistry.Shared/AnimalRegistry.Shared.csproj" />
-  <Project Path="AnimalRegistry/AnimalRegistry.csproj" />
+    <Folder Name="/Modules/"/>
+    <Folder Name="/Modules/Accounts/"/>
+    <Folder Name="/Modules/Animals/">
+        <Project Path="AnimalRegistry.Modules.Animals.Api\AnimalRegistry.Modules.Animals.Api.csproj"/>
+        <Project Path="AnimalRegistry.Modules.Animals.Application\AnimalRegistry.Modules.Animals.Application.csproj"/>
+        <Project Path="AnimalRegistry.Modules.Animals.Domain\AnimalRegistry.Modules.Animals.Domain.csproj"/>
+        <Project
+                Path="AnimalRegistry.Modules.Animals.Infrastructure\AnimalRegistry.Modules.Animals.Infrastructure.csproj"/>
+        <Project
+                Path="AnimalRegistry.Modules.Animals.Tests.Functional/AnimalRegistry.Modules.Animals.Tests.Functional.csproj"/>
+        <Project
+                Path="AnimalRegistry.Modules.Animals.Tests.Integration\AnimalRegistry.Modules.Animals.Tests.Integration.csproj"/>
+        <Project Path="AnimalRegistry.Modules.Animals.Tests.Unit\AnimalRegistry.Modules.Animals.Tests.Unit.csproj"/>
+        <Project Path="AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj"/>
+    </Folder>
+    <Folder Name="/Solution Items/">
+        <File Path="docker-compose.yml"/>
+        <File Path="github/git-commit-instructions.md"/>
+        <File Path="LICENSE"/>
+        <File Path="README.md"/>
+        <File Path=".editorconfig"/>
+        <File Path=".env"/>
+        <File Path=".github/workflows/build-and-deploy.yml"/>
+        <File Path="Directory.Build.props"/>
+    </Folder>
+    <Folder Name="/Tests/">
+        <Project Path="AnimalRegistry.Benchmarks\AnimalRegistry.Benchmarks.csproj"/>
+    </Folder>
+    <Project Path="AnimalRegistry.Shared/AnimalRegistry.Shared.csproj"/>
+    <Project Path="AnimalRegistry/AnimalRegistry.csproj"/>
 </Solution>

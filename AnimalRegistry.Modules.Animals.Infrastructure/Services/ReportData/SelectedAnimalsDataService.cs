@@ -6,10 +6,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 
 internal sealed class SelectedAnimalsDataService(IAnimalRepository animalRepository) : ISelectedAnimalsDataService
 {
-    private static readonly HttpClient HttpClient = new()
-    {
-        Timeout = TimeSpan.FromSeconds(30)
-    };
+    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
 
     public async Task<SelectedAnimalsReportData> PrepareReportDataAsync(
         string shelterId,
@@ -26,7 +23,7 @@ internal sealed class SelectedAnimalsDataService(IAnimalRepository animalReposit
             Animals = animals,
             RequestedIds = animalIds,
             ReportDate = DateTimeOffset.UtcNow,
-            PhotoData = photoData
+            PhotoData = photoData,
         };
     }
 

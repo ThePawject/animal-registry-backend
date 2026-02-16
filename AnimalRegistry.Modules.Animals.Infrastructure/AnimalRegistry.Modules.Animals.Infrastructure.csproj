@@ -21,6 +21,8 @@
         <PackageReference Include="Azure.Storage.Blobs"/>
         <PackageReference Include="Azure.Identity"/>
         <PackageReference Include="QuestPDF"/>
+        <PackageReference Include="SixLabors.ImageSharp"/>
+        <PackageReference Include="Microsoft.IO.RecyclableMemoryStream"/>
     </ItemGroup>
 
 </Project>

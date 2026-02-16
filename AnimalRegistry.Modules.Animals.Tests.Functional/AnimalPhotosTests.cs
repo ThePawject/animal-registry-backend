@@ -36,8 +36,8 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
     public async Task AnimalPhotos_Upload_Multiple_WithMainIndex_WorksCorrectly()
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
-        var photo1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
-        var photo2 = new byte[] { 0, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+        var photo1 = TestImageHelper.CreateTestImage();
+        var photo2 = TestImageHelper.CreateTestImage(150, 150);
         var photos = new List<(string, byte[], string)>
         {
             ("dog1.jpg", photo1, "image/jpeg"), ("dog2.jpg", photo2, "image/jpeg"),
@@ -56,8 +56,8 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
 
         mainPhoto.FileName.Should().Be("dog2.jpg");
         otherPhoto.FileName.Should().Be("dog1.jpg");
-        mainPhoto.Url.Should().NotBeNullOrEmpty();
-        otherPhoto.Url.Should().NotBeNullOrEmpty();
+        mainPhoto.Url.Should().NotBeNullOrEmpty().And.EndWith(".webp");
+        otherPhoto.Url.Should().NotBeNullOrEmpty().And.EndWith(".webp");
     }
 
     [Fact]
@@ -65,8 +65,8 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var photo1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
-        var photo2 = new byte[] { 0, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+        var photo1 = TestImageHelper.CreateTestImage();
+        var photo2 = TestImageHelper.CreateTestImage(150, 150);
         var photos = new List<(string, byte[], string)>
         {
             ("initial1.jpg", photo1, "image/jpeg"), ("initial2.jpg", photo2, "image/jpeg"),
@@ -83,7 +83,7 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
         var secondPhotoId = dtoBeforeUpdate.Photos.Last().Id;
         dtoBeforeUpdate.MainPhotoId.Should().Be(firstPhotoId);
 
-        var newPhoto = new byte[] { 10, 20, 30, 40, 50 };
+        var newPhoto = TestImageHelper.CreateTestImage(200, 200);
         var newPhotos = new List<(string, byte[], string)> { ("new1.jpg", newPhoto, "image/jpeg") };
 
         await factory.UpdateAsync(
@@ -111,7 +111,8 @@ public sealed class AnimalPhotosTests(ApiTestFixture fixture) : IntegrationTestB
         dtoAfterUpdate.Photos.Should().NotContain(p => p.Id == firstPhotoId);
 
         var newlyAddedPhoto = dtoAfterUpdate.Photos.Single(p => p.Id != secondPhotoId);
-        newlyAddedPhoto.FileName.Should().Be("new1.jpg");
+        newlyAddedPhoto.FileName.Should().Be("new1.jpg"); // Original filename preserved
+        newlyAddedPhoto.Url.Should().EndWith(".webp"); // But stored as WebP
 
         dtoAfterUpdate.MainPhotoId.Should().Be(newlyAddedPhoto.Id);
     }

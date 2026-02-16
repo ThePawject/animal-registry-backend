@@ -2,8 +2,6 @@ using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 using QuestPDF.Fluent;
-using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
 
@@ -21,7 +19,7 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
             container.Page(page =>
             {
                 AddPageConfiguration(page);
-                
+
                 page.Content().Column(column =>
                 {
                     AddReportTitle(
@@ -29,6 +27,7 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
                         "Zrzut Repozytorium Zwierząt",
                         data.ShelterId,
                         generatedAt);
+
 
                     if (data.Animals.Count == 0)
                     {
@@ -42,7 +41,7 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
                         }
                     }
                 });
-                
+
                 AddFooter(page, generatedAt, data.ShelterId);
             });
         });

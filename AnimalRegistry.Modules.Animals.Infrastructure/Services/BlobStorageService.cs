@@ -10,17 +10,14 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Services;
 
 internal sealed class BlobStorageService : IBlobStorageService
 {
-    private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".jpg", ".jpeg", ".png", ".webp",
-    };
-
     private readonly BlobContainerClient _containerClient;
+    private readonly IImageOptimizationService _imageOptimizationService;
     private readonly BlobStorageSettings _settings;
 
-    public BlobStorageService(IOptions<BlobStorageSettings> options)
+    public BlobStorageService(IOptions<BlobStorageSettings> options, IImageOptimizationService imageOptimizationService)
     {
         _settings = options.Value;
+        _imageOptimizationService = imageOptimizationService;
 
         BlobServiceClient blobServiceClient;
 
@@ -39,10 +36,12 @@ internal sealed class BlobStorageService : IBlobStorageService
         _containerClient.CreateIfNotExists(PublicAccessType.Blob);
     }
 
-    internal BlobStorageService(IOptions<BlobStorageSettings> options, BlobContainerClient containerClient)
+    internal BlobStorageService(IOptions<BlobStorageSettings> options, BlobContainerClient containerClient,
+        IImageOptimizationService imageOptimizationService)
     {
         _settings = options.Value;
         _containerClient = containerClient;
+        _imageOptimizationService = imageOptimizationService;
     }
 
     public async Task<Result<string>> UploadAsync(
@@ -59,7 +58,16 @@ internal sealed class BlobStorageService : IBlobStorageService
             return Result<string>.ValidationError(validationResult.Error!);
         }
 
-        var safeFileName = SanitizeFileName(fileName);
+        var optimizationResult = await _imageOptimizationService.OptimizeImageAsync(content, cancellationToken);
+        if (optimizationResult.IsFailure)
+        {
+            return Result<string>.ValidationError(optimizationResult.Error!);
+        }
+
+        var optimizedStream = optimizationResult.Value!;
+
+        var originalName = Path.GetFileNameWithoutExtension(fileName);
+        var safeFileName = SanitizeFileName(originalName) + ".webp";
         var timestamp = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff");
         var blobPath = $"{shelterId}/{animalId}/{timestamp}_{safeFileName}";
 
@@ -67,22 +75,29 @@ internal sealed class BlobStorageService : IBlobStorageService
 
         var blobHttpHeaders = new BlobHttpHeaders
         {
-            ContentType = contentType, CacheControl = "public, max-age=31536000",
+            ContentType = "image/webp", CacheControl = "public, max-age=31536000",
         };
 
-        await blobClient.UploadAsync(content,
-            new BlobUploadOptions
-            {
-                HttpHeaders = blobHttpHeaders,
-                Metadata = new Dictionary<string, string>
+        try
+        {
+            await blobClient.UploadAsync(optimizedStream,
+                new BlobUploadOptions
                 {
-                    { "shelterId", shelterId },
-                    { "animalId", animalId.ToString() },
-                    { "originalFileName", safeFileName },
-                },
-            }, cancellationToken);
+                    HttpHeaders = blobHttpHeaders,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "shelterId", shelterId },
+                        { "animalId", animalId.ToString() },
+                        { "originalFileName", fileName },
+                    },
+                }, cancellationToken);
 
-        return Result<string>.Success(blobPath);
+            return Result<string>.Success(blobPath);
+        }
+        finally
+        {
+            await optimizedStream.DisposeAsync();
+        }
     }
 
     public async Task DeleteAsync(string blobPath, CancellationToken cancellationToken = default)
@@ -98,18 +113,11 @@ internal sealed class BlobStorageService : IBlobStorageService
 
     private static Result ValidateFile(string fileName, Stream content)
     {
-        var extension = Path.GetExtension(fileName);
-        if (string.IsNullOrEmpty(extension) || !AllowedExtensions.Contains(extension))
-        {
-            return Result.ValidationError(
-                $"Invalid file extension: '{extension}'. Allowed: {string.Join(", ", AllowedExtensions)}");
-        }
-
-        const long maxSize = 10 * 1024 * 1024;
+        const long maxSize = 20 * 1024 * 1024;
         if (content.Length > maxSize)
         {
             return Result.ValidationError(
-                $"File is too large: {content.Length / 1024 / 1024}MB. Maximum size: 10MB");
+                $"File is too large: {content.Length / 1024 / 1024}MB. Maximum size: 20MB");
         }
 
         return Result.Success();

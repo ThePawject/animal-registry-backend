@@ -1,3 +1,4 @@
+using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -8,7 +9,7 @@ internal abstract class ReportPdfBase
 {
     static ReportPdfBase()
     {
-        QuestPDF.Settings.License = LicenseType.Community;
+        Settings.License = LicenseType.Community;
     }
 
     protected static void AddCoverPage(PageDescriptor page, string shelterId)
@@ -25,7 +26,8 @@ internal abstract class ReportPdfBase
         });
     }
 
-    protected static void AddReportTitle(ColumnDescriptor column, string title, string shelterId, DateTimeOffset generatedAt)
+    protected static void AddReportTitle(ColumnDescriptor column, string title, string shelterId,
+        DateTimeOffset generatedAt)
     {
         column.Item().AlignCenter().Text(title).FontSize(24).Bold();
         column.Item().AlignCenter().Text($"Schronisko: {shelterId}").FontSize(14);
@@ -68,15 +70,25 @@ internal abstract class ReportPdfBase
 
 internal static class ReportStyles
 {
+    public const float BorderThickness = 0.5f;
     public static string HeaderBackground => Colors.Grey.Lighten2;
     public static string BorderColor => Colors.Grey.Lighten1;
     public static string HighlightColor => Colors.Blue.Lighten4;
-    public const float BorderThickness = 0.5f;
 
-    public static IContainer StandardPadding(IContainer container) => container.Padding(5);
-    public static IContainer HeaderStyle(IContainer container) => container.Background(HeaderBackground).Padding(5);
-    public static IContainer CellStyle(IContainer container) =>
-        container.Padding(5).BorderBottom(BorderThickness).BorderColor(BorderColor);
+    public static IContainer StandardPadding(IContainer container)
+    {
+        return container.Padding(5);
+    }
+
+    public static IContainer HeaderStyle(IContainer container)
+    {
+        return container.Background(HeaderBackground).Padding(5);
+    }
+
+    public static IContainer CellStyle(IContainer container)
+    {
+        return container.Padding(5).BorderBottom(BorderThickness).BorderColor(BorderColor);
+    }
 }
 
 internal static class ReportComponents
@@ -87,7 +99,7 @@ internal static class ReportComponents
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(1);
+                columns.RelativeColumn();
                 columns.RelativeColumn(2);
             });
 

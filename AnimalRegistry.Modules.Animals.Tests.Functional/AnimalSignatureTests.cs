@@ -6,13 +6,17 @@ using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
 [Collection("Sequential")]
 public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
-    private static string GetTestShelterId([System.Runtime.CompilerServices.CallerMemberName] string testName = "") => $"test-sig-{testName}";
+    private static string GetTestShelterId([CallerMemberName] string testName = "")
+    {
+        return $"test-sig-{testName}";
+    }
 
     private AnimalFactory CreateFactory(TestUser user)
     {
@@ -41,7 +45,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var shelterId = GetTestShelterId();
         var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
         var currentYear = DateTimeOffset.UtcNow.Year;
-        
+
         await factory.CreateAsync($"{currentYear}/0001", "trans-1", "First", AnimalSpecies.Dog, AnimalSex.Male);
         await factory.CreateAsync($"{currentYear}/0003", "trans-3", "Third", AnimalSpecies.Cat, AnimalSex.Female);
 
@@ -75,7 +79,8 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
         var currentYear = DateTimeOffset.UtcNow.Year;
 
-        var id = await factory.CreateAsync($"{currentYear}/0100", "trans-valid", "Valid", AnimalSpecies.Dog, AnimalSex.Male);
+        var id = await factory.CreateAsync($"{currentYear}/0100", "trans-valid", "Valid", AnimalSpecies.Dog,
+            AnimalSex.Male);
 
         id.Should().NotBe(Guid.Empty);
         var animal = await factory.GetAsync(id);
@@ -108,7 +113,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
         var currentYear = DateTimeOffset.UtcNow.Year;
         var signature = $"{currentYear}/0200";
-        
+
         await factory.CreateAsync(signature, "trans-dup", "First", AnimalSpecies.Dog, AnimalSex.Male);
 
         var client = Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(shelterId));
@@ -134,9 +139,11 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var shelterId = GetTestShelterId();
         var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
         var currentYear = DateTimeOffset.UtcNow.Year;
-        var id = await factory.CreateAsync($"{currentYear}/0300", "trans-update", "Before", AnimalSpecies.Dog, AnimalSex.Male);
+        var id = await factory.CreateAsync($"{currentYear}/0300", "trans-update", "Before", AnimalSpecies.Dog,
+            AnimalSex.Male);
 
-        await factory.UpdateAsync(id, $"{currentYear}/0301", "trans-update", "After", AnimalSpecies.Dog, AnimalSex.Male, []);
+        await factory.UpdateAsync(id, $"{currentYear}/0301", "trans-update", "After", AnimalSpecies.Dog, AnimalSex.Male,
+            []);
 
         var animal = await factory.GetAsync(id);
         animal.Signature.Should().Be($"{currentYear}/0301");
@@ -148,7 +155,8 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var shelterId = GetTestShelterId();
         var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
         var currentYear = DateTimeOffset.UtcNow.Year;
-        var id1 = await factory.CreateAsync($"{currentYear}/0400", "trans-1", "First", AnimalSpecies.Dog, AnimalSex.Male);
+        var id1 = await factory.CreateAsync($"{currentYear}/0400", "trans-1", "First", AnimalSpecies.Dog,
+            AnimalSex.Male);
         await factory.CreateAsync($"{currentYear}/0401", "trans-2", "Second", AnimalSpecies.Cat, AnimalSex.Female);
 
         var client = Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(shelterId));
@@ -172,7 +180,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var shelterId = GetTestShelterId();
         var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
         var currentYear = DateTimeOffset.UtcNow.Year;
-        
+
         await factory.CreateAsync($"{currentYear}/0001", "trans-1", "One", AnimalSpecies.Dog, AnimalSex.Male);
         await factory.CreateAsync($"{currentYear}/0002", "trans-2", "Two", AnimalSpecies.Cat, AnimalSex.Female);
         await factory.CreateAsync($"{currentYear}/0004", "trans-4", "Four", AnimalSpecies.Dog, AnimalSex.Male);
@@ -201,7 +209,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
 
         var animal1 = await factory1.GetAsync(id1);
         var animal2 = await factory2.GetAsync(id2);
-        
+
         animal1.Signature.Should().Be(signature);
         animal2.Signature.Should().Be(signature);
     }

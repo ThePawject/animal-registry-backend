@@ -1,6 +1,6 @@
-using System.Text.RegularExpressions;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.DDD;
+using System.Text.RegularExpressions;
 
 namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
@@ -58,8 +58,13 @@ public sealed class AnimalSignature : ValueObject
             throw new ArgumentOutOfRangeException(nameof(year), "Year must be between 2000 and 2100.");
         }
 
-        return number is < 1 or > 9999 ? throw new ArgumentOutOfRangeException(nameof(number), "Number must be between 1 and 9999.") : new AnimalSignature(year, number);
+        return number is < 1 or > 9999
+            ? throw new ArgumentOutOfRangeException(nameof(number), "Number must be between 1 and 9999.")
+            : new AnimalSignature(year, number);
     }
 
-    public override string ToString() => Value;
+    public override string ToString()
+    {
+        return Value;
+    }
 }
