@@ -15,6 +15,11 @@ internal sealed class SelectedAnimalsReportPdfService : ReportPdfBase, ISelected
         {
             container.Page(page =>
             {
+                AddCoverPage(page, data.ShelterId);
+            });
+
+            container.Page(page =>
+            {
                 AddPageConfiguration(page);
 
                 page.Content().Column(column =>
@@ -25,21 +30,6 @@ internal sealed class SelectedAnimalsReportPdfService : ReportPdfBase, ISelected
                         data.ShelterId,
                         generatedAt);
 
-                    column.Item().Text($"Liczba wybranych zwierząt: {data.RequestedIds.Count}")
-                        .FontSize(12);
-                    column.Item().Text($"Znaleziono: {data.FoundAnimals}")
-                        .FontSize(12)
-                        .Bold();
-
-                    if (data.MissingAnimals > 0)
-                    {
-                        column.Item().Text($"Brak w bazie: {data.MissingAnimals}")
-                            .FontSize(12)
-                            .FontColor(Colors.Red.Medium)
-                            .Bold();
-                    }
-
-                    column.Item().Height(1f, Unit.Centimetre);
 
                     if (data.Animals.Count == 0)
                     {
@@ -49,12 +39,12 @@ internal sealed class SelectedAnimalsReportPdfService : ReportPdfBase, ISelected
                     {
                         for (var i = 0; i < data.Animals.Count; i++)
                         {
-                            AnimalPdfComponents.AddAnimalSection(column, data.Animals[i], i, data.TotalAnimals);
+                            AnimalPdfComponents.AddAnimalSection(column, data.Animals[i], i, data.TotalAnimals, showPhotosAsImages: true, photoData: data.PhotoData);
                         }
                     }
                 });
-
-                AddFooter(page, generatedAt);
+                
+                AddFooter(page, generatedAt, data.ShelterId);
             });
         });
     }

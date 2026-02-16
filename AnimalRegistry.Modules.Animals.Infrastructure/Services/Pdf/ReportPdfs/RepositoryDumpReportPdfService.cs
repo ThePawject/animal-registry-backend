@@ -14,6 +14,11 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
         {
             container.Page(page =>
             {
+                AddCoverPage(page, data.ShelterId);
+            });
+
+            container.Page(page =>
+            {
                 AddPageConfiguration(page);
 
                 page.Content().Column(column =>
@@ -24,12 +29,6 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
                         data.ShelterId,
                         generatedAt);
 
-                    column.Item().Text("Raport zawiera pełny zrzut wszystkich danych o zwierzętach w systemie.")
-                        .FontSize(12);
-                    column.Item().Text($"Łączna liczba zwierząt: {data.TotalAnimals}")
-                        .FontSize(12)
-                        .Bold();
-                    column.Item().Height(1f, Unit.Centimetre);
 
                     if (data.Animals.Count == 0)
                     {
@@ -43,8 +42,8 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
                         }
                     }
                 });
-
-                AddFooter(page, generatedAt);
+                
+                AddFooter(page, generatedAt, data.ShelterId);
             });
         });
     }
