@@ -70,18 +70,31 @@ public class EventReportPdfServiceTests
                 new()
                 {
                     Species = AnimalSpecies.Dog,
-                    QuarterStats = new PeriodStats
-                    {
-                        PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90),
-                        PeriodTo = DateTimeOffset.UtcNow,
-                        EventCounts = new List<EventTypeCount>
+                    QuarterStats =
+                        new PeriodStats
                         {
-                            new() { EventType = AnimalEventType.Adoption, Count = 5 },
-                            new() { EventType = AnimalEventType.Sterilization, Count = 3 },
+                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90),
+                            PeriodTo = DateTimeOffset.UtcNow,
+                            EventCounts =
+                                new List<EventTypeCount>
+                                {
+                                    new() { EventType = AnimalEventType.Adoption, Count = 5 },
+                                    new() { EventType = AnimalEventType.Sterilization, Count = 3 },
+                                },
                         },
+                    MonthStats =
+                        new PeriodStats
+                        {
+                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-30),
+                            PeriodTo = DateTimeOffset.UtcNow,
+                            EventCounts = new List<EventTypeCount>(),
+                        },
+                    WeekStats = new PeriodStats
+                    {
+                        PeriodFrom = DateTimeOffset.UtcNow.AddDays(-7),
+                        PeriodTo = DateTimeOffset.UtcNow,
+                        EventCounts = new List<EventTypeCount>(),
                     },
-                    MonthStats = new PeriodStats { PeriodFrom = DateTimeOffset.UtcNow.AddDays(-30), PeriodTo = DateTimeOffset.UtcNow, EventCounts = new List<EventTypeCount>() },
-                    WeekStats = new PeriodStats { PeriodFrom = DateTimeOffset.UtcNow.AddDays(-7), PeriodTo = DateTimeOffset.UtcNow, EventCounts = new List<EventTypeCount>() },
                 },
             },
         };
@@ -102,14 +115,30 @@ public class EventReportPdfServiceTests
                 new()
                 {
                     Species = AnimalSpecies.Dog,
-                    QuarterStats = new PeriodStats
+                    QuarterStats =
+                        new PeriodStats
+                        {
+                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90),
+                            PeriodTo = DateTimeOffset.UtcNow,
+                            EventCounts =
+                                new List<EventTypeCount>
+                                {
+                                    new() { EventType = AnimalEventType.Adoption, Count = 5 },
+                                },
+                        },
+                    MonthStats =
+                        new PeriodStats
+                        {
+                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-30),
+                            PeriodTo = DateTimeOffset.UtcNow,
+                            EventCounts = new List<EventTypeCount>(),
+                        },
+                    WeekStats = new PeriodStats
                     {
-                        PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90),
+                        PeriodFrom = DateTimeOffset.UtcNow.AddDays(-7),
                         PeriodTo = DateTimeOffset.UtcNow,
-                        EventCounts = new List<EventTypeCount> { new() { EventType = AnimalEventType.Adoption, Count = 5 } },
+                        EventCounts = new List<EventTypeCount>(),
                     },
-                    MonthStats = new PeriodStats { PeriodFrom = DateTimeOffset.UtcNow.AddDays(-30), PeriodTo = DateTimeOffset.UtcNow, EventCounts = new List<EventTypeCount>() },
-                    WeekStats = new PeriodStats { PeriodFrom = DateTimeOffset.UtcNow.AddDays(-7), PeriodTo = DateTimeOffset.UtcNow, EventCounts = new List<EventTypeCount>() },
                 },
             },
         };
@@ -126,9 +155,26 @@ public class EventReportPdfServiceTests
                 new()
                 {
                     Species = species,
-                    QuarterStats = new PeriodStats { PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90), PeriodTo = DateTimeOffset.UtcNow, EventCounts = new List<EventTypeCount>() },
-                    MonthStats = new PeriodStats { PeriodFrom = DateTimeOffset.UtcNow.AddDays(-30), PeriodTo = DateTimeOffset.UtcNow, EventCounts = new List<EventTypeCount>() },
-                    WeekStats = new PeriodStats { PeriodFrom = DateTimeOffset.UtcNow.AddDays(-7), PeriodTo = DateTimeOffset.UtcNow, EventCounts = new List<EventTypeCount>() },
+                    QuarterStats =
+                        new PeriodStats
+                        {
+                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90),
+                            PeriodTo = DateTimeOffset.UtcNow,
+                            EventCounts = new List<EventTypeCount>(),
+                        },
+                    MonthStats =
+                        new PeriodStats
+                        {
+                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-30),
+                            PeriodTo = DateTimeOffset.UtcNow,
+                            EventCounts = new List<EventTypeCount>(),
+                        },
+                    WeekStats = new PeriodStats
+                    {
+                        PeriodFrom = DateTimeOffset.UtcNow.AddDays(-7),
+                        PeriodTo = DateTimeOffset.UtcNow,
+                        EventCounts = new List<EventTypeCount>(),
+                    },
                 },
             },
         };

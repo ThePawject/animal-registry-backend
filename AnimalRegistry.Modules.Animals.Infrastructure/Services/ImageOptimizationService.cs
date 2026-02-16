@@ -14,7 +14,8 @@ internal sealed class ImageOptimizationService : IImageOptimizationService
 
     private readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
 
-    public async Task<Result<Stream>> OptimizeImageAsync(Stream sourceStream, CancellationToken cancellationToken = default)
+    public async Task<Result<Stream>> OptimizeImageAsync(Stream sourceStream,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -40,8 +41,7 @@ internal sealed class ImageOptimizationService : IImageOptimizationService
             {
                 image.Mutate(x => x.Resize(new ResizeOptions
                 {
-                    Mode = ResizeMode.Max,
-                    Size = new Size(MaxImageDimension, MaxImageDimension)
+                    Mode = ResizeMode.Max, Size = new Size(MaxImageDimension, MaxImageDimension),
                 }));
             }
 

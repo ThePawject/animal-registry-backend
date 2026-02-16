@@ -8,7 +8,8 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 
 internal static class AnimalPdfComponents
 {
-    public static void AddAnimalSection(ColumnDescriptor column, Animal animal, int index, int total, bool showPhotosAsImages = false, Dictionary<string, byte[]>? photoData = null)
+    public static void AddAnimalSection(ColumnDescriptor column, Animal animal, int index, int total,
+        bool showPhotosAsImages = false, Dictionary<string, byte[]>? photoData = null)
     {
         if (index > 0)
         {
@@ -155,10 +156,14 @@ internal static class AnimalPdfComponents
         }
     }
 
-    private static void AddAnimalPhotosGrid(ColumnDescriptor column, IEnumerable<AnimalPhoto> photos, Dictionary<string, byte[]> photoData)
+    private static void AddAnimalPhotosGrid(ColumnDescriptor column, IEnumerable<AnimalPhoto> photos,
+        Dictionary<string, byte[]> photoData)
     {
         var photosList = photos.ToList();
-        if (photosList.Count == 0) return;
+        if (photosList.Count == 0)
+        {
+            return;
+        }
 
         column.Item().Text($"Zdjęcia: {photosList.Count}").FontSize(12).Bold();
         column.Item().Height(0.3f, Unit.Centimetre);

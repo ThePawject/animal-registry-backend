@@ -1,5 +1,5 @@
-using System.Text;
 using FluentAssertions;
+using System.Text;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Unit.Infrastructure.PdfHelpers;
 

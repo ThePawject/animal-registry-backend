@@ -42,7 +42,7 @@ internal sealed class DateRangeAnimalsReportPdfService : ReportPdfBase, IDateRan
                         }
                     }
                 });
-                
+
                 AddFooter(page, generatedAt, data.ShelterId);
             });
         });

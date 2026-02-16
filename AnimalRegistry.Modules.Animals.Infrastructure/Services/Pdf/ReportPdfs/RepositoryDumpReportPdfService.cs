@@ -2,7 +2,6 @@ using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 using QuestPDF.Fluent;
-using QuestPDF.Infrastructure;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
 
@@ -42,7 +41,7 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
                         }
                     }
                 });
-                
+
                 AddFooter(page, generatedAt, data.ShelterId);
             });
         });

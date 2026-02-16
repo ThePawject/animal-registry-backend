@@ -37,11 +37,11 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
             });
         });
     }
-    
+
     private static void AddSpeciesSection(ColumnDescriptor column, SpeciesEventStats stats, bool isFirst)
     {
         var speciesName = stats.Species == AnimalSpecies.Dog ? "PSY" : "KOTY";
-        
+
         if (isFirst)
         {
             column.Item().Text(speciesName).FontSize(18).Bold();
@@ -50,6 +50,7 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
         {
             AddSectionTitle(column, speciesName);
         }
+
         AddPeriodTable(column, "Okres kwartalny", stats.QuarterStats);
         AddPeriodTable(column, "Okres miesięczny", stats.MonthStats);
         AddPeriodTable(column, "Okres tygodniowy", stats.WeekStats);

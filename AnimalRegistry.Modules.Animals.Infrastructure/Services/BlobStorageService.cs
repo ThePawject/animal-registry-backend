@@ -75,8 +75,7 @@ internal sealed class BlobStorageService : IBlobStorageService
 
         var blobHttpHeaders = new BlobHttpHeaders
         {
-            ContentType = "image/webp",
-            CacheControl = "public, max-age=31536000"
+            ContentType = "image/webp", CacheControl = "public, max-age=31536000",
         };
 
         try
@@ -89,8 +88,8 @@ internal sealed class BlobStorageService : IBlobStorageService
                     {
                         { "shelterId", shelterId },
                         { "animalId", animalId.ToString() },
-                        { "originalFileName", fileName }
-                    }
+                        { "originalFileName", fileName },
+                    },
                 }, cancellationToken);
 
             return Result<string>.Success(blobPath);

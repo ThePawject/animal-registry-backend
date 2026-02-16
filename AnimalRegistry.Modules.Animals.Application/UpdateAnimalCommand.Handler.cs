@@ -101,7 +101,8 @@ internal sealed class UpdateAnimalCommandHandler(
             new UpdateAnimalCommandResponse(animal.Id));
     }
 
-    private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, int index, Guid animalId, CancellationToken cancellationToken)
+    private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, int index, Guid animalId,
+        CancellationToken cancellationToken)
     {
         return await blobStorageService.UploadAsync(
             photo.FileName,

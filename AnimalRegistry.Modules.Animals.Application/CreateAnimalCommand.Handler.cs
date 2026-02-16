@@ -66,7 +66,8 @@ internal sealed class CreateAnimalCommandHandler(
         return Result<CreateAnimalCommandResponse>.Success(new CreateAnimalCommandResponse(result.Value.Id));
     }
 
-    private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, int index, Guid animalId, CancellationToken cancellationToken)
+    private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, int index, Guid animalId,
+        CancellationToken cancellationToken)
     {
         return await blobStorageService.UploadAsync(
             photo.FileName,

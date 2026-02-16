@@ -2,8 +2,6 @@ using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 using QuestPDF.Fluent;
-using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
 
@@ -39,11 +37,12 @@ internal sealed class SelectedAnimalsReportPdfService : ReportPdfBase, ISelected
                     {
                         for (var i = 0; i < data.Animals.Count; i++)
                         {
-                            AnimalPdfComponents.AddAnimalSection(column, data.Animals[i], i, data.TotalAnimals, showPhotosAsImages: true, photoData: data.PhotoData);
+                            AnimalPdfComponents.AddAnimalSection(column, data.Animals[i], i, data.TotalAnimals, true,
+                                data.PhotoData);
                         }
                     }
                 });
-                
+
                 AddFooter(page, generatedAt, data.ShelterId);
             });
         });

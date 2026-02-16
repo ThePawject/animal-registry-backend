@@ -26,7 +26,8 @@ internal abstract class ReportPdfBase
         });
     }
 
-    protected static void AddReportTitle(ColumnDescriptor column, string title, string shelterId, DateTimeOffset generatedAt)
+    protected static void AddReportTitle(ColumnDescriptor column, string title, string shelterId,
+        DateTimeOffset generatedAt)
     {
         column.Item().AlignCenter().Text(title).FontSize(24).Bold();
         column.Item().AlignCenter().Text($"Schronisko: {shelterId}").FontSize(14);
