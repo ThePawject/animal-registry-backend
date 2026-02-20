@@ -21,7 +21,7 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
         return new AnimalFactory(new ApiClient(client));
     }
 
-    private async Task AddHealthAsync(HttpClient client, Guid animalId, CreateAnimalHealthRequest request)
+    private static async Task AddHealthAsync(HttpClient client, Guid animalId, CreateAnimalHealthRequest request)
     {
         var response = await client.PostAsJsonAsync(CreateAnimalHealthRequest.BuildRoute(animalId), request);
         response.EnsureSuccessStatusCode();

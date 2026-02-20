@@ -21,7 +21,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj"/>
+        <ProjectReference Include="..\AnimalRegistry.Modules.Audit\AnimalRegistry.Modules.Audit.csproj"/>
         <ProjectReference Include="..\AnimalRegistry.Shared\AnimalRegistry.Shared.csproj"/>
+        <ProjectReference Include="..\AnimalRegistry.Shared.Outbox\AnimalRegistry.Shared.Outbox.csproj"/>
     </ItemGroup>
 
 </Project>

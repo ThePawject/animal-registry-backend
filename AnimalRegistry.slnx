@@ -14,6 +14,13 @@
         <Project Path="AnimalRegistry.Modules.Animals.Tests.Unit\AnimalRegistry.Modules.Animals.Tests.Unit.csproj"/>
         <Project Path="AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj"/>
     </Folder>
+    <Folder Name="/Modules/Audit/">
+        <Project Path="AnimalRegistry.Modules.Audit.Api\AnimalRegistry.Modules.Audit.Api.csproj"/>
+        <Project Path="AnimalRegistry.Modules.Audit.Application\AnimalRegistry.Modules.Audit.Application.csproj"/>
+        <Project Path="AnimalRegistry.Modules.Audit.Domain\AnimalRegistry.Modules.Audit.Domain.csproj"/>
+        <Project Path="AnimalRegistry.Modules.Audit.Infrastructure\AnimalRegistry.Modules.Audit.Infrastructure.csproj"/>
+        <Project Path="AnimalRegistry.Modules.Audit\AnimalRegistry.Modules.Audit.csproj"/>
+    </Folder>
     <Folder Name="/Solution Items/">
         <File Path="docker-compose.yml"/>
         <File Path="github/git-commit-instructions.md"/>
@@ -28,5 +35,6 @@
         <Project Path="AnimalRegistry.Benchmarks\AnimalRegistry.Benchmarks.csproj"/>
     </Folder>
     <Project Path="AnimalRegistry.Shared/AnimalRegistry.Shared.csproj"/>
+    <Project Path="AnimalRegistry.Shared.Outbox/AnimalRegistry.Shared.Outbox.csproj"/>
     <Project Path="AnimalRegistry/AnimalRegistry.csproj"/>
 </Solution>

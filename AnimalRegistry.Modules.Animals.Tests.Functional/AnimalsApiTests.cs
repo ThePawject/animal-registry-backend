@@ -20,7 +20,7 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         return new AnimalFactory(new ApiClient(client));
     }
 
-    private string NextSig()
+    private static string NextSig()
     {
         return $"2024/{_signatureCounter++:D4}";
     }

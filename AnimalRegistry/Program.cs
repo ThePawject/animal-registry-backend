@@ -1,8 +1,10 @@
 global using AnimalRegistry;
 using AnimalRegistry.Modules.Animals;
+using AnimalRegistry.Modules.Audit;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.CurrentUser;
+using AnimalRegistry.Shared.Outbox.Extensions;
 using AnimalRegistry.Shared.Pagination;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,7 +13,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
-var modules = new List<IModule> { new AnimalsModule() };
+var modules = new List<IModule> { new AnimalsModule(), new AuditModule() };
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,7 @@ builder.Services.Configure<FormOptions>(options =>
 });
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddPagination(builder.Configuration);
+builder.Services.AddOutbox(builder.Configuration);
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options =>

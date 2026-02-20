@@ -22,7 +22,7 @@ public class DeleteAnimalEventTest(ApiTestFixture fixture) : IntegrationTestBase
         return new AnimalFactory(new ApiClient(client));
     }
 
-    private async Task AddEventAsync(HttpClient client, Guid animalId, CreateAnimalEventRequest request)
+    private static async Task AddEventAsync(HttpClient client, Guid animalId, CreateAnimalEventRequest request)
     {
         var response = await client.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(animalId), request);
         response.EnsureSuccessStatusCode();

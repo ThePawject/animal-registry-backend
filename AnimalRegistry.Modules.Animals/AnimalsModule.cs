@@ -4,11 +4,13 @@ using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
+using AnimalRegistry.Modules.Animals.Infrastructure.Persistence;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
+using AnimalRegistry.Shared.Outbox.Application;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -45,6 +47,8 @@ public sealed class AnimalsModule : IModule
 
         services.AddScoped<IAnimalRepository, AnimalRepository>();
         services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
+
+        services.AddScoped<IModuleOutboxMessageRepository, AnimalsOutboxMessageRepository>();
 
         services.AddScoped<IRepositoryDumpDataService, RepositoryDumpDataService>();
         services.AddScoped<ISelectedAnimalsDataService, SelectedAnimalsDataService>();

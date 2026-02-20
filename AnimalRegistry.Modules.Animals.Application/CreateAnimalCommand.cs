@@ -1,9 +1,11 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.Auditing;
 using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
 
+[Auditable]
 internal sealed class CreateAnimalCommand(
     AnimalSignature signature,
     string transponderCode,

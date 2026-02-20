@@ -107,7 +107,7 @@ public abstract class ValueObject : IEquatable<ValueObject>
         return _fields;
     }
 
-    private int HashValue(int seed, object value)
+    private static int HashValue(int seed, object value)
     {
         var currentHash = value?.GetHashCode() ?? 0;
 
