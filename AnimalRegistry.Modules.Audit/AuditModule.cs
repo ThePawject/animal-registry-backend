@@ -34,7 +34,7 @@ public class AuditModule : IModule
                                ?? throw new InvalidOperationException(
                                    "Audit database connection string not configured");
 
-        services.AddDbContext<AuditDbContext>(options =>
+        services.AddDbContext<AuditDbContext>((sp, options) =>
         {
             options.UseSqlServer(connectionString);
         });
