@@ -63,12 +63,30 @@ public sealed class AnimalFactory(ApiClient api)
         return dto;
     }
 
-    public async Task<PagedResult<AnimalListItemDto>> ListAsync(string? keyWordSearch = null)
+    public async Task<PagedResult<AnimalListItemDto>> ListAsync(
+        string? keyWordSearch = null,
+        List<AnimalSpecies>? species = null,
+        bool? isInShelter = null,
+        int page = 1,
+        int pageSize = 10)
     {
-        var uri = ListAnimalsRequest.Route + "?page=1&pageSize=10";
+        var uri = ListAnimalsRequest.Route + $"?page={page}&pageSize={pageSize}";
         if (!string.IsNullOrWhiteSpace(keyWordSearch))
         {
             uri += $"&keyWordSearch={Uri.EscapeDataString(keyWordSearch)}";
+        }
+
+        if (species is not null && species.Count > 0)
+        {
+            foreach (var s in species)
+            {
+                uri += $"&species={Uri.EscapeDataString(((int)s).ToString())}";
+            }
+        }
+
+        if (isInShelter.HasValue)
+        {
+            uri += $"&isInShelter={isInShelter.Value.ToString().ToLower()}";
         }
 
         var resp = await api.GetAsync(uri);
