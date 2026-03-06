@@ -19,6 +19,8 @@ internal sealed class ListAnimalsQueryHandler(
             request.Page,
             request.PageSize,
             request.KeyWordSearch,
+            request.Species,
+            request.IsInShelter,
             cancellationToken);
 
         var items = pagedAnimals.Items.Select(AnimalListItemDto.FromDomain).ToList();

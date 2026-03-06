@@ -131,9 +131,19 @@ internal sealed class AnimalRepository(
     }
 
     public async Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize, string? keyWordSearch,
-        CancellationToken cancellationToken = default)
+        AnimalSpecies? species, bool? isInShelter, CancellationToken cancellationToken = default)
     {
         var query = context.Animals.Where(a => a.ShelterId == shelterId);
+
+        if (species.HasValue)
+        {
+            query = query.Where(a => a.Species == species.Value);
+        }
+
+        if (isInShelter.HasValue)
+        {
+            query = query.Where(a => a.IsInShelter == isInShelter.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(keyWordSearch))
         {
