@@ -8,7 +8,7 @@ internal interface IAnimalRepository
     Task<Animal?> GetByIdAsync(Guid id, string shelterId, CancellationToken cancellationToken = default);
 
     Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize, string? keyWordSearch,
-        List<AnimalSpecies>? species, bool? isInShelter, CancellationToken cancellationToken = default);
+        AnimalSpecies? species, bool? isInShelter, CancellationToken cancellationToken = default);
 
     Task<Result<Animal>> AddAsync(Animal entity, CancellationToken cancellationToken = default);
 

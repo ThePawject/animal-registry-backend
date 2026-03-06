@@ -65,7 +65,7 @@ public sealed class AnimalFactory(ApiClient api)
 
     public async Task<PagedResult<AnimalListItemDto>> ListAsync(
         string? keyWordSearch = null,
-        List<AnimalSpecies>? species = null,
+        AnimalSpecies? species = null,
         bool? isInShelter = null,
         int page = 1,
         int pageSize = 10)
@@ -76,12 +76,9 @@ public sealed class AnimalFactory(ApiClient api)
             uri += $"&keyWordSearch={Uri.EscapeDataString(keyWordSearch)}";
         }
 
-        if (species is not null && species.Count > 0)
+        if (species.HasValue)
         {
-            foreach (var s in species)
-            {
-                uri += $"&species={Uri.EscapeDataString(((int)s).ToString())}";
-            }
+            uri += $"&species={Uri.EscapeDataString(((int)species.Value).ToString())}";
         }
 
         if (isInShelter.HasValue)

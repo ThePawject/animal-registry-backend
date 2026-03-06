@@ -131,13 +131,13 @@ internal sealed class AnimalRepository(
     }
 
     public async Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize, string? keyWordSearch,
-        List<AnimalSpecies>? species, bool? isInShelter, CancellationToken cancellationToken = default)
+        AnimalSpecies? species, bool? isInShelter, CancellationToken cancellationToken = default)
     {
         var query = context.Animals.Where(a => a.ShelterId == shelterId);
 
-        if (species is not null && species.Count > 0)
+        if (species.HasValue)
         {
-            query = query.Where(a => species.Contains(a.Species));
+            query = query.Where(a => a.Species == species.Value);
         }
 
         if (isInShelter.HasValue)

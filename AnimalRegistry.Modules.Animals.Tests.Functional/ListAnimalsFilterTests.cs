@@ -31,7 +31,7 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
         var dogId2 = await factory.CreateAsync(NextSig(), "dog-2", "Burek", AnimalSpecies.Dog, AnimalSex.Female);
         var catId = await factory.CreateAsync(NextSig(), "cat-1", "Mruczek", AnimalSpecies.Cat, AnimalSex.Male);
 
-        var result = await factory.ListAsync(species: [AnimalSpecies.Dog]);
+        var result = await factory.ListAsync(species: AnimalSpecies.Dog);
 
         result.Items.Should().HaveCountGreaterThanOrEqualTo(2);
         result.Items.Should().Contain(a => a.Id == dogId1 && a.Name == "Rex");
@@ -49,7 +49,7 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
         var catId1 = await factory.CreateAsync(NextSig(), "cat-2", "Filemon", AnimalSpecies.Cat, AnimalSex.Male);
         var catId2 = await factory.CreateAsync(NextSig(), "cat-3", "Bonifacy", AnimalSpecies.Cat, AnimalSex.Male);
 
-        var result = await factory.ListAsync(species: [AnimalSpecies.Cat]);
+        var result = await factory.ListAsync(species: AnimalSpecies.Cat);
 
         result.Items.Should().HaveCountGreaterThanOrEqualTo(2);
         result.Items.Should().Contain(a => a.Id == catId1 && a.Name == "Filemon");
@@ -59,19 +59,17 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     }
 
     [Fact]
-    public async Task List_FilterBySpecies_Multiple_ReturnsBothDogsAndCats()
+    public async Task List_FilterBySpecies_Null_ReturnsAllSpecies()
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
         var dogId = await factory.CreateAsync(NextSig(), "dog-4", "Reksio", AnimalSpecies.Dog, AnimalSex.Male);
         var catId = await factory.CreateAsync(NextSig(), "cat-4", "Puszek", AnimalSpecies.Cat, AnimalSex.Female);
 
-        var result = await factory.ListAsync(species: [AnimalSpecies.Dog, AnimalSpecies.Cat]);
+        var result = await factory.ListAsync(species: null);
 
-        result.Items.Should().HaveCountGreaterThanOrEqualTo(2);
         result.Items.Should().Contain(a => a.Id == dogId && a.Name == "Reksio");
         result.Items.Should().Contain(a => a.Id == catId && a.Name == "Puszek");
-        result.Items.Should().OnlyContain(a => a.Species == AnimalSpecies.Dog || a.Species == AnimalSpecies.Cat);
     }
 
     [Fact]
@@ -130,27 +128,11 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
         var catInShelterId = await factory.CreateAsync(NextSig(), "combo-2", "CatInShelter", AnimalSpecies.Cat,
             AnimalSex.Female);
 
-        var result = await factory.ListAsync(species: [AnimalSpecies.Dog], isInShelter: true);
+        var result = await factory.ListAsync(species: AnimalSpecies.Dog, isInShelter: true);
 
         result.Items.Should().Contain(a => a.Id == dogInShelterId);
         result.Items.Should().NotContain(a => a.Id == catInShelterId);
         result.Items.Should().OnlyContain(a => a.Species == AnimalSpecies.Dog && a.IsInShelter == true);
-    }
-
-    [Fact]
-    public async Task List_CombineMultipleSpeciesAndIsInShelter_ReturnsCorrectResults()
-    {
-        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
-
-        var dogId = await factory.CreateAsync(NextSig(), "multi-1", "MultiDog", AnimalSpecies.Dog, AnimalSex.Male);
-        var catId = await factory.CreateAsync(NextSig(), "multi-2", "MultiCat", AnimalSpecies.Cat, AnimalSex.Female);
-
-        var result = await factory.ListAsync(species: [AnimalSpecies.Dog, AnimalSpecies.Cat], isInShelter: true);
-
-        result.Items.Should().Contain(a => a.Id == dogId);
-        result.Items.Should().Contain(a => a.Id == catId);
-        result.Items.Should().OnlyContain(a =>
-            (a.Species == AnimalSpecies.Dog || a.Species == AnimalSpecies.Cat) && a.IsInShelter == true);
     }
 
     [Fact]
@@ -163,7 +145,7 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
         await factory.CreateAsync(NextSig(), "search-cat-1", "SearchCat", AnimalSpecies.Cat, AnimalSex.Female);
         await factory.CreateAsync(NextSig(), "other-dog-1", "OtherDog", AnimalSpecies.Dog, AnimalSex.Male);
 
-        var result = await factory.ListAsync(keyWordSearch: "SearchDog", species: [AnimalSpecies.Dog],
+        var result = await factory.ListAsync(keyWordSearch: "SearchDog", species: AnimalSpecies.Dog,
             isInShelter: true);
 
         result.Items.Should().ContainSingle(a => a.Id == dogId && a.Name == "SearchDog");
@@ -187,20 +169,6 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     }
 
     [Fact]
-    public async Task List_EmptySpeciesList_ReturnsAllAnimals()
-    {
-        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
-
-        var dogId = await factory.CreateAsync(NextSig(), "empty-1", "EmptyDog", AnimalSpecies.Dog, AnimalSex.Male);
-        var catId = await factory.CreateAsync(NextSig(), "empty-2", "EmptyCat", AnimalSpecies.Cat, AnimalSex.Female);
-
-        var result = await factory.ListAsync(species: []);
-
-        result.Items.Should().Contain(a => a.Id == dogId);
-        result.Items.Should().Contain(a => a.Id == catId);
-    }
-
-    [Fact]
     public async Task List_FilterBySpecies_WithPagination_ReturnsCorrectPage()
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
@@ -213,7 +181,7 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
             dogIds.Add(id);
         }
 
-        var page1 = await factory.ListAsync(species: [AnimalSpecies.Dog], page: 1, pageSize: 2);
+        var page1 = await factory.ListAsync(species: AnimalSpecies.Dog, page: 1, pageSize: 2);
 
         page1.Items.Should().HaveCount(2);
         page1.PageSize.Should().Be(2);
@@ -221,7 +189,7 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
         page1.TotalCount.Should().BeGreaterThanOrEqualTo(5);
         page1.Items.Should().OnlyContain(a => a.Species == AnimalSpecies.Dog);
 
-        var page2 = await factory.ListAsync(species: [AnimalSpecies.Dog], page: 2, pageSize: 2);
+        var page2 = await factory.ListAsync(species: AnimalSpecies.Dog, page: 2, pageSize: 2);
 
         page2.Items.Should().HaveCount(2);
         page2.Page.Should().Be(2);

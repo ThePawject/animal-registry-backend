@@ -9,6 +9,6 @@ internal sealed record ListAnimalsQuery(
     int Page,
     int PageSize,
     string? KeyWordSearch,
-    List<AnimalSpecies>? Species,
+    AnimalSpecies? Species,
     bool? IsInShelter)
     : IRequest<Result<PagedResult<AnimalListItemDto>>>;

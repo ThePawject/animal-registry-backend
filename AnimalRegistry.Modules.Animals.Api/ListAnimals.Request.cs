@@ -11,7 +11,7 @@ public sealed record ListAnimalsRequest : PaginationRequest
     public string? KeyWordSearch { get; init; }
     
     [QueryParam]
-    public List<AnimalSpecies>? Species { get; init; }
+    public AnimalSpecies? Species { get; init; }
     
     [QueryParam]
     public bool? IsInShelter { get; init; }
