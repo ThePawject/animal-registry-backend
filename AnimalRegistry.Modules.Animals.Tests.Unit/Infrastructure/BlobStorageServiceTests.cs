@@ -11,7 +11,6 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Infrastructure;
 
 public class BlobStorageServiceTests
 {
-    private readonly IImageOptimizationService _imageOptimizationService;
     private readonly BlobStorageService _service;
 
     public BlobStorageServiceTests()
@@ -26,8 +25,8 @@ public class BlobStorageServiceTests
         options.Value.Returns(settings);
 
         var containerClient = Substitute.For<BlobContainerClient>();
-        _imageOptimizationService = Substitute.For<IImageOptimizationService>();
-        _service = new BlobStorageService(options, containerClient, _imageOptimizationService);
+        var imageOptimizationService = Substitute.For<IImageOptimizationService>();
+        _service = new BlobStorageService(options, containerClient, imageOptimizationService);
     }
 
     [Theory]
@@ -59,7 +58,6 @@ public class BlobStorageServiceTests
 
 public class BlobStorageValidationTests
 {
-    private readonly BlobContainerClient _containerClient;
     private readonly IImageOptimizationService _imageOptimizationService;
     private readonly BlobStorageService _service;
 
@@ -74,9 +72,9 @@ public class BlobStorageValidationTests
         var options = Substitute.For<IOptions<BlobStorageSettings>>();
         options.Value.Returns(settings);
 
-        _containerClient = Substitute.For<BlobContainerClient>();
+        var containerClient = Substitute.For<BlobContainerClient>();
         _imageOptimizationService = Substitute.For<IImageOptimizationService>();
-        _service = new BlobStorageService(options, _containerClient, _imageOptimizationService);
+        _service = new BlobStorageService(options, containerClient, _imageOptimizationService);
     }
 
     [Theory]

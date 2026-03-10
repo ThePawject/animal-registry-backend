@@ -27,7 +27,7 @@ public class ImageOptimizationServiceTests
         result.Value!.Position = 0;
         var format = await Image.DetectFormatAsync(result.Value);
         format.Should().NotBeNull();
-        format!.Name.Should().BeOneOf("WEBP", "Webp");
+        format.Name.Should().BeOneOf("WEBP", "Webp");
 
         await result.Value.DisposeAsync();
     }
@@ -45,7 +45,7 @@ public class ImageOptimizationServiceTests
         result.Value!.Position = 0;
         var format = await Image.DetectFormatAsync(result.Value);
         format.Should().NotBeNull();
-        format!.Name.Should().BeOneOf("WEBP", "Webp");
+        format.Name.Should().BeOneOf("WEBP", "Webp");
 
         await result.Value.DisposeAsync();
     }
@@ -54,7 +54,6 @@ public class ImageOptimizationServiceTests
     public async Task OptimizeImageAsync_With_Webp_Should_Reoptimize()
     {
         var inputStream = CreateTestImage(100, 100, new WebpEncoder());
-        var originalSize = inputStream.Length;
 
         var result = await _service.OptimizeImageAsync(inputStream);
 
@@ -64,7 +63,7 @@ public class ImageOptimizationServiceTests
         result.Value!.Position = 0;
         var format = await Image.DetectFormatAsync(result.Value);
         format.Should().NotBeNull();
-        format!.Name.Should().BeOneOf("WEBP", "Webp");
+        format.Name.Should().BeOneOf("WEBP", "Webp");
 
         await result.Value.DisposeAsync();
     }

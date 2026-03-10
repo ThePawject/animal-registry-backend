@@ -170,7 +170,7 @@ internal static class AnimalPdfComponents
 
         var images = photosList
             .Select(p => p.Url)
-            .Where(url => !string.IsNullOrEmpty(url) && photoData.ContainsKey(url!))
+            .Where(url => !string.IsNullOrEmpty(url) && photoData.ContainsKey(url))
             .Select(url => photoData[url!])
             .ToList();
 
