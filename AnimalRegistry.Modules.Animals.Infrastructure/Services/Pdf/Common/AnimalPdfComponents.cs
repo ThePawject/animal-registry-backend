@@ -49,17 +49,17 @@ internal static class AnimalPdfComponents
             { "Gatunek", GetSpeciesName(animal.Species) },
             { "Płeć", GetSexName(animal.Sex) },
             { "Kolor", animal.Color },
-            { "Data urodzenia", animal.BirthDate.ToString("dd.MM.yyyy") },
+            { "Data urodzenia", animal.BirthDate?.ToString("dd.MM.yyyy") ?? "Nieznana" },
             { "W schronisku", animal.IsInShelter ? "Tak" : "Nie" },
             { "Data utworzenia", animal.CreatedOn.ToString("dd.MM.yyyy HH:mm") },
-            { "Ostatnia modyfikacja", animal.ModifiedOn.ToString("dd.MM.yyyy HH:mm") }
+            { "Ostatnia modyfikacja", animal.ModifiedOn.ToString("dd.MM.yyyy HH:mm") },
         };
 
         column.Item().Table(table =>
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(1);
+                columns.RelativeColumn();
                 columns.RelativeColumn(2);
             });
 
@@ -154,7 +154,7 @@ internal static class AnimalPdfComponents
         {
             AnimalSpecies.Dog => "Pies",
             AnimalSpecies.Cat => "Kot",
-            _ => species.ToString()
+            _ => species.ToString(),
         };
     }
 
@@ -164,7 +164,7 @@ internal static class AnimalPdfComponents
         {
             AnimalSex.Male => "Samiec",
             AnimalSex.Female => "Samica",
-            _ => sex.ToString()
+            _ => sex.ToString(),
         };
     }
 
@@ -188,7 +188,7 @@ internal static class AnimalPdfComponents
             AnimalEventType.Weighing => "Ważenie",
             AnimalEventType.Euthanasia => "Eutanazja",
             AnimalEventType.Death => "Śmierć",
-            _ => eventType.ToString()
+            _ => eventType.ToString(),
         };
     }
 }

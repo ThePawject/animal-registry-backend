@@ -3,7 +3,6 @@ using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 using QuestPDF.Fluent;
-using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
@@ -68,7 +67,7 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
             table.ColumnsDefinition(columns =>
             {
                 columns.RelativeColumn(3);
-                columns.RelativeColumn(1);
+                columns.RelativeColumn();
             });
             
             table.Header(header =>

@@ -1,6 +1,4 @@
-using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
-
-namespace AnimalRegistry.Modules.Animals.Domain.Animals;
+namespace AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 
 internal interface IAnimalEventRepository
 {

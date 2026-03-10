@@ -10,7 +10,7 @@ public sealed record AnimalListItemDto(
     string Color,
     AnimalSpecies Species,
     AnimalSex Sex,
-    DateTimeOffset BirthDate,
+    DateTimeOffset? BirthDate,
     DateTimeOffset CreatedOn,
     DateTimeOffset ModifiedOn,
     bool IsInShelter,

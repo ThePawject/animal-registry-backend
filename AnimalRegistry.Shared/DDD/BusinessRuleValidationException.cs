@@ -4,6 +4,7 @@ public sealed class BusinessRuleValidationException(IBusinessRule brokenRule) : 
 {
     private IBusinessRule BrokenRule { get; } = brokenRule;
 
+    // ReSharper disable once UnusedMember.Local
     private string Details { get; } = brokenRule.Message;
 
     public override string ToString()

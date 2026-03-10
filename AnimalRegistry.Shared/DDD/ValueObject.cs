@@ -45,23 +45,20 @@ public abstract class ValueObject : IEquatable<ValueObject>
 
     public override int GetHashCode()
     {
-        unchecked
+        var hash = 17;
+        foreach (var prop in GetProperties()!)
         {
-            var hash = 17;
-            foreach (var prop in GetProperties()!)
-            {
-                var value = prop.GetValue(this, null);
-                hash = HashValue(hash, value!);
-            }
-
-            foreach (var field in GetFields()!)
-            {
-                var value = field.GetValue(this);
-                hash = HashValue(hash, value!);
-            }
-
-            return hash;
+            var value = prop.GetValue(this, null);
+            hash = HashValue(hash, value!);
         }
+
+        foreach (var field in GetFields()!)
+        {
+            var value = field.GetValue(this);
+            hash = HashValue(hash, value!);
+        }
+
+        return hash;
     }
 
     protected static void CheckRule(IBusinessRule rule)
@@ -107,7 +104,7 @@ public abstract class ValueObject : IEquatable<ValueObject>
         return _fields;
     }
 
-    private int HashValue(int seed, object value)
+    private int HashValue(int seed, object? value)
     {
         var currentHash = value?.GetHashCode() ?? 0;
 

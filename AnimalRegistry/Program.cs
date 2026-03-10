@@ -2,7 +2,6 @@ global using AnimalRegistry;
 using AnimalRegistry.Modules.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
-using AnimalRegistry.Shared.CurrentUser;
 using AnimalRegistry.Shared.Pagination;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

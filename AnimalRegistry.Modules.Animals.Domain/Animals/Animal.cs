@@ -23,7 +23,7 @@ public sealed class Animal : Entity, IAggregateRoot
         string color,
         AnimalSpecies species,
         AnimalSex sex,
-        DateTimeOffset birthDate,
+        DateTimeOffset? birthDate,
         string shelterId)
     {
         Signature = signature;
@@ -46,7 +46,7 @@ public sealed class Animal : Entity, IAggregateRoot
     public string Color { get; private set; } = null!;
     public AnimalSpecies Species { get; private set; }
     public AnimalSex Sex { get; private set; }
-    public DateTimeOffset BirthDate { get; private set; }
+    public DateTimeOffset? BirthDate { get; private set; }
     public DateTimeOffset CreatedOn { get; private set; }
     public DateTimeOffset ModifiedOn { get; private set; }
     public bool IsInShelter { get; private set; }
@@ -85,7 +85,7 @@ public sealed class Animal : Entity, IAggregateRoot
         string color,
         AnimalSpecies species,
         AnimalSex sex,
-        DateTimeOffset birthDate,
+        DateTimeOffset? birthDate,
         string shelterId)
     {
         var animal = new Animal(signature, transponderCode, name, color, species, sex, birthDate, shelterId);

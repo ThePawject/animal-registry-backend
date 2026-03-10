@@ -1,3 +1,4 @@
+using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -8,7 +9,7 @@ internal abstract class ReportPdfBase
 {
     static ReportPdfBase()
     {
-        QuestPDF.Settings.License = LicenseType.Community;
+        Settings.License = LicenseType.Community;
     }
 
     protected static void AddReportTitle(ColumnDescriptor column, string title, string shelterId, DateTimeOffset generatedAt)
@@ -73,7 +74,7 @@ internal static class ReportComponents
         {
             table.ColumnsDefinition(columns =>
             {
-                columns.RelativeColumn(1);
+                columns.RelativeColumn();
                 columns.RelativeColumn(2);
             });
 

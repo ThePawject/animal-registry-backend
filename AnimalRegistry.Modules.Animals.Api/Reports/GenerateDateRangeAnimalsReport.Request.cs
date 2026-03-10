@@ -1,5 +1,4 @@
 using FastEndpoints;
-using System.Collections.Generic;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 
 namespace AnimalRegistry.Modules.Animals.Api.Reports;

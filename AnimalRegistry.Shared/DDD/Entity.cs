@@ -39,6 +39,7 @@ public abstract class Entity<TId>(TId id)
 
     public override int GetHashCode()
     {
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
         return Id.GetHashCode();
     }
 

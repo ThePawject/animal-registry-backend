@@ -33,10 +33,7 @@ public sealed class FunctionalTestWebApplicationFactory : WebApplicationFactory<
 
     public new async Task DisposeAsync()
     {
-        if (_dbConnection != null)
-        {
-            await _dbConnection.DisposeAsync();
-        }
+        await _dbConnection.DisposeAsync();
 
         await base.DisposeAsync();
     }

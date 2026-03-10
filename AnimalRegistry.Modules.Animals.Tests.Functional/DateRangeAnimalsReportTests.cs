@@ -18,7 +18,7 @@ public sealed class DateRangeAnimalsReportTests(ApiTestFixture fixture) : Integr
         var client = Factory.CreateAuthenticatedClient(user);
         var factory = new AnimalFactory(new ApiClient(client));
 
-        var dogId = await factory.CreateAsync("2024/6001", "trans-dog-dr-1", "DoggoDR", AnimalSpecies.Dog,
+        await factory.CreateAsync("2024/6001", "trans-dog-dr-1", "DoggoDR", AnimalSpecies.Dog,
             AnimalSex.Male);
 
         var startDate = DateTimeOffset.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");

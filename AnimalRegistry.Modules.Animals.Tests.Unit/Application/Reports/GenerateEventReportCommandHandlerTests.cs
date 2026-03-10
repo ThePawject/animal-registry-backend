@@ -120,14 +120,14 @@ public class GenerateEventReportCommandHandlerTests
             .GetArguments()[0] as EventReportData;
 
         receivedData.Should().NotBeNull();
-        var dogStats = receivedData!.SpeciesStats.First(s => s.Species == AnimalSpecies.Dog);
+        var dogStats = receivedData.SpeciesStats.First(s => s.Species == AnimalSpecies.Dog);
         var weekAdoptions = dogStats.WeekStats.EventCounts.FirstOrDefault(e => e.EventType == AnimalEventType.Adoption);
         var quarterAdoptions =
             dogStats.QuarterStats.EventCounts.FirstOrDefault(e => e.EventType == AnimalEventType.Adoption);
 
         weekAdoptions.Should().NotBeNull();
-        weekAdoptions!.Count.Should().Be(2);
+        weekAdoptions.Count.Should().Be(2);
         quarterAdoptions.Should().NotBeNull();
-        quarterAdoptions!.Count.Should().Be(3);
+        quarterAdoptions.Count.Should().Be(3);
     }
 }

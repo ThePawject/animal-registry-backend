@@ -1,4 +1,4 @@
-using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals;

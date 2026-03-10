@@ -1,5 +1,6 @@
 ﻿using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.MediatorPattern;
 using FastEndpoints;
 

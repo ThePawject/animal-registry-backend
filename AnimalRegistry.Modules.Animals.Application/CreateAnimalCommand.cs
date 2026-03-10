@@ -6,23 +6,23 @@ namespace AnimalRegistry.Modules.Animals.Application;
 
 internal sealed class CreateAnimalCommand(
     AnimalSignature signature,
-    string transponderCode,
-    string name,
+    string? transponderCode,
+    string? name,
     string color,
     AnimalSpecies species,
     AnimalSex sex,
-    DateTimeOffset birthDate,
+    DateTimeOffset? birthDate,
     List<PhotoUploadInfo>? photos = null,
     int? mainPhotoIndex = null)
     : IRequest<Result<CreateAnimalCommandResponse>>
 {
     public AnimalSignature Signature { get; } = signature;
-    public string TransponderCode { get; } = transponderCode;
-    public string Name { get; } = name;
+    public string TransponderCode { get; } = transponderCode ?? string.Empty;
+    public string Name { get; } = name ?? string.Empty;
     public string Color { get; } = color;
     public AnimalSpecies Species { get; } = species;
     public AnimalSex Sex { get; } = sex;
-    public DateTimeOffset BirthDate { get; } = birthDate;
+    public DateTimeOffset? BirthDate { get; } = birthDate;
     public List<PhotoUploadInfo> Photos { get; } = photos ?? [];
     public int? MainPhotoIndex { get; } = mainPhotoIndex;
 }

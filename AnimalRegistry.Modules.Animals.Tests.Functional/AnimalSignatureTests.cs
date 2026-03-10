@@ -6,13 +6,17 @@ using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional;
 
 [Collection("Sequential")]
 public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTestBase(fixture)
 {
-    private static string GetTestShelterId([System.Runtime.CompilerServices.CallerMemberName] string testName = "") => $"test-sig-{testName}";
+    private static string GetTestShelterId([CallerMemberName] string testName = "")
+    {
+        return $"test-sig-{testName}";
+    }
 
     private AnimalFactory CreateFactory(TestUser user)
     {
@@ -32,7 +36,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
         result.Should().NotBeNull();
-        result!.Signature.Should().Be($"{currentYear}/0001");
+        result.Signature.Should().Be($"{currentYear}/0001");
     }
 
     [Fact]
@@ -51,7 +55,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
         result.Should().NotBeNull();
-        result!.Signature.Should().Be($"{currentYear}/0002");
+        result.Signature.Should().Be($"{currentYear}/0002");
     }
 
     [Fact]
@@ -65,7 +69,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
         result.Should().NotBeNull();
-        result!.Signature.Should().Be("2025/0001");
+        result.Signature.Should().Be("2025/0001");
     }
 
     [Fact]
@@ -183,7 +187,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
         result.Should().NotBeNull();
-        result!.Signature.Should().Be($"{currentYear}/0003");
+        result.Signature.Should().Be($"{currentYear}/0003");
     }
 
     [Fact]
