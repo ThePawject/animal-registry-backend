@@ -16,10 +16,10 @@ public sealed class AnimalEventWithAnimalInfo(
     AnimalEvent animalEvent,
     AnimalSpecies species,
     Guid animalId,
-    string animalName)
+    string? animalName)
 {
     public AnimalEvent AnimalEvent { get; } = animalEvent;
     public AnimalSpecies Species { get; } = species;
     public Guid AnimalId { get; } = animalId;
-    public string AnimalName { get; } = animalName;
+    public string? AnimalName { get; } = animalName;
 }

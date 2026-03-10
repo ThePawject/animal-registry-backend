@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 {
     [DbContext(typeof(AnimalsDbContext))]
-    [Migration("20260310222528_AlterAnimalBirthdateToBeNullable")]
-    partial class AlterAnimalBirthdateToBeNullable
+    [Migration("20260310225704_AlterAnimalBirthdateTransponderCodeNameBirthDateToBeNullable")]
+    partial class AlterAnimalBirthdateTransponderCodeNameBirthDateToBeNullable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,7 +52,6 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -73,7 +72,6 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("TransponderCode")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 

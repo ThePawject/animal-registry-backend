@@ -5,8 +5,8 @@ namespace AnimalRegistry.Modules.Animals.Application;
 public sealed record AnimalListItemDto(
     Guid Id,
     string Signature,
-    string TransponderCode,
-    string Name,
+    string? TransponderCode,
+    string? Name,
     string Color,
     AnimalSpecies Species,
     AnimalSex Sex,
