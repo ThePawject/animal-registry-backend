@@ -24,7 +24,9 @@ internal sealed class GenerateRepositoryDumpReport(IMediator mediator) : Endpoin
         var result = await mediator.Send(new GenerateRepositoryDumpReportCommand(), ct);
 
         if (await this.SendResultIfFailureAsync(result, ct))
+        {
             return;
+        }
 
         var response = result.Value!;
         HttpContext.Response.ContentType = response.ContentType;

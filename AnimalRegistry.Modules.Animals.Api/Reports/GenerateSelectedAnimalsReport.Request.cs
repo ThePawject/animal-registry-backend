@@ -6,6 +6,5 @@ public sealed class GenerateSelectedAnimalsReportRequest
 {
     public const string Route = "/reports/animals/selected";
 
-    [QueryParam]
-    public List<Guid> Ids { get; init; } = [];
+    [QueryParam] public List<Guid> Ids { get; init; } = [];
 }

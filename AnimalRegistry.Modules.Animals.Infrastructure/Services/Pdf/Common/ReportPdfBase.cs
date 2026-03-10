@@ -12,7 +12,22 @@ internal abstract class ReportPdfBase
         Settings.License = LicenseType.Community;
     }
 
-    protected static void AddReportTitle(ColumnDescriptor column, string title, string shelterId, DateTimeOffset generatedAt)
+    protected static void AddCoverPage(PageDescriptor page, string shelterId)
+    {
+        page.Size(PageSizes.A4);
+        page.Margin(2f, Unit.Centimetre);
+        page.PageColor(Colors.White);
+
+        page.Content().PaddingTop(7f, Unit.Centimetre).AlignCenter().Column(column =>
+        {
+            column.Item().Text("Moje Schronisko").FontSize(48).Bold();
+            column.Item().Height(0.5f, Unit.Centimetre);
+            column.Item().Text($"Schronisko: {shelterId}").FontSize(18);
+        });
+    }
+
+    protected static void AddReportTitle(ColumnDescriptor column, string title, string shelterId,
+        DateTimeOffset generatedAt)
     {
         column.Item().AlignCenter().Text(title).FontSize(24).Bold();
         column.Item().AlignCenter().Text($"Schronisko: {shelterId}").FontSize(14);
@@ -32,10 +47,10 @@ internal abstract class ReportPdfBase
         column.Item().Text(title).FontSize(14).Bold();
     }
 
-    protected static void AddFooter(PageDescriptor page, DateTimeOffset generatedAt)
+    protected static void AddFooter(PageDescriptor page, DateTimeOffset generatedAt, string shelterId)
     {
         page.Footer().AlignCenter()
-            .Text($"Raport wygenerowany: {generatedAt:dd.MM.yyyy HH:mm} | Animal Registry System")
+            .Text($"Raport wygenerowany: {generatedAt:dd.MM.yyyy HH:mm} | Moje Schronisko | {shelterId}")
             .FontSize(9);
     }
 
@@ -55,15 +70,25 @@ internal abstract class ReportPdfBase
 
 internal static class ReportStyles
 {
+    public const float BorderThickness = 0.5f;
     public static string HeaderBackground => Colors.Grey.Lighten2;
     public static string BorderColor => Colors.Grey.Lighten1;
     public static string HighlightColor => Colors.Blue.Lighten4;
-    public const float BorderThickness = 0.5f;
 
-    public static IContainer StandardPadding(IContainer container) => container.Padding(5);
-    public static IContainer HeaderStyle(IContainer container) => container.Background(HeaderBackground).Padding(5);
-    public static IContainer CellStyle(IContainer container) =>
-        container.Padding(5).BorderBottom(BorderThickness).BorderColor(BorderColor);
+    public static IContainer StandardPadding(IContainer container)
+    {
+        return container.Padding(5);
+    }
+
+    public static IContainer HeaderStyle(IContainer container)
+    {
+        return container.Background(HeaderBackground).Padding(5);
+    }
+
+    public static IContainer CellStyle(IContainer container)
+    {
+        return container.Padding(5).BorderBottom(BorderThickness).BorderColor(BorderColor);
+    }
 }
 
 internal static class ReportComponents

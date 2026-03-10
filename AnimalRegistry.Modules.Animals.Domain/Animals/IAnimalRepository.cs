@@ -8,7 +8,7 @@ internal interface IAnimalRepository
     Task<Animal?> GetByIdAsync(Guid id, string shelterId, CancellationToken cancellationToken = default);
 
     Task<PagedResult<Animal>> ListAsync(string shelterId, int page, int pageSize, string? keyWordSearch,
-        CancellationToken cancellationToken = default);
+        AnimalSpecies? species, bool? isInShelter, CancellationToken cancellationToken = default);
 
     Task<Result<Animal>> AddAsync(Animal entity, CancellationToken cancellationToken = default);
 
@@ -18,9 +18,11 @@ internal interface IAnimalRepository
 
     Task<IReadOnlyList<Animal>> GetAllByShelterIdAsync(string shelterId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Animal>> GetByIdsAsync(IEnumerable<Guid> ids, string shelterId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Animal>> GetByIdsAsync(IEnumerable<Guid> ids, string shelterId,
+        CancellationToken cancellationToken = default);
 
-    Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null, CancellationToken cancellationToken = default);
+    Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+        CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId,
         CancellationToken cancellationToken = default);

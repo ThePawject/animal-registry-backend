@@ -72,7 +72,9 @@ public static class ResultEndpointExtensions
         CancellationToken ct = default)
     {
         if (result is { IsSuccess: true, Value: not null })
+        {
             return false;
+        }
 
         await ep.SendResultAsync(result, ct);
         return true;
@@ -85,7 +87,9 @@ public static class ResultEndpointExtensions
         where TRequest : notnull
     {
         if (result is { IsSuccess: true, Value: not null })
+        {
             return false;
+        }
 
         await ep.SendResultAsync(result, ct);
         return true;

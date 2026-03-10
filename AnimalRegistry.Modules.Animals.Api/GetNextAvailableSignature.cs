@@ -25,6 +25,5 @@ internal sealed class GetNextAvailableSignature(IMediator mediator)
 
 public sealed class GetNextAvailableSignatureRequest
 {
-    [QueryParam]
-    public int? Year { get; set; }
+    [QueryParam] public int? Year { get; set; }
 }

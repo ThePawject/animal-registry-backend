@@ -5,7 +5,8 @@ namespace AnimalRegistry.Shared.DDD;
 
 public sealed class DomainEventDispatcher(IServiceProvider serviceProvider) : IDomainEventDispatcher
 {
-    public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents, CancellationToken cancellationToken = default)
+    public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents,
+        CancellationToken cancellationToken = default)
     {
         foreach (var domainEvent in domainEvents)
         {
@@ -15,7 +16,10 @@ public sealed class DomainEventDispatcher(IServiceProvider serviceProvider) : ID
 
             foreach (var handler in handlers)
             {
-                if (handler == null) continue;
+                if (handler == null)
+                {
+                    continue;
+                }
 
                 var handleMethod = handlerType.GetMethod("Handle");
                 if (handleMethod != null)

@@ -24,15 +24,15 @@ internal sealed class GenerateDateRangeAnimalsReport(IMediator mediator)
     {
         var command = new GenerateDateRangeAnimalsReportCommand
         {
-            StartDate = req.StartDate,
-            EndDate = req.EndDate,
-            Species = req.Species
+            StartDate = req.StartDate, EndDate = req.EndDate, Species = req.Species,
         };
 
         var result = await mediator.Send(command, ct);
 
         if (await this.SendResultIfFailureAsync(result, ct))
+        {
             return;
+        }
 
         var response = result.Value!;
         HttpContext.Response.ContentType = response.ContentType;

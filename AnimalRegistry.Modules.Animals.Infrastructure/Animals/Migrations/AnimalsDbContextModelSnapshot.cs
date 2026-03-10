@@ -82,7 +82,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                         .IsUnique()
                         .HasDatabaseName("IX_Animals_Signature_ShelterId");
 
-                    b.ToTable("Animals");
+                    b.ToTable("Animals", (string)null);
                 });
 
             modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Animals.Animal", b =>
@@ -115,7 +115,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 
                             b1.HasKey("AnimalId", "Id");
 
-                            b1.ToTable("AnimalEvents");
+                            b1.ToTable("AnimalEvents", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AnimalId");
@@ -145,7 +145,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 
                             b1.HasKey("AnimalId", "Id");
 
-                            b1.ToTable("AnimalHealthRecords");
+                            b1.ToTable("AnimalHealthRecords", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AnimalId");
@@ -175,7 +175,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 
                             b1.HasKey("AnimalId", "Id");
 
-                            b1.ToTable("AnimalPhotos");
+                            b1.ToTable("AnimalPhotos", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AnimalId");

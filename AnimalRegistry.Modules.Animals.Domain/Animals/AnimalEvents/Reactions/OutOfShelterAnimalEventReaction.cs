@@ -2,9 +2,13 @@
 
 internal sealed class OutOfShelterAnimalEventReaction : IAnimalEventReaction
 {
-    public void Apply(Animal animal, AnimalEvent animalEvent) =>
+    public void Apply(Animal animal, AnimalEvent animalEvent)
+    {
         animal.SetOutOfShelter();
+    }
 
-    public void Undo(Animal animal, AnimalEvent animalEvent) => 
+    public void Undo(Animal animal, AnimalEvent animalEvent)
+    {
         animal.SetInShelter();
+    }
 }

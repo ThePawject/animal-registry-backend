@@ -3,6 +3,7 @@ using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
+using AnimalRegistry.Shared.Helpers;
 using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application.Reports;
@@ -20,9 +21,7 @@ internal sealed class GenerateEventReportCommandHandler(
 
         var events = await animalEventRepository.GetAllByShelterIdAsync(currentUser.ShelterId, cancellationToken);
 
-        var quarterStart = generatedAt.AddDays(-90);
-        var monthStart = generatedAt.AddDays(-30);
-        var weekStart = generatedAt.AddDays(-7);
+        var periods = DateTimeHelper.GetReportPeriods(generatedAt);
 
         var dogEvents = events.Where(e => e.Species == AnimalSpecies.Dog).Select(e => e.AnimalEvent).ToList();
         var catEvents = events.Where(e => e.Species == AnimalSpecies.Cat).Select(e => e.AnimalEvent).ToList();
@@ -33,8 +32,8 @@ internal sealed class GenerateEventReportCommandHandler(
             ReportDate = generatedAt,
             SpeciesStats =
             [
-                CreateSpeciesStats(AnimalSpecies.Dog, dogEvents, quarterStart, monthStart, weekStart, generatedAt),
-                CreateSpeciesStats(AnimalSpecies.Cat, catEvents, quarterStart, monthStart, weekStart, generatedAt),
+                CreateSpeciesStats(AnimalSpecies.Dog, dogEvents, periods),
+                CreateSpeciesStats(AnimalSpecies.Cat, catEvents, periods),
             ],
         };
 
@@ -50,17 +49,14 @@ internal sealed class GenerateEventReportCommandHandler(
     private static SpeciesEventStats CreateSpeciesStats(
         AnimalSpecies species,
         List<AnimalEvent> events,
-        DateTimeOffset quarterStart,
-        DateTimeOffset monthStart,
-        DateTimeOffset weekStart,
-        DateTimeOffset endDate)
+        PeriodRange periods)
     {
         return new SpeciesEventStats
         {
             Species = species,
-            QuarterStats = CreatePeriodStats(events, quarterStart, endDate),
-            MonthStats = CreatePeriodStats(events, monthStart, endDate),
-            WeekStats = CreatePeriodStats(events, weekStart, endDate),
+            QuarterStats = CreatePeriodStats(events, periods.QuarterStart, periods.EndDate),
+            MonthStats = CreatePeriodStats(events, periods.MonthStart, periods.EndDate),
+            WeekStats = CreatePeriodStats(events, periods.WeekStart, periods.EndDate),
         };
     }
 

@@ -26,13 +26,19 @@ public abstract class Entity<TId>(TId id)
     public override bool Equals(object? obj)
     {
         if (obj is not Entity<TId> other)
+        {
             return false;
+        }
 
         if (ReferenceEquals(this, other))
+        {
             return true;
+        }
 
         if (Id.Equals(default(TId)) || other.Id.Equals(default(TId)))
+        {
             return false;
+        }
 
         return Id.Equals(other.Id);
     }
@@ -45,8 +51,16 @@ public abstract class Entity<TId>(TId id)
 
     public static bool operator ==(Entity<TId>? left, Entity<TId>? right)
     {
-        if (left is null && right is null) return true;
-        if (left is null || right is null) return false;
+        if (left is null && right is null)
+        {
+            return true;
+        }
+
+        if (left is null || right is null)
+        {
+            return false;
+        }
+
         return left.Equals(right);
     }
 
@@ -58,7 +72,9 @@ public abstract class Entity<TId>(TId id)
     protected static void CheckRule(IBusinessRule rule)
     {
         if (rule.IsBroken())
+        {
             throw new BusinessRuleValidationException(rule);
+        }
     }
 }
 

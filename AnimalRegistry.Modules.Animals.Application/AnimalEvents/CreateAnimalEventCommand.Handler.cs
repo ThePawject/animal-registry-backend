@@ -8,7 +8,7 @@ namespace AnimalRegistry.Modules.Animals.Application.AnimalEvents;
 internal sealed class CreateAnimalEventCommandHandler(
     IAnimalRepository animalRepository,
     ICurrentUser currentUser
-    ) : IRequestHandler<CreateAnimalEventCommand, Result>
+) : IRequestHandler<CreateAnimalEventCommand, Result>
 {
     public async Task<Result> Handle(CreateAnimalEventCommand request, CancellationToken cancellationToken)
     {

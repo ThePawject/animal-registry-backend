@@ -21,7 +21,7 @@ internal sealed class ListAnimals(IMediator mediator) : Endpoint<ListAnimalsRequ
             ? null
             : req.KeyWordSearch.Trim();
 
-        var query = new ListAnimalsQuery(req.Page, req.PageSize, keyWordSearch);
+        var query = new ListAnimalsQuery(req.Page, req.PageSize, keyWordSearch, req.Species, req.IsInShelter);
         var result = await mediator.Send(query, ct);
         await this.SendResultAsync(result, ct);
     }

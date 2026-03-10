@@ -16,7 +16,7 @@ internal sealed class DeleteAnimalCommandHandler(
         {
             return Result.NotFound();
         }
-        
+
         await animalRepository.RemoveAsync(animal, cancellationToken);
         return Result.Success();
     }

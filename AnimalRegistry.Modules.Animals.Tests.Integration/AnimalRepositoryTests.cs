@@ -99,7 +99,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         await _repository.AddAsync(animal1);
         await _repository.AddAsync(animal2);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20, null);
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, null, null, null);
 
         Assert.Single(result.Items);
         Assert.Equal("Animal1", result.Items.First().Name);
@@ -117,7 +117,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
             "performedBy");
         await _repository.AddAsync(animal1);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20, null);
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, null, null, null);
 
         Assert.Single(result.Items);
         Assert.Equal("Animal1", result.Items.First().Name);
@@ -141,7 +141,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
             "new description");
         await _repository.UpdateAsync(animal1);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20, null);
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, null, null, null);
         Assert.Single(result.Items);
         Assert.Equal(AnimalEventType.StartOfQuarantine, result.Items.First().Events.First().Type);
     }
@@ -156,12 +156,12 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         animal1.AddEvent(AnimalEventType.AdmissionToShelter, TimeProvider.System.GetUtcNow(), "description",
             "performedBy");
         await _repository.AddAsync(animal1);
-        await _repository.ListAsync(TestShelterId, 1, 20, null);
+        await _repository.ListAsync(TestShelterId, 1, 20, null, null, null);
 
         animal1.RemoveEvent(animal1.Events.First().Id);
         await _repository.UpdateAsync(animal1);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20, null);
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, null, null, null);
         Assert.Single(result.Items);
         Assert.Empty(result.Items.First().Events);
     }
@@ -183,7 +183,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         await _repository.AddAsync(animal1);
         await _repository.AddAsync(animal2);
 
-        var result = await _repository.ListAsync(TestShelterId, 1, 20, "es Tosia");
+        var result = await _repository.ListAsync(TestShelterId, 1, 20, "es Tosia", null, null);
 
         Assert.Single(result.Items);
         Assert.Equal("Tosia", result.Items.First().Name);

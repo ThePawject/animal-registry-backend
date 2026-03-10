@@ -9,7 +9,7 @@ public static class AnimalEventReactionRegistry
             [AnimalEventType.Adoption] = new OutOfShelterAnimalEventReaction(),
             [AnimalEventType.PickedUpByOwner] = new OutOfShelterAnimalEventReaction(),
             [AnimalEventType.Death] = new OutOfShelterAnimalEventReaction(),
-            [AnimalEventType.Euthanasia] = new OutOfShelterAnimalEventReaction()
+            [AnimalEventType.Euthanasia] = new OutOfShelterAnimalEventReaction(),
         };
 
     public static IAnimalEventReaction For(AnimalEventType type)

@@ -10,7 +10,7 @@ public sealed class CreateAnimalEventRequest
     public AnimalEventType Type { get; init; }
     public DateTimeOffset OccurredOn { get; init; }
     public string Description { get; init; } = string.Empty;
-    
+
     public static string BuildRoute(Guid animalId)
     {
         return Route.Replace("{AnimalId}", animalId.ToString());

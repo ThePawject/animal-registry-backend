@@ -32,11 +32,7 @@ internal sealed class DateRangeAnimalsDataService(
                 .OrderByDescending(e => e.OccurredOn)
                 .ToList();
 
-            return new AnimalWithFilteredEvents
-            {
-                Animal = animal,
-                Events = animalEvents
-            };
+            return new AnimalWithFilteredEvents { Animal = animal, Events = animalEvents };
         }).ToList();
 
         return new DateRangeAnimalsReportData
@@ -45,7 +41,7 @@ internal sealed class DateRangeAnimalsDataService(
             StartDate = startDate,
             EndDate = endDate,
             Animals = animalsWithFilteredEvents,
-            ReportDate = DateTimeOffset.UtcNow
+            ReportDate = DateTimeOffset.UtcNow,
         };
     }
 }

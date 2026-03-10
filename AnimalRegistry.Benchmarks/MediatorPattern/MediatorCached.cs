@@ -1,5 +1,5 @@
-using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace AnimalRegistry.Benchmarks.MediatorPattern;
 
