@@ -97,12 +97,12 @@ public sealed class Animal : Entity, IAggregateRoot
 
     public void Update(
         AnimalSignature signature,
-        string transponderCode,
-        string name,
+        string? transponderCode,
+        string? name,
         string color,
         AnimalSpecies species,
         AnimalSex sex,
-        DateTimeOffset birthDate)
+        DateTimeOffset? birthDate)
     {
         Signature = signature;
         TransponderCode = transponderCode;

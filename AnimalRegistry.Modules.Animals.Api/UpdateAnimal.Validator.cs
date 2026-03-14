@@ -17,28 +17,23 @@ internal sealed class UpdateAnimalValidator : Validator<UpdateAnimalRequest>
             .WithMessage("Invalid signature format. Expected format: YYYY/NNNN (e.g., 2026/0001).");
 
         RuleFor(x => x.TransponderCode)
-            .NotEmpty()
             .MaximumLength(100);
-
+        
         RuleFor(x => x.Name)
-            .NotEmpty()
             .MinimumLength(2)
             .MaximumLength(100);
-
+        
         RuleFor(x => x.Color)
             .NotEmpty()
             .MaximumLength(50);
-
+        
         RuleFor(x => x.Species)
             .NotEmpty()
             .IsInEnum();
-
+        
         RuleFor(x => x.Sex)
             .NotEmpty()
             .IsInEnum();
-
-        RuleFor(x => x.BirthDate)
-            .NotEmpty();
 
         RuleFor(x => x.MainPhotoIndex)
             .GreaterThanOrEqualTo(0)
