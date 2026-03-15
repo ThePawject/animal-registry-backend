@@ -68,8 +68,8 @@ internal sealed class UpdateAnimalCommandHandler(
 
         if (request.NewPhotos.Count > 0)
         {
-            var uploadTasks = request.NewPhotos.Select((photo, index) =>
-                UploadPhotoAsync(photo, index, animal.Id, cancellationToken));
+            var uploadTasks = request.NewPhotos.Select(photo =>
+                UploadPhotoAsync(photo, animal.Id, cancellationToken));
 
             var results = await Task.WhenAll(uploadTasks);
 
@@ -101,7 +101,7 @@ internal sealed class UpdateAnimalCommandHandler(
             new UpdateAnimalCommandResponse(animal.Id));
     }
 
-    private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, int index, Guid animalId,
+    private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, Guid animalId,
         CancellationToken cancellationToken)
     {
         return await blobStorageService.UploadAsync(

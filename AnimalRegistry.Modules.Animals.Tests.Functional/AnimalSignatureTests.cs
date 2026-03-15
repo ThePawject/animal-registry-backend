@@ -36,7 +36,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
         result.Should().NotBeNull();
-        result!.Signature.Should().Be($"{currentYear}/0001");
+        result.Signature.Should().Be($"{currentYear}/0001");
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
         result.Should().NotBeNull();
-        result!.Signature.Should().Be($"{currentYear}/0002");
+        result.Signature.Should().Be($"{currentYear}/0002");
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
         result.Should().NotBeNull();
-        result!.Signature.Should().Be("2025/0001");
+        result.Signature.Should().Be("2025/0001");
     }
 
     [Fact]
@@ -191,7 +191,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
         result.Should().NotBeNull();
-        result!.Signature.Should().Be($"{currentYear}/0003");
+        result.Signature.Should().Be($"{currentYear}/0003");
     }
 
     [Fact]

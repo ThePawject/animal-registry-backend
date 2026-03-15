@@ -13,10 +13,8 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
             .Must(BeValidSignature)
             .WithMessage("Invalid signature format. Expected format: YYYY/NNNN (e.g., 2026/0001).");
         RuleFor(x => x.TransponderCode)
-            .NotEmpty()
             .MaximumLength(100);
         RuleFor(x => x.Name)
-            .NotEmpty()
             .MinimumLength(2)
             .MaximumLength(100);
         RuleFor(x => x.Color)
@@ -28,8 +26,6 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
         RuleFor(x => x.Sex)
             .NotEmpty()
             .IsInEnum();
-        RuleFor(x => x.BirthDate)
-            .NotEmpty();
         RuleFor(x => x.MainPhotoIndex)
             .GreaterThanOrEqualTo(0)
             .When(x => x.MainPhotoIndex.HasValue);

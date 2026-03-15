@@ -58,7 +58,7 @@ public sealed class AnimalRepositoryTests : IAsyncLifetime
         await _repository.AddAsync(animal);
         var loaded = await _repository.GetByIdAsync(animal.Id, TestShelterId);
         Assert.NotNull(loaded);
-        Assert.Equal("Burek", loaded!.Name);
+        Assert.Equal("Burek", loaded.Name);
         Assert.Equal(TestShelterId, loaded.ShelterId);
     }
 

@@ -1,6 +1,7 @@
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 

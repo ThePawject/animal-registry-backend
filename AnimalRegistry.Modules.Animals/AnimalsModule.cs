@@ -2,6 +2,7 @@ using AnimalRegistry.Modules.Animals.Api;
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services;

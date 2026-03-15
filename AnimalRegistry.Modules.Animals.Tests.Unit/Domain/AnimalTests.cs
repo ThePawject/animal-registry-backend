@@ -83,7 +83,7 @@ public class AnimalTests
         var archivedEvent =
             animal.DomainEvents.Single(e => e is AnimalArchivedDomainEvent) as AnimalArchivedDomainEvent;
         archivedEvent.Should().NotBeNull();
-        archivedEvent!.AnimalId.Should().Be(animal.Id);
+        archivedEvent.AnimalId.Should().Be(animal.Id);
     }
 
     [Fact]

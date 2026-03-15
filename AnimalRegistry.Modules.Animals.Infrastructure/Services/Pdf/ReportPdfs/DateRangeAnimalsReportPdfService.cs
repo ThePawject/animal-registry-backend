@@ -72,7 +72,7 @@ internal sealed class DateRangeAnimalsReportPdfService : ReportPdfBase, IDateRan
             { "Gatunek", AnimalPdfComponents.GetSpeciesName(animal.Species) },
             { "Płeć", AnimalPdfComponents.GetSexName(animal.Sex) },
             { "Kolor", animal.Color },
-            { "Data urodzenia", animal.BirthDate.ToString("dd.MM.yyyy") },
+            { "Data urodzenia", animal.BirthDate?.ToString("dd.MM.yyyy") ?? "Nieznana" },
             { "W schronisku", animal.IsInShelter ? "Tak" : "Nie" },
         };
 

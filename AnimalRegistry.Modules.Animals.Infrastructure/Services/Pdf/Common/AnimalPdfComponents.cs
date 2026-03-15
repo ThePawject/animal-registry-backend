@@ -56,7 +56,7 @@ internal static class AnimalPdfComponents
             { "Gatunek", GetSpeciesName(animal.Species) },
             { "Płeć", GetSexName(animal.Sex) },
             { "Kolor", animal.Color },
-            { "Data urodzenia", animal.BirthDate.ToString("dd.MM.yyyy") },
+            { "Data urodzenia", animal.BirthDate?.ToString("dd.MM.yyyy") ?? "Nieznana" },
             { "W schronisku", animal.IsInShelter ? "Tak" : "Nie" },
             { "Data utworzenia", animal.CreatedOn.ToString("dd.MM.yyyy HH:mm") },
             { "Ostatnia modyfikacja", animal.ModifiedOn.ToString("dd.MM.yyyy HH:mm") },
@@ -170,7 +170,7 @@ internal static class AnimalPdfComponents
 
         var images = photosList
             .Select(p => p.Url)
-            .Where(url => !string.IsNullOrEmpty(url) && photoData.ContainsKey(url!))
+            .Where(url => !string.IsNullOrEmpty(url) && photoData.ContainsKey(url))
             .Select(url => photoData[url!])
             .ToList();
 

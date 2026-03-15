@@ -1,7 +1,6 @@
-﻿using AnimalRegistry.Shared.Access;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
-namespace AnimalRegistry.Shared.CurrentUser;
+namespace AnimalRegistry.Shared.Access;
 
 public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {

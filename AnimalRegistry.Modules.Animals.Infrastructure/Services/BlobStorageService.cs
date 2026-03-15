@@ -111,6 +111,7 @@ internal sealed class BlobStorageService : IBlobStorageService
         return _settings.GetBlobUrl(blobPath);
     }
 
+    // ReSharper disable once UnusedParameter.Local
     private static Result ValidateFile(string fileName, Stream content)
     {
         const long maxSize = 20 * 1024 * 1024;

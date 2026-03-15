@@ -18,12 +18,12 @@ public sealed class Animal : Entity, IAggregateRoot
 
     private Animal(
         AnimalSignature signature,
-        string transponderCode,
-        string name,
+        string? transponderCode,
+        string? name,
         string color,
         AnimalSpecies species,
         AnimalSex sex,
-        DateTimeOffset birthDate,
+        DateTimeOffset? birthDate,
         string shelterId)
     {
         Signature = signature;
@@ -40,13 +40,13 @@ public sealed class Animal : Entity, IAggregateRoot
         ModifiedOn = DateTimeOffset.UtcNow;
     }
 
-    public string TransponderCode { get; private set; } = null!;
+    public string? TransponderCode { get; private set; }
     public AnimalSignature Signature { get; private set; } = null!;
-    public string Name { get; private set; } = null!;
+    public string? Name { get; private set; }
     public string Color { get; private set; } = null!;
     public AnimalSpecies Species { get; private set; }
     public AnimalSex Sex { get; private set; }
-    public DateTimeOffset BirthDate { get; private set; }
+    public DateTimeOffset? BirthDate { get; private set; }
     public DateTimeOffset CreatedOn { get; private set; }
     public DateTimeOffset ModifiedOn { get; private set; }
     public bool IsInShelter { get; private set; }
@@ -80,12 +80,12 @@ public sealed class Animal : Entity, IAggregateRoot
 
     public static Animal Create(
         AnimalSignature signature,
-        string transponderCode,
-        string name,
+        string? transponderCode,
+        string? name,
         string color,
         AnimalSpecies species,
         AnimalSex sex,
-        DateTimeOffset birthDate,
+        DateTimeOffset? birthDate,
         string shelterId)
     {
         var animal = new Animal(signature, transponderCode, name, color, species, sex, birthDate, shelterId);
@@ -97,12 +97,12 @@ public sealed class Animal : Entity, IAggregateRoot
 
     public void Update(
         AnimalSignature signature,
-        string transponderCode,
-        string name,
+        string? transponderCode,
+        string? name,
         string color,
         AnimalSpecies species,
         AnimalSex sex,
-        DateTimeOffset birthDate)
+        DateTimeOffset? birthDate)
     {
         Signature = signature;
         TransponderCode = transponderCode;

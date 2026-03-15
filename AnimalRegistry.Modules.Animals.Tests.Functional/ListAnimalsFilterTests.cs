@@ -173,12 +173,10 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var dogIds = new List<Guid>();
         for (var i = 0; i < 5; i++)
         {
-            var id = await factory.CreateAsync(NextSig(), $"page-dog-{i}", $"PageDog{i}", AnimalSpecies.Dog,
+            await factory.CreateAsync(NextSig(), $"page-dog-{i}", $"PageDog{i}", AnimalSpecies.Dog,
                 AnimalSex.Male);
-            dogIds.Add(id);
         }
 
         var page1 = await factory.ListAsync(species: AnimalSpecies.Dog, page: 1, pageSize: 2);
