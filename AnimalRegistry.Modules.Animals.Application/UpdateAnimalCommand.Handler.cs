@@ -27,18 +27,19 @@ internal sealed class UpdateAnimalCommandHandler(
                 $"Animal with id {request.Id} not found.");
         }
 
-        if (request.Signature.Value != animal.Signature.Value)
+        if (request.Signature.Value != animal.Signature.Value || request.Species != animal.Species)
         {
             var isUnique = await signatureService.IsSignatureUniqueAsync(
                 request.Signature.Value,
                 currentUser.ShelterId,
+                request.Species,
                 request.Id,
                 cancellationToken);
 
             if (!isUnique)
             {
                 return Result<UpdateAnimalCommandResponse>.ValidationError(
-                    $"Signature '{request.Signature.Value}' is already in use.");
+                    $"Signature '{request.Signature.Value}' is already in use for this species.");
             }
         }
 

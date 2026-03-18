@@ -58,9 +58,12 @@ public sealed class AnimalSignature : ValueObject
             throw new ArgumentOutOfRangeException(nameof(year), "Year must be between 2000 and 2100.");
         }
 
-        return number is < 1 or > 9999
-            ? throw new ArgumentOutOfRangeException(nameof(number), "Number must be between 1 and 9999.")
-            : new AnimalSignature(year, number);
+        if (number is < 1 or > 9999)
+        {
+            throw new ArgumentOutOfRangeException(nameof(number), "Number must be between 1 and 9999.");
+        }
+
+        return new AnimalSignature(year, number);
     }
 
     public override string ToString()

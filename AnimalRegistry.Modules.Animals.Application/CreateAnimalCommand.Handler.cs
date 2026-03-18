@@ -18,13 +18,14 @@ internal sealed class CreateAnimalCommandHandler(
         var isUnique = await signatureService.IsSignatureUniqueAsync(
             request.Signature.Value,
             currentUser.ShelterId,
+            request.Species,
             null,
             cancellationToken);
 
         if (!isUnique)
         {
             return Result<CreateAnimalCommandResponse>.ValidationError(
-                $"Signature '{request.Signature.Value}' is already in use.");
+                $"Signature '{request.Signature.Value}' is already in use for this species.");
         }
 
         var animal = Animal.Create(
