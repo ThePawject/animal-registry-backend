@@ -59,7 +59,8 @@ public class UpdateAnimalCommandHandlerTests
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
         signatureServiceMock
-            .IsSignatureUniqueAsync("2024/0002", TestShelterId, existingAnimal.Id, Arg.Any<CancellationToken>())
+            .IsSignatureUniqueAsync("2024/0002", TestShelterId, Arg.Any<AnimalSpecies>(), existingAnimal.Id,
+                Arg.Any<CancellationToken>())
             .Returns(true);
 
         var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
@@ -142,7 +143,8 @@ public class UpdateAnimalCommandHandlerTests
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
         signatureServiceMock
-            .IsSignatureUniqueAsync("2024/0005", TestShelterId, existingAnimal.Id, Arg.Any<CancellationToken>())
+            .IsSignatureUniqueAsync("2024/0005", TestShelterId, AnimalSpecies.Cat, existingAnimal.Id,
+                Arg.Any<CancellationToken>())
             .Returns(true);
 
         var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
@@ -189,7 +191,8 @@ public class UpdateAnimalCommandHandlerTests
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
         signatureServiceMock
-            .IsSignatureUniqueAsync("2024/0007", TestShelterId, existingAnimal.Id, Arg.Any<CancellationToken>())
+            .IsSignatureUniqueAsync("2024/0007", TestShelterId, AnimalSpecies.Dog, existingAnimal.Id,
+                Arg.Any<CancellationToken>())
             .Returns(false);
 
         var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);

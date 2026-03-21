@@ -17,9 +17,9 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
                 v => v.Value,
                 v => ParseSignature(v));
 
-        builder.HasIndex(a => new { a.Signature, a.ShelterId })
+        builder.HasIndex(a => new { a.ShelterId, a.Species, a.Signature })
             .IsUnique()
-            .HasDatabaseName("IX_Animals_Signature_ShelterId");
+            .HasDatabaseName("IX_Animals_ShelterId_Species_Signature");
 
         builder.Property(a => a.TransponderCode).HasMaxLength(100);
         builder.Property(a => a.Name).HasMaxLength(100);

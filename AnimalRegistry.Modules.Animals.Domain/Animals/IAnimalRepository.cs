@@ -21,9 +21,10 @@ internal interface IAnimalRepository
     Task<IReadOnlyList<Animal>> GetByIdsAsync(IEnumerable<Guid> ids, string shelterId,
         CancellationToken cancellationToken = default);
 
-    Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+    Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, AnimalSpecies species,
+        Guid? excludeAnimalId = null,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId,
+    Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId, AnimalSpecies species,
         CancellationToken cancellationToken = default);
 }

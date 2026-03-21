@@ -5,9 +5,11 @@ using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application;
 
-internal sealed class GetNextAvailableSignatureQuery(int year) : IRequest<Result<GetNextAvailableSignatureResponse>>
+internal sealed class GetNextAvailableSignatureQuery(int year, AnimalSpecies species)
+    : IRequest<Result<GetNextAvailableSignatureResponse>>
 {
     public int Year { get; } = year;
+    public AnimalSpecies Species { get; } = species;
 }
 
 public sealed record GetNextAvailableSignatureResponse(string Signature);
@@ -29,6 +31,7 @@ internal sealed class GetNextAvailableSignatureQueryHandler(
         var signature = await signatureService.GetNextAvailableSignatureAsync(
             request.Year,
             currentUser.ShelterId,
+            request.Species,
             cancellationToken);
 
         return Result<GetNextAvailableSignatureResponse>.Success(

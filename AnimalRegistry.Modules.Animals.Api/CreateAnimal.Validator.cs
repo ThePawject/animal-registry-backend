@@ -1,17 +1,21 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using FastEndpoints;
 using FluentValidation;
+using System.Text.RegularExpressions;
 
 namespace AnimalRegistry.Modules.Animals.Api;
 
 internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
 {
+    private static readonly Regex SignaturePattern = new(@"^(\d{4})/(\d{4})$", RegexOptions.Compiled);
+
     public CreateAnimalValidator()
     {
         RuleFor(x => x.Signature)
             .NotEmpty()
-            .Must(BeValidSignature)
+            .Must(BeValidSignatureFormat)
             .WithMessage("Invalid signature format. Expected format: YYYY/NNNN (e.g., 2026/0001).");
+
         RuleFor(x => x.TransponderCode)
             .MaximumLength(100);
         RuleFor(x => x.Name)
@@ -43,13 +47,13 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
             .WithMessage("Total photo size must not exceed 100MB");
     }
 
-    private static bool BeValidSignature(string? signature)
+    private static bool BeValidSignatureFormat(string? signature)
     {
         if (string.IsNullOrWhiteSpace(signature))
         {
             return false;
         }
 
-        return AnimalSignature.Create(signature).IsSuccess;
+        return SignaturePattern.IsMatch(signature.Trim()) && AnimalSignature.Create(signature).IsSuccess;
     }
 }

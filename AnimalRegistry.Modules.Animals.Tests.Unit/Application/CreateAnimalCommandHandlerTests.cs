@@ -41,7 +41,8 @@ public class CreateAnimalCommandHandlerTests
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
-        signatureServiceMock.IsSignatureUniqueAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Guid?>(),
+        signatureServiceMock.IsSignatureUniqueAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<AnimalSpecies>(),
+                Arg.Any<Guid?>(),
                 Arg.Any<CancellationToken>())
             .Returns(true);
 
@@ -73,7 +74,8 @@ public class CreateAnimalCommandHandlerTests
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
-        signatureServiceMock.IsSignatureUniqueAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Guid?>(),
+        signatureServiceMock.IsSignatureUniqueAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<AnimalSpecies>(),
+                Arg.Any<Guid?>(),
                 Arg.Any<CancellationToken>())
             .Returns(true);
 
@@ -103,7 +105,8 @@ public class CreateAnimalCommandHandlerTests
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
-        signatureServiceMock.IsSignatureUniqueAsync("2024/0003", TestShelterId, null, Arg.Any<CancellationToken>())
+        signatureServiceMock.IsSignatureUniqueAsync("2024/0003", TestShelterId, AnimalSpecies.Dog, null,
+                Arg.Any<CancellationToken>())
             .Returns(false);
 
         var handler = new CreateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);

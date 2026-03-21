@@ -88,11 +88,12 @@ internal sealed class AnimalRepository(
         return animals;
     }
 
-    public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+    public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, AnimalSpecies species,
+        Guid? excludeAnimalId = null,
         CancellationToken cancellationToken = default)
     {
         var animals = await context.Animals
-            .Where(a => a.ShelterId == shelterId)
+            .Where(a => a.ShelterId == shelterId && a.Species == species)
             .ToListAsync(cancellationToken);
 
         var query = animals.Where(a => a.Signature.Value == signature);
@@ -106,18 +107,19 @@ internal sealed class AnimalRepository(
     }
 
     public async Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId,
+        AnimalSpecies species,
         CancellationToken cancellationToken = default)
     {
-        var prefix = $"{year:D4}/";
+        var yearPrefix = $"{year:D4}/";
 
         var animals = await context.Animals
-            .Where(a => a.ShelterId == shelterId)
+            .Where(a => a.ShelterId == shelterId && a.Species == species)
             .ToListAsync(cancellationToken);
 
         var numbers = new List<int>();
         foreach (var animal in animals)
         {
-            if (animal.Signature.Value.StartsWith(prefix))
+            if (animal.Signature.Value.StartsWith(yearPrefix))
             {
                 var parts = animal.Signature.Value.Split('/');
                 if (parts.Length == 2 && int.TryParse(parts[1], out var number))

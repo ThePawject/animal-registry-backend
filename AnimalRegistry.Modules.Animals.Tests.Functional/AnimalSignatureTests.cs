@@ -31,7 +31,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var client = Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(shelterId));
         var currentYear = DateTimeOffset.UtcNow.Year;
 
-        var response = await client.GetAsync("/animals/signature");
+        var response = await client.GetAsync("/animals/signature?species=1");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
@@ -47,10 +47,10 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var currentYear = DateTimeOffset.UtcNow.Year;
 
         await factory.CreateAsync($"{currentYear}/0001", "trans-1", "First", AnimalSpecies.Dog, AnimalSex.Male);
-        await factory.CreateAsync($"{currentYear}/0003", "trans-3", "Third", AnimalSpecies.Cat, AnimalSex.Female);
+        await factory.CreateAsync($"{currentYear}/0003", "trans-3", "Third", AnimalSpecies.Dog, AnimalSex.Male);
 
         var client = Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(shelterId));
-        var response = await client.GetAsync("/animals/signature");
+        var response = await client.GetAsync("/animals/signature?species=1");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
@@ -64,7 +64,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var shelterId = GetTestShelterId();
         var client = Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(shelterId));
 
-        var response = await client.GetAsync("/animals/signature?year=2025");
+        var response = await client.GetAsync("/animals/signature?year=2025&species=2");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
@@ -157,7 +157,7 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var currentYear = DateTimeOffset.UtcNow.Year;
         var id1 = await factory.CreateAsync($"{currentYear}/0400", "trans-1", "First", AnimalSpecies.Dog,
             AnimalSex.Male);
-        await factory.CreateAsync($"{currentYear}/0401", "trans-2", "Second", AnimalSpecies.Cat, AnimalSex.Female);
+        await factory.CreateAsync($"{currentYear}/0401", "trans-2", "Second", AnimalSpecies.Dog, AnimalSex.Female);
 
         var client = Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(shelterId));
         var content = new MultipartFormDataContent();
@@ -182,11 +182,11 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
         var currentYear = DateTimeOffset.UtcNow.Year;
 
         await factory.CreateAsync($"{currentYear}/0001", "trans-1", "One", AnimalSpecies.Dog, AnimalSex.Male);
-        await factory.CreateAsync($"{currentYear}/0002", "trans-2", "Two", AnimalSpecies.Cat, AnimalSex.Female);
+        await factory.CreateAsync($"{currentYear}/0002", "trans-2", "Two", AnimalSpecies.Dog, AnimalSex.Male);
         await factory.CreateAsync($"{currentYear}/0004", "trans-4", "Four", AnimalSpecies.Dog, AnimalSex.Male);
 
         var client = Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(shelterId));
-        var response = await client.GetAsync("/animals/signature");
+        var response = await client.GetAsync("/animals/signature?species=1");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var result = await response.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
@@ -197,8 +197,8 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
     [Fact]
     public async Task SignaturesAreUniquePerShelter_DifferentSheltersCanHaveSameSignature()
     {
-        var shelter1 = "test-shelter-sig-A";
-        var shelter2 = "test-shelter-sig-B";
+        const string shelter1 = "test-shelter-sig-A";
+        const string shelter2 = "test-shelter-sig-B";
         var factory1 = CreateFactory(TestUser.WithShelterAccess(shelter1));
         var factory2 = CreateFactory(TestUser.WithShelterAccess(shelter2));
         var currentYear = DateTimeOffset.UtcNow.Year;
@@ -212,5 +212,93 @@ public sealed class AnimalSignatureTests(ApiTestFixture fixture) : IntegrationTe
 
         animal1.Signature.Should().Be(signature);
         animal2.Signature.Should().Be(signature);
+    }
+
+    [Fact]
+    public async Task SignatureNumbering_IsIndependentPerSpecies()
+    {
+        var shelterId = GetTestShelterId();
+        var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
+        var currentYear = DateTimeOffset.UtcNow.Year;
+
+        var dogId = await factory.CreateAsync($"{currentYear}/0001", "trans-dog-1", "DogOne", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var catId = await factory.CreateAsync($"{currentYear}/0001", "trans-cat-1", "CatOne", AnimalSpecies.Cat,
+            AnimalSex.Female);
+
+        var dog = await factory.GetAsync(dogId);
+        var cat = await factory.GetAsync(catId);
+
+        dog.Signature.Should().Be($"{currentYear}/0001");
+        cat.Signature.Should().Be($"{currentYear}/0001");
+        dog.Species.Should().Be(AnimalSpecies.Dog);
+        cat.Species.Should().Be(AnimalSpecies.Cat);
+    }
+
+    [Fact]
+    public async Task GetNextAvailableSignature_ReturnsIndependentNumbersForDifferentSpecies()
+    {
+        var shelterId = GetTestShelterId();
+        var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
+        var currentYear = DateTimeOffset.UtcNow.Year;
+
+        await factory.CreateAsync($"{currentYear}/0001", "trans-d1", "Dog1", AnimalSpecies.Dog, AnimalSex.Male);
+        await factory.CreateAsync($"{currentYear}/0002", "trans-d2", "Dog2", AnimalSpecies.Dog, AnimalSex.Male);
+
+        await factory.CreateAsync($"{currentYear}/0001", "trans-c1", "Cat1", AnimalSpecies.Cat, AnimalSex.Female);
+
+        var client = Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(shelterId));
+
+        var dogResponse = await client.GetAsync("/animals/signature?species=1");
+        dogResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var dogResult = await dogResponse.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
+        dogResult!.Signature.Should().Be($"{currentYear}/0003");
+
+        var catResponse = await client.GetAsync("/animals/signature?species=2");
+        catResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var catResult = await catResponse.Content.ReadFromJsonAsync<GetNextAvailableSignatureResponse>();
+        catResult!.Signature.Should().Be($"{currentYear}/0002");
+    }
+
+    [Fact]
+    public async Task CreateAnimal_WithDuplicateSignatureForSameSpecies_ReturnsValidationError()
+    {
+        var shelterId = GetTestShelterId();
+        var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
+        var currentYear = DateTimeOffset.UtcNow.Year;
+        var signature = $"{currentYear}/0600";
+
+        await factory.CreateAsync(signature, "trans-dup-1", "First", AnimalSpecies.Dog, AnimalSex.Male);
+
+        var client = Factory.CreateAuthenticatedClient(TestUser.WithShelterAccess(shelterId));
+        var content = new MultipartFormDataContent();
+        content.Add(new StringContent(signature), "Signature");
+        content.Add(new StringContent("trans-dup-2"), "TransponderCode");
+        content.Add(new StringContent("Second"), "Name");
+        content.Add(new StringContent("Black"), "Color");
+        content.Add(new StringContent("1"), "Species");
+        content.Add(new StringContent("1"), "Sex");
+        content.Add(new StringContent(DateTimeOffset.UtcNow.AddYears(-1).ToString("o")), "BirthDate");
+
+        var response = await client.PostAsync(CreateAnimalRequest.Route, content);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task UpdateAnimal_ChangingSpecies_AllowsWhenNoConflict()
+    {
+        var shelterId = GetTestShelterId();
+        var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
+        var currentYear = DateTimeOffset.UtcNow.Year;
+        var signature = $"{currentYear}/0700";
+
+        var id = await factory.CreateAsync(signature, "trans-change", "Animal", AnimalSpecies.Dog, AnimalSex.Male);
+
+        await factory.UpdateAsync(id, signature, "trans-change", "Animal", AnimalSpecies.Cat, AnimalSex.Male, []);
+
+        var animal = await factory.GetAsync(id);
+        animal.Signature.Should().Be(signature);
+        animal.Species.Should().Be(AnimalSpecies.Cat);
     }
 }
