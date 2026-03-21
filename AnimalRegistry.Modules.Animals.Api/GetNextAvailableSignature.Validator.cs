@@ -9,12 +9,7 @@ internal sealed class GetNextAvailableSignatureRequestValidator : Validator<GetN
     public GetNextAvailableSignatureRequestValidator()
     {
         RuleFor(x => x.Species)
-            .Must(BeValidSpecies)
-            .WithMessage("Species must be Dog or Cat.");
-    }
-
-    private static bool BeValidSpecies(AnimalSpecies species)
-    {
-        return species is AnimalSpecies.Dog or AnimalSpecies.Cat;
+            .IsInEnum()
+            .WithMessage("Species must be a valid value.");
     }
 }
