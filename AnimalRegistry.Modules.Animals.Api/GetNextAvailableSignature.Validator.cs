@@ -10,6 +10,6 @@ internal sealed class GetNextAvailableSignatureRequestValidator : Validator<GetN
     {
         RuleFor(x => x.Species)
             .IsInEnum()
-            .WithMessage("Species must be a valid value.");
+            .NotEqual(AnimalSpecies.None);
     }
 }
