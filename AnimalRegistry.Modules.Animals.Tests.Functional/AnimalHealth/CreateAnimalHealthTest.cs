@@ -5,7 +5,7 @@ using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using JetBrains.Annotations;
 using System.Net;
-using System.Net.Http.Json;
+using System.Text;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional.AnimalHealth;
 
@@ -40,7 +40,13 @@ public class CreateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
         };
 
         var client = Factory.CreateAuthenticatedClient(user);
-        var response = await client.PostAsJsonAsync(CreateAnimalHealthRequest.BuildRoute(animalId), request);
+        
+        using var multiPartContent = new MultipartFormDataContent();
+        multiPartContent.Add(new StringContent(request.AnimalId.ToString()), "AnimalId");
+        multiPartContent.Add(new StringContent(request.OccurredOn.ToString("o")), "OccurredOn");
+        multiPartContent.Add(new StringContent(request.Description), "Description");
+
+        var response = await client.PostAsync(CreateAnimalHealthRequest.BuildRoute(animalId), multiPartContent);
 
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent);
 
@@ -71,8 +77,50 @@ public class CreateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             AnimalId = animalId, OccurredOn = DateTimeOffset.UtcNow, Description = "Unauthorized health record",
         };
 
-        var response = await otherClient.PostAsJsonAsync(CreateAnimalHealthRequest.BuildRoute(animalId), request);
+        using var multiPartContent = new MultipartFormDataContent();
+        multiPartContent.Add(new StringContent(request.AnimalId.ToString()), "AnimalId");
+        multiPartContent.Add(new StringContent(request.OccurredOn.ToString("o")), "OccurredOn");
+        multiPartContent.Add(new StringContent(request.Description), "Description");
+
+        var response = await otherClient.PostAsync(CreateAnimalHealthRequest.BuildRoute(animalId), multiPartContent);
 
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task ShouldAddHealthRecordWithAttachment_WhenRequestIsValid()
+    {
+        var user = TestUser.WithShelterAccess(TestShelterId);
+        var factory = CreateFactory(user);
+
+        var animalId = await factory.CreateAsync(
+            "2024/9103",
+            "TRANS-HEALTH-3",
+            "Health Animal With Attachment",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+
+        var client = Factory.CreateAuthenticatedClient(user);
+        
+        var fileBytes = "Test file content"u8.ToArray();
+        using var multiPartContent = new MultipartFormDataContent();
+        multiPartContent.Add(new StringContent(animalId.ToString()), "AnimalId");
+        multiPartContent.Add(new StringContent(DateTimeOffset.UtcNow.ToString("o")), "OccurredOn");
+        multiPartContent.Add(new StringContent("Health record with attachment"), "Description");
+
+        var fileContent = new ByteArrayContent(fileBytes);
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+        multiPartContent.Add(fileContent, "DocumentFile", "test-document.pdf");
+
+        var response = await client.PostAsync(CreateAnimalHealthRequest.BuildRoute(animalId), multiPartContent);
+
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent);
+
+        var animal = await factory.GetAsync(animalId);
+        animal.HealthRecords.Should().ContainSingle();
+        var record = animal.HealthRecords.First();
+        record.Description.Should().Be("Health record with attachment");
+        record.Document.Should().NotBeNull();
+        record.Document!.FileName.Should().Be("test-document.pdf");
     }
 }
