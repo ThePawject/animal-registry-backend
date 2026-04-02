@@ -65,6 +65,12 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
                 .HasMaxLength(100);
             healthBuilder.Property(h => h.OccurredOn)
                 .IsRequired();
+            healthBuilder.Property(h => h.DocumentId);
+
+            healthBuilder.HasOne(h => h.Document)
+                .WithMany()
+                .HasForeignKey(d => d.DocumentId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 

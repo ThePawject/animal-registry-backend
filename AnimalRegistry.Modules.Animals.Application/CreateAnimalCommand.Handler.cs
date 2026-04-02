@@ -70,7 +70,7 @@ internal sealed class CreateAnimalCommandHandler(
     private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, Guid animalId,
         CancellationToken cancellationToken)
     {
-        return await blobStorageService.UploadAsync(
+        return await blobStorageService.UploadImageToWebpAsync(
             photo.FileName,
             photo.Content,
             photo.ContentType,

@@ -15,11 +15,14 @@ internal sealed class AnimalRepository(
         var animal = await context.Animals
             .Include(a => a.Photos)
             .Include(a => a.Events)
+            .Include(a => a.HealthRecords)
+            .ThenInclude(h => h.Document)
             .FirstOrDefaultAsync(a => a.Id == id && a.ShelterId == shelterId, cancellationToken);
 
         if (animal is not null)
         {
             PopulatePhotoUrls(animal);
+            PopulateHealthDocumentUrls(animal);
         }
 
         return animal;
@@ -35,6 +38,22 @@ internal sealed class AnimalRepository(
 
     public async Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default)
     {
+        context.Update(entity);
+        
+        foreach (var healthRecord in entity.HealthRecords)
+        {
+            if (healthRecord.Document != null)
+            {
+                var existingDoc = await context.AnimalHealthDocuments
+                    .AnyAsync(d => d.Id == healthRecord.Document.Id, cancellationToken);
+                
+                if (!existingDoc)
+                {
+                    context.Add(healthRecord.Document);
+                }
+            }
+        }
+        
         await context.SaveChangesAsync(cancellationToken);
         PopulatePhotoUrls(entity);
         return Result<Animal>.Success(entity);
@@ -53,7 +72,6 @@ internal sealed class AnimalRepository(
             .AsNoTracking()
             .Include(a => a.Photos)
             .Include(a => a.Events)
-            .Include(a => a.HealthRecords)
             .Where(a => a.ShelterId == shelterId)
             .OrderBy(a => a.Name)
             .ToListAsync(cancellationToken);
@@ -75,7 +93,6 @@ internal sealed class AnimalRepository(
             .AsNoTracking()
             .Include(a => a.Photos)
             .Include(a => a.Events)
-            .Include(a => a.HealthRecords)
             .Where(a => a.ShelterId == shelterId && idList.Contains(a.Id))
             .OrderBy(a => a.Name)
             .ToListAsync(cancellationToken);
@@ -169,7 +186,7 @@ internal sealed class AnimalRepository(
                 .Take(pageSize)
                 .ToList();
 
-            foreach (var animal in filteredItems)
+         foreach (var animal in filteredItems)
             {
                 PopulatePhotoUrls(animal);
             }
@@ -198,6 +215,17 @@ internal sealed class AnimalRepository(
         foreach (var photo in animal.Photos)
         {
             photo.Url = blobStorageService.GetBlobUrl(photo.BlobPath);
+        }
+    }
+
+    private void PopulateHealthDocumentUrls(Animal animal)
+    {
+        foreach (var healthRecord in animal.HealthRecords)
+        {
+            if (healthRecord.Document != null)
+            {
+                healthRecord.Document.Url = blobStorageService.GetBlobUrl(healthRecord.Document.BlobPath);
+            }
         }
     }
 }
