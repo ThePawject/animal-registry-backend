@@ -14,6 +14,7 @@ internal sealed class AnimalsDbContext(DbContextOptions<AnimalsDbContext> option
     public DbSet<AnimalEvent> AnimalEvents => Set<AnimalEvent>();
     public DbSet<AnimalHealth> AnimalHealthRecords => Set<AnimalHealth>();
     public DbSet<AnimalPhoto> AnimalPhotos => Set<AnimalPhoto>();
+    public DbSet<AnimalHealthDocument> AnimalHealthDocuments => Set<AnimalHealthDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -23,7 +23,12 @@ public class DeleteAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
 
     private async Task AddHealthAsync(HttpClient client, Guid animalId, CreateAnimalHealthRequest request)
     {
-        var response = await client.PostAsJsonAsync(CreateAnimalHealthRequest.BuildRoute(animalId), request);
+        using var multiPartContent = new MultipartFormDataContent();
+        multiPartContent.Add(new StringContent(animalId.ToString()), "AnimalId");
+        multiPartContent.Add(new StringContent(request.OccurredOn.ToString("o")), "OccurredOn");
+        multiPartContent.Add(new StringContent(request.Description), "Description");
+
+        var response = await client.PostAsync(CreateAnimalHealthRequest.BuildRoute(animalId), multiPartContent);
         response.EnsureSuccessStatusCode();
     }
 

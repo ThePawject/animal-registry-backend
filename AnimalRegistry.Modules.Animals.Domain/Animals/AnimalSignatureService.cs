@@ -2,29 +2,33 @@ namespace AnimalRegistry.Modules.Animals.Domain.Animals;
 
 public interface IAnimalSignatureService
 {
-    Task<AnimalSignature> GetNextAvailableSignatureAsync(int year, string shelterId,
+    Task<AnimalSignature> GetNextAvailableSignatureAsync(int year, string shelterId, AnimalSpecies species,
         CancellationToken cancellationToken = default);
 
-    Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+    Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, AnimalSpecies species,
+        Guid? excludeAnimalId = null,
         CancellationToken cancellationToken = default);
 }
 
 internal sealed class AnimalSignatureService(IAnimalRepository animalRepository) : IAnimalSignatureService
 {
-    public async Task<AnimalSignature> GetNextAvailableSignatureAsync(int year, string shelterId,
+    public async Task<AnimalSignature> GetNextAvailableSignatureAsync(int year, string shelterId, AnimalSpecies species,
         CancellationToken cancellationToken = default)
     {
-        var existingNumbers = await animalRepository.GetExistingNumbersForYearAsync(year, shelterId, cancellationToken);
+        var existingNumbers =
+            await animalRepository.GetExistingNumbersForYearAsync(year, shelterId, species, cancellationToken);
 
         var nextNumber = FindLowestAvailableNumber(existingNumbers);
 
         return AnimalSignature.CreateForYear(year, nextNumber);
     }
 
-    public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, Guid? excludeAnimalId = null,
+    public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, AnimalSpecies species,
+        Guid? excludeAnimalId = null,
         CancellationToken cancellationToken = default)
     {
-        return await animalRepository.IsSignatureUniqueAsync(signature, shelterId, excludeAnimalId, cancellationToken);
+        return await animalRepository.IsSignatureUniqueAsync(signature, shelterId, species, excludeAnimalId,
+            cancellationToken);
     }
 
     private static int FindLowestAvailableNumber(IEnumerable<int> existingNumbers)

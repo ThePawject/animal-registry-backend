@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Application;
+using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.MediatorPattern;
@@ -18,7 +19,7 @@ internal sealed class GetNextAvailableSignature(IMediator mediator)
     public override async Task HandleAsync(GetNextAvailableSignatureRequest req, CancellationToken ct)
     {
         var year = req.Year ?? DateTimeOffset.UtcNow.Year;
-        var result = await mediator.Send(new GetNextAvailableSignatureQuery(year), ct);
+        var result = await mediator.Send(new GetNextAvailableSignatureQuery(year, req.Species), ct);
         await this.SendResultAsync(result, ct);
     }
 }
@@ -26,4 +27,5 @@ internal sealed class GetNextAvailableSignature(IMediator mediator)
 public sealed class GetNextAvailableSignatureRequest
 {
     [QueryParam] public int? Year { get; set; }
+    [QueryParam] public AnimalSpecies Species { get; set; }
 }

@@ -4,6 +4,7 @@ using AnimalRegistry.Modules.Animals.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 {
     [DbContext(typeof(AnimalsDbContext))]
-    partial class AnimalsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260318054402_AddUniqueIndexOnShelterId_Species_Signature")]
+    partial class AddUniqueIndexOnShelterId_Species_Signature
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,41 +86,6 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.ToTable("Animals");
                 });
 
-            modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Animals.AnimalHealthDocument", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("BlobPath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid>("HealthRecordId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("UploadedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HealthRecordId")
-                        .HasDatabaseName("IX_AnimalHealthDocuments_HealthRecordId");
-
-                    b.ToTable("AnimalHealthDocuments");
-                });
-
             modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Animals.Animal", b =>
                 {
                     b.OwnsMany("AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents.AnimalEvent", "Events", b1 =>
@@ -168,9 +136,6 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                                 .HasMaxLength(500)
                                 .HasColumnType("nvarchar(500)");
 
-                            b1.Property<Guid?>("DocumentId")
-                                .HasColumnType("uniqueidentifier");
-
                             b1.Property<DateTimeOffset>("OccurredOn")
                                 .HasColumnType("datetimeoffset");
 
@@ -181,19 +146,10 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 
                             b1.HasKey("AnimalId", "Id");
 
-                            b1.HasIndex("DocumentId");
-
                             b1.ToTable("AnimalHealthRecords");
 
                             b1.WithOwner()
                                 .HasForeignKey("AnimalId");
-
-                            b1.HasOne("AnimalRegistry.Modules.Animals.Domain.Animals.AnimalHealthDocument", "Document")
-                                .WithMany()
-                                .HasForeignKey("DocumentId")
-                                .OnDelete(DeleteBehavior.SetNull);
-
-                            b1.Navigation("Document");
                         });
 
                     b.OwnsMany("AnimalRegistry.Modules.Animals.Domain.Animals.AnimalPhoto", "Photos", b1 =>
