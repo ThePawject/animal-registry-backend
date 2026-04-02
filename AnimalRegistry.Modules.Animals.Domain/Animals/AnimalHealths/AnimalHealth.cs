@@ -19,6 +19,8 @@ public sealed class AnimalHealth : Entity
     public DateTimeOffset OccurredOn { get; private set; }
     public string Description { get; private set; } = null!;
     public string PerformedBy { get; private set; } = null!;
+    public Guid? DocumentId { get; private set; }
+    public AnimalHealthDocument? Document { get; private set; }
 
     public static AnimalHealth Create(DateTimeOffset occurredOn, string description, string performedBy)
     {
@@ -29,5 +31,17 @@ public sealed class AnimalHealth : Entity
     {
         OccurredOn = occurredOn;
         Description = description;
+    }
+
+    internal void SetDocument(AnimalHealthDocument document)
+    {
+        DocumentId = document.Id;
+        Document = document;
+    }
+
+    internal void RemoveDocument()
+    {
+        DocumentId = null;
+        Document = null;
     }
 }
