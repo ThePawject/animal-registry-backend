@@ -10,6 +10,8 @@ public sealed class CreateAnimalRequest
     public string? TransponderCode { get; init; }
     public string? Name { get; init; }
     public string Color { get; init; } = null!;
+    public string Breed { get; init; } = null!;
+    public string DistinguishingMarks { get; init; } = null!;
     public AnimalSpecies Species { get; init; }
     public AnimalSex Sex { get; init; }
     public DateTimeOffset? BirthDate { get; init; }

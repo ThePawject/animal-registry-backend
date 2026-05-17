@@ -40,6 +40,8 @@ internal sealed class UpdateAnimal(IMediator mediator) : Endpoint<UpdateAnimalRe
             req.TransponderCode,
             req.Name,
             req.Color,
+            req.Breed,
+            req.DistinguishingMarks,
             req.Species,
             req.Sex,
             req.BirthDate,

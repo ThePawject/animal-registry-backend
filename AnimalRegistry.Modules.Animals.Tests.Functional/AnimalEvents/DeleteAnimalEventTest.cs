@@ -38,7 +38,7 @@ public class DeleteAnimalEventTest(ApiTestFixture fixture) : IntegrationTestBase
         var animalId = await factory.CreateAsync(
             "2024/9201",
             "TRANS-DEL-1",
-            "Delete Test Animal",
+            "Delete Test Animal", "Labrador", "tail",
             AnimalSpecies.Cat,
             AnimalSex.Male);
 

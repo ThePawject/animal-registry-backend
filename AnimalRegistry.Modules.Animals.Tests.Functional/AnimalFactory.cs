@@ -14,6 +14,8 @@ public sealed class AnimalFactory(ApiClient api)
         string signature,
         string transponder,
         string name,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         List<(string FileName, byte[] Data, string ContentType)>? photos = null,
@@ -24,6 +26,8 @@ public sealed class AnimalFactory(ApiClient api)
         content.Add(new StringContent(transponder), "TransponderCode");
         content.Add(new StringContent(name), "Name");
         content.Add(new StringContent("Unknown"), "Color");
+        content.Add(new StringContent(breed), "Breed");
+        content.Add(new StringContent(distinguishingMarks), "DistinguishingMarks");
         content.Add(new StringContent(((int)species).ToString()), "Species");
         content.Add(new StringContent(((int)sex).ToString()), "Sex");
         content.Add(new StringContent(DateTimeOffset.UtcNow.AddYears(-1).ToString("o")), "BirthDate");
@@ -98,6 +102,8 @@ public sealed class AnimalFactory(ApiClient api)
         string signature,
         string transponder,
         string name,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         List<Guid> existingPhotoIds,
@@ -109,6 +115,8 @@ public sealed class AnimalFactory(ApiClient api)
         content.Add(new StringContent(signature), "Signature");
         content.Add(new StringContent(transponder), "TransponderCode");
         content.Add(new StringContent(name), "Name");
+        content.Add(new StringContent(breed), "Breed");
+        content.Add(new StringContent(distinguishingMarks), "DistinguishingMarks");
         content.Add(new StringContent("UpdatedColor"), "Color");
         content.Add(new StringContent(((int)species).ToString()), "Species");
         content.Add(new StringContent(((int)sex).ToString()), "Sex");

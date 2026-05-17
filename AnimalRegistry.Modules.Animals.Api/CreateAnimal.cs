@@ -39,6 +39,8 @@ internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRe
             req.TransponderCode,
             req.Name,
             req.Color,
+            req.Breed,
+            req.DistinguishingMarks,
             req.Species,
             req.Sex,
             req.BirthDate,

@@ -18,6 +18,8 @@ public class AnimalTests
         string transponderCode = "TR123",
         string name = "Burek",
         string color = "Brown",
+        string breed = "Blablador",
+        string distinguishingMarks = "tail",
         AnimalSpecies species = AnimalSpecies.Dog,
         AnimalSex sex = AnimalSex.Male,
         DateTimeOffset? birthDate = null,
@@ -28,6 +30,8 @@ public class AnimalTests
             transponderCode,
             name,
             color,
+            breed,
+            distinguishingMarks,
             species,
             sex,
             birthDate ?? new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero),
@@ -42,17 +46,22 @@ public class AnimalTests
         const string transponderCode = "TR123";
         const string name = "Burek";
         const string color = "Brown";
+        const string breed = "Blablador";
+        const string distinguishingMarks = "tail";
         const AnimalSpecies species = AnimalSpecies.Dog;
         const AnimalSex sex = AnimalSex.Male;
         var birthDate = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
-        var animal = CreateTestAnimal(signature, transponderCode, name, color, species, sex, birthDate);
+        var animal = CreateTestAnimal(signature, transponderCode, name, color, breed, distinguishingMarks, species, sex,
+            birthDate);
 
         animal.Should().NotBeNull();
         animal.Signature.Value.Should().Be(signature);
         animal.TransponderCode.Should().Be(transponderCode);
         animal.Name.Should().Be(name);
         animal.Color.Should().Be(color);
+        animal.Breed.Should().Be(breed);
+        animal.DistinguishingMarks.Should().Be(distinguishingMarks);
         animal.Species.Should().Be(species);
         animal.Sex.Should().Be(sex);
         animal.BirthDate.Should().Be(birthDate);
@@ -102,7 +111,8 @@ public class AnimalTests
     [Fact]
     public void Create_WithValidSignature_ShouldSucceed()
     {
-        var animal = CreateTestAnimal("2024/1234", "TR001", "Test", "Black", AnimalSpecies.Cat, AnimalSex.Female);
+        var animal = CreateTestAnimal("2024/1234", "TR001", "Test", "Black", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Female);
 
         animal.Signature.Value.Should().Be("2024/1234");
         animal.DomainEvents.Should().ContainSingle(e => e is AnimalCreatedDomainEvent);

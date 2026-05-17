@@ -30,6 +30,14 @@ internal sealed class UpdateAnimalValidator : Validator<UpdateAnimalRequest>
             .NotEmpty()
             .MaximumLength(50);
 
+        RuleFor(x => x.Breed)
+            .NotEmpty()
+            .MaximumLength(100);
+
+        RuleFor(x => x.DistinguishingMarks)
+            .NotEmpty()
+            .MaximumLength(100);
+
         RuleFor(x => x.Species)
             .NotEmpty()
             .IsInEnum();

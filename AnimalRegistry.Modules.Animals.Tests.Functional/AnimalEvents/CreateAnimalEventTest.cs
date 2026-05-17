@@ -31,7 +31,7 @@ public class CreateAnimalEventTest(ApiTestFixture fixture) : IntegrationTestBase
         var animalId = await factory.CreateAsync(
             "2024/9001",
             "TRANS-ADD-1",
-            "Test Animal",
+            "Test Animal", "Labrador", "tail",
             AnimalSpecies.Dog,
             AnimalSex.Male);
 
@@ -64,7 +64,7 @@ public class CreateAnimalEventTest(ApiTestFixture fixture) : IntegrationTestBase
         var animalId = await factory.CreateAsync(
             "2024/9002",
             "TRANS-ADD-2",
-            "Test Animal 2",
+            "Test Animal 2", "Labrador", "tail",
             AnimalSpecies.Cat,
             AnimalSex.Female);
 

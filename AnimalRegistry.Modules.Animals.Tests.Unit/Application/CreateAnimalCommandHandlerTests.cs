@@ -31,6 +31,8 @@ public class CreateAnimalCommandHandlerTests
             "TR123",
             "Burek",
             "Brown",
+            "labrador",
+            "tail",
             AnimalSpecies.Dog,
             AnimalSex.Male,
             new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)
@@ -64,6 +66,8 @@ public class CreateAnimalCommandHandlerTests
             "TR999",
             "Mruczek",
             "Gray",
+            "labrador",
+            "tail",
             AnimalSpecies.Cat,
             AnimalSex.Female,
             new DateTimeOffset(2018, 5, 10, 0, 0, 0, TimeSpan.Zero)
@@ -97,6 +101,8 @@ public class CreateAnimalCommandHandlerTests
             "TR123",
             "Burek",
             "Brown",
+            "labrador",
+            "tail",
             AnimalSpecies.Dog,
             AnimalSex.Male,
             new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)

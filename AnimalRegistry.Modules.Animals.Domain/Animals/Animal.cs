@@ -21,6 +21,8 @@ public sealed class Animal : Entity, IAggregateRoot
         string? transponderCode,
         string? name,
         string color,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         DateTimeOffset? birthDate,
@@ -30,6 +32,8 @@ public sealed class Animal : Entity, IAggregateRoot
         TransponderCode = transponderCode;
         Name = name;
         Color = color;
+        Breed = breed;
+        DistinguishingMarks = distinguishingMarks;
         Species = species;
         Sex = sex;
         BirthDate = birthDate;
@@ -44,6 +48,8 @@ public sealed class Animal : Entity, IAggregateRoot
     public AnimalSignature Signature { get; private set; } = null!;
     public string? Name { get; private set; }
     public string Color { get; private set; } = null!;
+    public string Breed { get; private set; } = null!;
+    public string DistinguishingMarks { get; private set; } = null!;
     public AnimalSpecies Species { get; private set; }
     public AnimalSex Sex { get; private set; }
     public DateTimeOffset? BirthDate { get; private set; }
@@ -83,12 +89,15 @@ public sealed class Animal : Entity, IAggregateRoot
         string? transponderCode,
         string? name,
         string color,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         DateTimeOffset? birthDate,
         string shelterId)
     {
-        var animal = new Animal(signature, transponderCode, name, color, species, sex, birthDate, shelterId);
+        var animal = new Animal(signature, transponderCode, name, color, breed, distinguishingMarks, species, sex,
+            birthDate, shelterId);
 
         animal.AddDomainEvent(new AnimalCreatedDomainEvent(animal.Id, animal.Signature.Value, animal.Name));
 
@@ -100,6 +109,8 @@ public sealed class Animal : Entity, IAggregateRoot
         string? transponderCode,
         string? name,
         string color,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         DateTimeOffset? birthDate)
@@ -108,6 +119,8 @@ public sealed class Animal : Entity, IAggregateRoot
         TransponderCode = transponderCode;
         Name = name;
         Color = color;
+        Breed = breed;
+        DistinguishingMarks = distinguishingMarks;
         Species = species;
         Sex = sex;
         BirthDate = birthDate;

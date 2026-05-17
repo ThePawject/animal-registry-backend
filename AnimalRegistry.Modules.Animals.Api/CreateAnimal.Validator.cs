@@ -18,18 +18,31 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
 
         RuleFor(x => x.TransponderCode)
             .MaximumLength(100);
+
         RuleFor(x => x.Name)
             .MinimumLength(2)
             .MaximumLength(100);
+
         RuleFor(x => x.Color)
             .NotEmpty()
             .MaximumLength(50);
+
+        RuleFor(x => x.Breed)
+            .NotEmpty()
+            .MaximumLength(100);
+
+        RuleFor(x => x.DistinguishingMarks)
+            .NotEmpty()
+            .MaximumLength(100);
+
         RuleFor(x => x.Species)
             .NotEmpty()
             .IsInEnum();
+
         RuleFor(x => x.Sex)
             .NotEmpty()
             .IsInEnum();
+
         RuleFor(x => x.MainPhotoIndex)
             .GreaterThanOrEqualTo(0)
             .When(x => x.MainPhotoIndex.HasValue);
