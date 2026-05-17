@@ -27,9 +27,12 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var dogId1 = await factory.CreateAsync(NextSig(), "dog-1", "Rex", AnimalSpecies.Dog, AnimalSex.Male);
-        var dogId2 = await factory.CreateAsync(NextSig(), "dog-2", "Burek", AnimalSpecies.Dog, AnimalSex.Female);
-        var catId = await factory.CreateAsync(NextSig(), "cat-1", "Mruczek", AnimalSpecies.Cat, AnimalSex.Male);
+        var dogId1 = await factory.CreateAsync(NextSig(), "dog-1", "Rex", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dogId2 = await factory.CreateAsync(NextSig(), "dog-2", "Burek", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Female);
+        var catId = await factory.CreateAsync(NextSig(), "cat-1", "Mruczek", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Male);
 
         var result = await factory.ListAsync(species: AnimalSpecies.Dog);
 
@@ -45,9 +48,12 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var dogId = await factory.CreateAsync(NextSig(), "dog-3", "Azor", AnimalSpecies.Dog, AnimalSex.Male);
-        var catId1 = await factory.CreateAsync(NextSig(), "cat-2", "Filemon", AnimalSpecies.Cat, AnimalSex.Male);
-        var catId2 = await factory.CreateAsync(NextSig(), "cat-3", "Bonifacy", AnimalSpecies.Cat, AnimalSex.Male);
+        var dogId = await factory.CreateAsync(NextSig(), "dog-3", "Azor", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var catId1 = await factory.CreateAsync(NextSig(), "cat-2", "Filemon", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Male);
+        var catId2 = await factory.CreateAsync(NextSig(), "cat-3", "Bonifacy", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Male);
 
         var result = await factory.ListAsync(species: AnimalSpecies.Cat);
 
@@ -63,8 +69,10 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var dogId = await factory.CreateAsync(NextSig(), "dog-4", "Reksio", AnimalSpecies.Dog, AnimalSex.Male);
-        var catId = await factory.CreateAsync(NextSig(), "cat-4", "Puszek", AnimalSpecies.Cat, AnimalSex.Female);
+        var dogId = await factory.CreateAsync(NextSig(), "dog-4", "Reksio", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var catId = await factory.CreateAsync(NextSig(), "cat-4", "Puszek", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Female);
 
         var result = await factory.ListAsync(species: null);
 
@@ -77,9 +85,11 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var inShelterId1 = await factory.CreateAsync(NextSig(), "in-1", "InShelter1", AnimalSpecies.Dog,
+        var inShelterId1 = await factory.CreateAsync(NextSig(), "in-1", "InShelter1", "Labrador", "tail",
+            AnimalSpecies.Dog,
             AnimalSex.Male);
-        var inShelterId2 = await factory.CreateAsync(NextSig(), "in-2", "InShelter2", AnimalSpecies.Cat,
+        var inShelterId2 = await factory.CreateAsync(NextSig(), "in-2", "InShelter2", "Labrador", "tail",
+            AnimalSpecies.Cat,
             AnimalSex.Female);
 
         var result = await factory.ListAsync(isInShelter: true);
@@ -95,7 +105,8 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var animalId = await factory.CreateAsync(NextSig(), "out-1", "NotInShelter", AnimalSpecies.Dog,
+        var animalId = await factory.CreateAsync(NextSig(), "out-1", "NotInShelter", "Labrador", "tail",
+            AnimalSpecies.Dog,
             AnimalSex.Male);
 
         var result = await factory.ListAsync(isInShelter: false);
@@ -109,8 +120,10 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var id1 = await factory.CreateAsync(NextSig(), "all-1", "Animal1", AnimalSpecies.Dog, AnimalSex.Male);
-        var id2 = await factory.CreateAsync(NextSig(), "all-2", "Animal2", AnimalSpecies.Cat, AnimalSex.Female);
+        var id1 = await factory.CreateAsync(NextSig(), "all-1", "Animal1", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var id2 = await factory.CreateAsync(NextSig(), "all-2", "Animal2", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Female);
 
         var result = await factory.ListAsync(isInShelter: null);
 
@@ -123,9 +136,11 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var dogInShelterId = await factory.CreateAsync(NextSig(), "combo-1", "DogInShelter", AnimalSpecies.Dog,
+        var dogInShelterId = await factory.CreateAsync(NextSig(), "combo-1", "DogInShelter", "Labrador", "tail",
+            AnimalSpecies.Dog,
             AnimalSex.Male);
-        var catInShelterId = await factory.CreateAsync(NextSig(), "combo-2", "CatInShelter", AnimalSpecies.Cat,
+        var catInShelterId = await factory.CreateAsync(NextSig(), "combo-2", "CatInShelter", "Labrador", "tail",
+            AnimalSpecies.Cat,
             AnimalSex.Female);
 
         var result = await factory.ListAsync(species: AnimalSpecies.Dog, isInShelter: true);
@@ -140,13 +155,16 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var dogId = await factory.CreateAsync(NextSig(), "search-dog-1", "SearchDog", AnimalSpecies.Dog,
+        var dogId = await factory.CreateAsync(NextSig(), "search-dog-1", "SearchDog", "Labrador", "tail",
+            AnimalSpecies.Dog,
             AnimalSex.Male);
-        await factory.CreateAsync(NextSig(), "search-cat-1", "SearchCat", AnimalSpecies.Cat, AnimalSex.Female);
-        await factory.CreateAsync(NextSig(), "other-dog-1", "OtherDog", AnimalSpecies.Dog, AnimalSex.Male);
+        await factory.CreateAsync(NextSig(), "search-cat-1", "SearchCat", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Female);
+        await factory.CreateAsync(NextSig(), "other-dog-1", "OtherDog", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
 
-        var result = await factory.ListAsync(keyWordSearch: "SearchDog", species: AnimalSpecies.Dog,
-            isInShelter: true);
+        var result = await factory.ListAsync("SearchDog", AnimalSpecies.Dog,
+            true);
 
         result.Items.Should().ContainSingle(a => a.Id == dogId && a.Name == "SearchDog");
         result.Items.Should().OnlyContain(a => a.Species == AnimalSpecies.Dog && a.IsInShelter == true);
@@ -157,9 +175,11 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var dogId = await factory.CreateAsync(NextSig(), "no-filter-1", "NoFilterDog", AnimalSpecies.Dog,
+        var dogId = await factory.CreateAsync(NextSig(), "no-filter-1", "NoFilterDog", "Labrador", "tail",
+            AnimalSpecies.Dog,
             AnimalSex.Male);
-        var catId = await factory.CreateAsync(NextSig(), "no-filter-2", "NoFilterCat", AnimalSpecies.Cat,
+        var catId = await factory.CreateAsync(NextSig(), "no-filter-2", "NoFilterCat", "Labrador", "tail",
+            AnimalSpecies.Cat,
             AnimalSex.Female);
 
         var result = await factory.ListAsync();
@@ -175,7 +195,7 @@ public sealed class ListAnimalsFilterTests(ApiTestFixture fixture) : Integration
 
         for (var i = 0; i < 5; i++)
         {
-            await factory.CreateAsync(NextSig(), $"page-dog-{i}", $"PageDog{i}", AnimalSpecies.Dog,
+            await factory.CreateAsync(NextSig(), $"page-dog-{i}", $"PageDog{i}", "Labrador", "tail", AnimalSpecies.Dog,
                 AnimalSex.Male);
         }
 

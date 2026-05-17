@@ -30,7 +30,8 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", AnimalSpecies.Dog,
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
+            AnimalSpecies.Dog,
             AnimalSex.Male);
         var dto = await factory.GetAsync(createdId);
 
@@ -45,8 +46,10 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var id1 = await factory.CreateAsync(NextSig(), "t-1", "ListOne", AnimalSpecies.Cat, AnimalSex.Female);
-        var id2 = await factory.CreateAsync(NextSig(), "t-2", "ListTwo", AnimalSpecies.Dog, AnimalSex.Male);
+        var id1 = await factory.CreateAsync(NextSig(), "t-1", "ListOne", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Female);
+        var id2 = await factory.CreateAsync(NextSig(), "t-2", "ListTwo", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
 
         var list = await factory.ListAsync();
 
@@ -59,9 +62,10 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var id1 = await factory.CreateAsync(NextSig(), "t-search-1", "SearchOne", AnimalSpecies.Cat,
+        var id1 = await factory.CreateAsync(NextSig(), "t-search-1", "SearchOne", "Labrador", "tail", AnimalSpecies.Cat,
             AnimalSex.Female);
-        await factory.CreateAsync(NextSig(), "t-search-2", "SearchTwo", AnimalSpecies.Dog, AnimalSex.Male);
+        await factory.CreateAsync(NextSig(), "t-search-2", "SearchTwo", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
 
         var list = await factory.ListAsync("archone");
 
@@ -74,7 +78,8 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var user = TestUser.WithShelterAccess(TestShelterId);
         var factory = CreateFactory(user);
 
-        var animalId = await factory.CreateAsync(NextSig(), "t-event-1", "EventAnimal", AnimalSpecies.Dog,
+        var animalId = await factory.CreateAsync(NextSig(), "t-event-1", "EventAnimal", "Labrador", "tail",
+            AnimalSpecies.Dog,
             AnimalSex.Male);
 
         var request = new CreateAnimalEventRequest
@@ -99,9 +104,10 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
 
-        var id1 = await factory.CreateAsync(NextSig(), "t-empty-1", "Alpha", AnimalSpecies.Cat,
+        var id1 = await factory.CreateAsync(NextSig(), "t-empty-1", "Alpha", "Labrador", "tail", AnimalSpecies.Cat,
             AnimalSex.Female);
-        var id2 = await factory.CreateAsync(NextSig(), "t-empty-2", "Beta", AnimalSpecies.Dog, AnimalSex.Male);
+        var id2 = await factory.CreateAsync(NextSig(), "t-empty-2", "Beta", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
 
         var list = await factory.ListAsync("  ");
 
@@ -117,7 +123,8 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
-            await factory.CreateAsync(NextSig(), "t-forbidden", "Forbidden", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-forbidden", "Forbidden", "Labrador", "tail", AnimalSpecies.Dog,
+                AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -128,7 +135,8 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(Client));
 
         var act = async () =>
-            await factory.CreateAsync(NextSig(), "t-unauth", "Unauthorized", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-unauth", "Unauthorized", "Labrador", "tail", AnimalSpecies.Dog,
+                AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -139,7 +147,8 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var client = Factory.CreateAuthenticatedClient(TestUser.WithMultipleShelters("shelter-1", "shelter-2"));
         var factory = new AnimalFactory(new ApiClient(client));
 
-        var act = async () => await factory.CreateAsync(NextSig(), "t-two", "Two", AnimalSpecies.Dog, AnimalSex.Male);
+        var act = async () =>
+            await factory.CreateAsync(NextSig(), "t-two", "Two", "Labrador", "tail", AnimalSpecies.Dog, AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -151,7 +160,8 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
-            await factory.CreateAsync(NextSig(), "t-admin", "Admin", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-admin", "Admin", "Labrador", "tail", AnimalSpecies.Dog,
+                AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -163,7 +173,8 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
-            await factory.CreateAsync(NextSig(), "t-empty", "Empty", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-empty", "Empty", "Labrador", "tail", AnimalSpecies.Dog,
+                AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
@@ -175,8 +186,105 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var factory = new AnimalFactory(new ApiClient(client));
 
         var act = async () =>
-            await factory.CreateAsync(NextSig(), "t-wrong", "Wrong", AnimalSpecies.Dog, AnimalSex.Male);
+            await factory.CreateAsync(NextSig(), "t-wrong", "Wrong", "Labrador", "tail", AnimalSpecies.Dog,
+                AnimalSex.Male);
 
         await act.Should().ThrowAsync<HttpRequestException>();
+    }
+
+    [Fact]
+    public async Task WithAddAndDeleteDeath_ShouldCalculateIsInShelter()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.Death).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+    }
+
+    [Fact]
+    public async Task WithMultipleEvents_ShouldCalculateIsInShelterToFalse()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.Death).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+    }
+
+    [Fact]
+    public async Task WithMultipleEvents_ShouldCalculateIsInShelterToTrue()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.AddEvent(createdId, AnimalEventType.AdmissionToShelter);
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.Death).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+    }
+
+    [Fact]
+    public async Task WithDelete_ShouldCalculateIsInShelterToTrue()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Deworming);
+        await factory.AddEvent(createdId, AnimalEventType.Adoption);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.AddEvent(createdId, AnimalEventType.AdmissionToShelter);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Adoption);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.Adoption).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.AdmissionToShelter).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
     }
 }

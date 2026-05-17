@@ -21,6 +21,8 @@ public sealed class Animal : Entity, IAggregateRoot
         string? transponderCode,
         string? name,
         string color,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         DateTimeOffset? birthDate,
@@ -30,6 +32,8 @@ public sealed class Animal : Entity, IAggregateRoot
         TransponderCode = transponderCode;
         Name = name;
         Color = color;
+        Breed = breed;
+        DistinguishingMarks = distinguishingMarks;
         Species = species;
         Sex = sex;
         BirthDate = birthDate;
@@ -44,6 +48,8 @@ public sealed class Animal : Entity, IAggregateRoot
     public AnimalSignature Signature { get; private set; } = null!;
     public string? Name { get; private set; }
     public string Color { get; private set; } = null!;
+    public string Breed { get; private set; } = null!;
+    public string DistinguishingMarks { get; private set; } = null!;
     public AnimalSpecies Species { get; private set; }
     public AnimalSex Sex { get; private set; }
     public DateTimeOffset? BirthDate { get; private set; }
@@ -83,12 +89,15 @@ public sealed class Animal : Entity, IAggregateRoot
         string? transponderCode,
         string? name,
         string color,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         DateTimeOffset? birthDate,
         string shelterId)
     {
-        var animal = new Animal(signature, transponderCode, name, color, species, sex, birthDate, shelterId);
+        var animal = new Animal(signature, transponderCode, name, color, breed, distinguishingMarks, species, sex,
+            birthDate, shelterId);
 
         animal.AddDomainEvent(new AnimalCreatedDomainEvent(animal.Id, animal.Signature.Value, animal.Name));
 
@@ -100,6 +109,8 @@ public sealed class Animal : Entity, IAggregateRoot
         string? transponderCode,
         string? name,
         string color,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         DateTimeOffset? birthDate)
@@ -108,6 +119,8 @@ public sealed class Animal : Entity, IAggregateRoot
         TransponderCode = transponderCode;
         Name = name;
         Color = color;
+        Breed = breed;
+        DistinguishingMarks = distinguishingMarks;
         Species = species;
         Sex = sex;
         BirthDate = birthDate;
@@ -137,6 +150,29 @@ public sealed class Animal : Entity, IAggregateRoot
 
         IsInShelter = true;
         ModifiedOn = DateTimeOffset.UtcNow;
+    }
+
+    internal void RecalculateShelterStatus()
+    {
+        var lastRelevantEvent = _events
+            .Where(e => e.Type.SetsOutOfShelter() || e.Type.SetsInShelter())
+            .MaxBy(e => e.OccurredOn);
+
+        var shouldBeInShelter = lastRelevantEvent is null || !lastRelevantEvent.Type.SetsOutOfShelter();
+
+        if (shouldBeInShelter == IsInShelter)
+        {
+            return;
+        }
+
+        if (shouldBeInShelter)
+        {
+            SetInShelter();
+        }
+        else
+        {
+            SetOutOfShelter();
+        }
     }
 
 
@@ -198,8 +234,10 @@ public sealed class Animal : Entity, IAggregateRoot
             return;
         }
 
-        AnimalEventReactionRegistry.For(animalEvent.Type).Undo(this, animalEvent);
+        var animalEventToUndo = AnimalEvent.Create(animalEvent.Type, animalEvent.OccurredOn, animalEvent.Description,
+            animalEvent.PerformedBy);
         animalEvent.Update(type, occurredOn, description);
+        AnimalEventReactionRegistry.For(animalEvent.Type).Undo(this, animalEventToUndo);
         AnimalEventReactionRegistry.For(animalEvent.Type).Apply(this, animalEvent);
     }
 
@@ -208,8 +246,8 @@ public sealed class Animal : Entity, IAggregateRoot
         var eventToRemove = _events.FirstOrDefault(e => e.Id == eventId);
         if (eventToRemove is not null)
         {
-            AnimalEventReactionRegistry.For(eventToRemove.Type).Undo(this, eventToRemove);
             _events.Remove(eventToRemove);
+            AnimalEventReactionRegistry.For(eventToRemove.Type).Undo(this, eventToRemove);
             ModifiedOn = DateTimeOffset.UtcNow;
         }
     }

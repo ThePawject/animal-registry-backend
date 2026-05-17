@@ -21,8 +21,10 @@ public sealed class EventReportTests(ApiTestFixture fixture) : IntegrationTestBa
         var client = Factory.CreateAuthenticatedClient(user);
         var factory = new AnimalFactory(new ApiClient(client));
 
-        var dogId = await factory.CreateAsync("2024/7001", "trans-dog-1", "Doggo", AnimalSpecies.Dog, AnimalSex.Male);
-        var catId = await factory.CreateAsync("2024/7002", "trans-cat-1", "Kitty", AnimalSpecies.Cat, AnimalSex.Female);
+        var dogId = await factory.CreateAsync("2024/7001", "trans-dog-1", "Doggo", "Labrador", "tail",
+            AnimalSpecies.Dog, AnimalSex.Male);
+        var catId = await factory.CreateAsync("2024/7002", "trans-cat-1", "Kitty", "Labrador", "tail",
+            AnimalSpecies.Cat, AnimalSex.Female);
 
         var dogEventRequest = new CreateAnimalEventRequest
         {
@@ -100,7 +102,8 @@ public sealed class EventReportTests(ApiTestFixture fixture) : IntegrationTestBa
         var client = Factory.CreateAuthenticatedClient(user);
         var factory = new AnimalFactory(new ApiClient(client));
 
-        var dogId = await factory.CreateAsync("2024/7003", "trans-dog-2", "Doggo2", AnimalSpecies.Dog, AnimalSex.Male);
+        var dogId = await factory.CreateAsync("2024/7003", "trans-dog-2", "Doggo2", "Labrador", "tail",
+            AnimalSpecies.Dog, AnimalSex.Male);
 
         await client.PostAsJsonAsync(CreateAnimalEventRequest.BuildRoute(dogId), new CreateAnimalEventRequest
         {

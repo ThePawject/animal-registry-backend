@@ -157,14 +157,15 @@ internal sealed class AnimalRepository(
             var animals = await query.ToListAsync(cancellationToken);
             var filteredAnimals = animals.Where(a =>
             {
-                var searchableText = $"{a.Signature.Value} {a.TransponderCode} {a.Name} {a.Color} {a.ShelterId} " +
-                                     string.Join(" ", a.Events.Select(e => $"{e.Description} {e.PerformedBy}"));
+                var searchableText =
+                    $"{a.Signature.Value} {a.TransponderCode} {a.Name} {a.Color} {a.Breed} {a.DistinguishingMarks} {a.ShelterId} " +
+                    string.Join(" ", a.Events.Select(e => $"{e.Description} {e.PerformedBy}"));
                 return terms.All(term => searchableText.Contains(term, StringComparison.OrdinalIgnoreCase));
             }).ToList();
 
             var filteredTotalCount = filteredAnimals.Count;
             var filteredItems = filteredAnimals
-                .OrderByDescending(x => x.ModifiedOn)
+                .OrderByDescending(x => x.CreatedOn)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();

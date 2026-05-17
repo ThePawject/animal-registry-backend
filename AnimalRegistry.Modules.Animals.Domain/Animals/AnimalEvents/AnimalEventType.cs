@@ -18,4 +18,26 @@ public enum AnimalEventType
     Weighing = 13,
     Euthanasia = 14,
     Death = 15,
+    Released = 16,
+    Condition = 17,
+    
+}
+
+public static class AnimalEventTypeExtensions
+{
+    public static bool SetsOutOfShelter(this AnimalEventType type)
+    {
+        return type is
+            AnimalEventType.Adoption or
+            AnimalEventType.PickedUpByOwner or
+            AnimalEventType.Death or
+            AnimalEventType.Euthanasia or
+            AnimalEventType.Released;
+    }
+
+    public static bool SetsInShelter(this AnimalEventType type)
+    {
+        return type is
+            AnimalEventType.AdmissionToShelter;
+    }
 }

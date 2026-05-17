@@ -48,6 +48,8 @@ internal sealed class UpdateAnimalCommandHandler(
             request.TransponderCode,
             request.Name,
             request.Color,
+            request.Breed,
+            request.DistinguishingMarks,
             request.Species,
             request.Sex,
             request.BirthDate);

@@ -84,6 +84,8 @@ public class RepositoryDumpReportPdfServiceTests
             "transponder-001",
             name,
             "czarny",
+            "labrador",
+            "tail",
             species,
             sex,
             new DateTimeOffset(2020, 5, 15, 0, 0, 0, TimeSpan.Zero),

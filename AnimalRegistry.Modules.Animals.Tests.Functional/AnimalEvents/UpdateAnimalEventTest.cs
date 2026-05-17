@@ -38,7 +38,7 @@ public class UpdateAnimalEventTest(ApiTestFixture fixture) : IntegrationTestBase
         var animalId = await factory.CreateAsync(
             "2024/9301",
             "TRANS-UPD-1",
-            "Update Test Animal",
+            "Update Test Animal", "Labrador", "tail",
             AnimalSpecies.Dog,
             AnimalSex.Female);
 

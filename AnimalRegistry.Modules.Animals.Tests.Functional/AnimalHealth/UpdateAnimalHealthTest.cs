@@ -38,6 +38,8 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9104",
             "TRANS-HEALTH-3",
             "Health Update Animal",
+            "Labrador",
+            "tail",
             AnimalSpecies.Dog,
             AnimalSex.Female);
 
