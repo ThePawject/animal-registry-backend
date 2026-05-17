@@ -1,10 +1,10 @@
 ﻿namespace AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents.Reactions;
 
-internal sealed class OutOfShelterAnimalEventReaction : IAnimalEventReaction
+internal sealed class AdmissionToShelterAnimalEventReaction : IAnimalEventReaction
 {
     public void Apply(Animal animal, AnimalEvent animalEvent)
     {
-        animal.SetOutOfShelter();
+        animal.SetInShelter();
     }
 
     public void Undo(Animal animal, AnimalEvent animalEvent)

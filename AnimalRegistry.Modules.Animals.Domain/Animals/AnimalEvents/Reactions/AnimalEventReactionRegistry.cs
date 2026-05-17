@@ -6,10 +6,12 @@ public static class AnimalEventReactionRegistry
         new()
         {
             [AnimalEventType.None] = new NoOpAnimalEventReaction(),
+            [AnimalEventType.AdmissionToShelter] = new AdmissionToShelterAnimalEventReaction(),
             [AnimalEventType.Adoption] = new OutOfShelterAnimalEventReaction(),
             [AnimalEventType.PickedUpByOwner] = new OutOfShelterAnimalEventReaction(),
             [AnimalEventType.Death] = new OutOfShelterAnimalEventReaction(),
             [AnimalEventType.Euthanasia] = new OutOfShelterAnimalEventReaction(),
+            [AnimalEventType.Released] = new OutOfShelterAnimalEventReaction(),
         };
 
     public static IAnimalEventReaction For(AnimalEventType type)

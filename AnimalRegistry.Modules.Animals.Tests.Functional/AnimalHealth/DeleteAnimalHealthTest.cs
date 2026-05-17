@@ -43,6 +43,8 @@ public class DeleteAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9103",
             "TRANS-HEALTH-4",
             "Health Delete Animal",
+            "Labrador",
+            "tail",
             AnimalSpecies.Cat,
             AnimalSex.Male);
 

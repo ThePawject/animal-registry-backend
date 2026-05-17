@@ -30,7 +30,7 @@ public class DeleteAnimalTest(ApiTestFixture fixture) : IntegrationTestBase(fixt
         var animalId = await factory.CreateAsync(
             "2024/9401",
             "TRANS-DEL-1",
-            "Delete Test Animal",
+            "Delete Test Animal", "Labrador", "tail",
             AnimalSpecies.Cat,
             AnimalSex.Male);
 
@@ -51,7 +51,7 @@ public class DeleteAnimalTest(ApiTestFixture fixture) : IntegrationTestBase(fixt
         var animalId = await factory.CreateAsync(
             "2024/9402",
             "TRANS-DEL-2",
-            "Other Shelter Animal",
+            "Other Shelter Animal", "Labrador", "tail",
             AnimalSpecies.Dog,
             AnimalSex.Female);
 

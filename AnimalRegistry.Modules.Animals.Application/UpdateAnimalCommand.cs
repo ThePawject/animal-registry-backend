@@ -10,6 +10,8 @@ internal sealed class UpdateAnimalCommand(
     string? transponderCode,
     string? name,
     string color,
+    string breed,
+    string distinguishingMarks,
     AnimalSpecies species,
     AnimalSex sex,
     DateTimeOffset? birthDate,
@@ -24,6 +26,8 @@ internal sealed class UpdateAnimalCommand(
     public string? TransponderCode { get; } = transponderCode;
     public string? Name { get; } = name;
     public string Color { get; } = color;
+    public string Breed { get; } = breed;
+    public string DistinguishingMarks { get; } = distinguishingMarks;
     public AnimalSpecies Species { get; } = species;
     public AnimalSex Sex { get; } = sex;
     public DateTimeOffset? BirthDate { get; } = birthDate;

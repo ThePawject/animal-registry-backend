@@ -31,6 +31,8 @@ public class CreateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9101",
             "TRANS-HEALTH-1",
             "Health Animal",
+            "Labrador",
+            "tail",
             AnimalSpecies.Dog,
             AnimalSex.Male);
 
@@ -66,6 +68,8 @@ public class CreateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9102",
             "TRANS-HEALTH-2",
             "Health Animal 2",
+            "Labrador",
+            "tail",
             AnimalSpecies.Cat,
             AnimalSex.Female);
 

@@ -1,6 +1,8 @@
 using AnimalRegistry.Modules.Animals.Api;
+using AnimalRegistry.Modules.Animals.Api.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Shared.Pagination;
 using AnimalRegistry.Shared.Testing;
 using System.Net.Http.Headers;
@@ -14,6 +16,8 @@ public sealed class AnimalFactory(ApiClient api)
         string signature,
         string transponder,
         string name,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         List<(string FileName, byte[] Data, string ContentType)>? photos = null,
@@ -24,6 +28,8 @@ public sealed class AnimalFactory(ApiClient api)
         content.Add(new StringContent(transponder), "TransponderCode");
         content.Add(new StringContent(name), "Name");
         content.Add(new StringContent("Unknown"), "Color");
+        content.Add(new StringContent(breed), "Breed");
+        content.Add(new StringContent(distinguishingMarks), "DistinguishingMarks");
         content.Add(new StringContent(((int)species).ToString()), "Species");
         content.Add(new StringContent(((int)sex).ToString()), "Sex");
         content.Add(new StringContent(DateTimeOffset.UtcNow.AddYears(-1).ToString("o")), "BirthDate");
@@ -98,6 +104,8 @@ public sealed class AnimalFactory(ApiClient api)
         string signature,
         string transponder,
         string name,
+        string breed,
+        string distinguishingMarks,
         AnimalSpecies species,
         AnimalSex sex,
         List<Guid> existingPhotoIds,
@@ -109,6 +117,8 @@ public sealed class AnimalFactory(ApiClient api)
         content.Add(new StringContent(signature), "Signature");
         content.Add(new StringContent(transponder), "TransponderCode");
         content.Add(new StringContent(name), "Name");
+        content.Add(new StringContent(breed), "Breed");
+        content.Add(new StringContent(distinguishingMarks), "DistinguishingMarks");
         content.Add(new StringContent("UpdatedColor"), "Color");
         content.Add(new StringContent(((int)species).ToString()), "Species");
         content.Add(new StringContent(((int)sex).ToString()), "Sex");
@@ -149,5 +159,33 @@ public sealed class AnimalFactory(ApiClient api)
         var updated = await resp.Content.ReadFromJsonAsync<UpdateAnimalCommandResponse>()
                       ?? throw new InvalidOperationException("Update response null");
         return updated.AnimalId;
+    }
+
+    public async Task AddEvent(Guid animalId, AnimalEventType animalEvent)
+    {
+        var payload = new
+        {
+            AnimalId = animalId,
+            Type = (int)animalEvent,
+            OccurredOn = DateTimeOffset.UtcNow.ToString("o"),
+            Description = "description",
+        };
+
+        var response = await api.PostJsonAsync(CreateAnimalEventRequest.BuildRoute(animalId), payload);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"AddEvent failed with {response.StatusCode}: {error}");
+        }
+    }
+
+    public async Task DeleteEvent(Guid animalId, Guid eventId)
+    {
+        var response = await api.DeleteAsync(DeleteAnimalEventRequest.BuildRoute(animalId, eventId));
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"AddEvent failed with {response.StatusCode}: {error}");
+        }
     }
 }
