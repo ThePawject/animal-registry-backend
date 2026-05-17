@@ -246,6 +246,8 @@ internal static class AnimalPdfComponents
             AnimalEventType.Weighing => "Ważenie",
             AnimalEventType.Euthanasia => "Eutanazja",
             AnimalEventType.Death => "Śmierć",
+            AnimalEventType.Released => "Wypuszczony do środowiska",
+            AnimalEventType.Condition => "Kondycja",
             _ => eventType.ToString(),
         };
     }

@@ -1,6 +1,8 @@
 using AnimalRegistry.Modules.Animals.Api;
+using AnimalRegistry.Modules.Animals.Api.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Shared.Pagination;
 using AnimalRegistry.Shared.Testing;
 using System.Net.Http.Headers;
@@ -157,5 +159,33 @@ public sealed class AnimalFactory(ApiClient api)
         var updated = await resp.Content.ReadFromJsonAsync<UpdateAnimalCommandResponse>()
                       ?? throw new InvalidOperationException("Update response null");
         return updated.AnimalId;
+    }
+
+    public async Task AddEvent(Guid animalId, AnimalEventType animalEvent)
+    {
+        var payload = new
+        {
+            AnimalId = animalId,
+            Type = (int)animalEvent,
+            OccurredOn = DateTimeOffset.UtcNow.ToString("o"),
+            Description = "description",
+        };
+
+        var response = await api.PostJsonAsync(CreateAnimalEventRequest.BuildRoute(animalId), payload);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"AddEvent failed with {response.StatusCode}: {error}");
+        }
+    }
+
+    public async Task DeleteEvent(Guid animalId, Guid eventId)
+    {
+        var response = await api.DeleteAsync(DeleteAnimalEventRequest.BuildRoute(animalId, eventId));
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"AddEvent failed with {response.StatusCode}: {error}");
+        }
     }
 }

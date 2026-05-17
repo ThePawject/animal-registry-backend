@@ -191,4 +191,100 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
 
         await act.Should().ThrowAsync<HttpRequestException>();
     }
+
+    [Fact]
+    public async Task WithAddAndDeleteDeath_ShouldCalculateIsInShelter()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.Death).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+    }
+
+    [Fact]
+    public async Task WithMultipleEvents_ShouldCalculateIsInShelterToFalse()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.Death).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+    }
+
+    [Fact]
+    public async Task WithMultipleEvents_ShouldCalculateIsInShelterToTrue()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        await factory.AddEvent(createdId, AnimalEventType.Death);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.AddEvent(createdId, AnimalEventType.AdmissionToShelter);
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.Death).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+    }
+
+    [Fact]
+    public async Task WithDelete_ShouldCalculateIsInShelterToTrue()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Deworming);
+        await factory.AddEvent(createdId, AnimalEventType.Adoption);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.AddEvent(createdId, AnimalEventType.AdmissionToShelter);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.AddEvent(createdId, AnimalEventType.Adoption);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.Adoption).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(true);
+
+        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.AdmissionToShelter).Id);
+        dto = await factory.GetAsync(createdId);
+        dto.IsInShelter.Should().Be(false);
+    }
 }

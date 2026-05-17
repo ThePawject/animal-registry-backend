@@ -152,6 +152,29 @@ public sealed class Animal : Entity, IAggregateRoot
         ModifiedOn = DateTimeOffset.UtcNow;
     }
 
+    internal void RecalculateShelterStatus()
+    {
+        var lastRelevantEvent = _events
+            .Where(e => e.Type.SetsOutOfShelter() || e.Type.SetsInShelter())
+            .MaxBy(e => e.OccurredOn);
+
+        var shouldBeInShelter = lastRelevantEvent is null || !lastRelevantEvent.Type.SetsOutOfShelter();
+
+        if (shouldBeInShelter == IsInShelter)
+        {
+            return;
+        }
+
+        if (shouldBeInShelter)
+        {
+            SetInShelter();
+        }
+        else
+        {
+            SetOutOfShelter();
+        }
+    }
+
 
     public void AddPhoto(string blobPath, string fileName, bool isMain = false)
     {
@@ -211,8 +234,10 @@ public sealed class Animal : Entity, IAggregateRoot
             return;
         }
 
-        AnimalEventReactionRegistry.For(animalEvent.Type).Undo(this, animalEvent);
+        var animalEventToUndo = AnimalEvent.Create(animalEvent.Type, animalEvent.OccurredOn, animalEvent.Description,
+            animalEvent.PerformedBy);
         animalEvent.Update(type, occurredOn, description);
+        AnimalEventReactionRegistry.For(animalEvent.Type).Undo(this, animalEventToUndo);
         AnimalEventReactionRegistry.For(animalEvent.Type).Apply(this, animalEvent);
     }
 
@@ -221,8 +246,8 @@ public sealed class Animal : Entity, IAggregateRoot
         var eventToRemove = _events.FirstOrDefault(e => e.Id == eventId);
         if (eventToRemove is not null)
         {
-            AnimalEventReactionRegistry.For(eventToRemove.Type).Undo(this, eventToRemove);
             _events.Remove(eventToRemove);
+            AnimalEventReactionRegistry.For(eventToRemove.Type).Undo(this, eventToRemove);
             ModifiedOn = DateTimeOffset.UtcNow;
         }
     }
