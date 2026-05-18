@@ -266,24 +266,33 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
         var dto = await factory.GetAsync(createdId);
         dto.IsInShelter.Should().Be(true);
 
-        await factory.AddEvent(createdId, AnimalEventType.Deworming);
-        await factory.AddEvent(createdId, AnimalEventType.Adoption);
+        var firstEventTime = DateTimeOffset.UtcNow.AddMinutes(-4);
+        await factory.AddEvent(createdId, AnimalEventType.Deworming, firstEventTime);
+        await factory.AddEvent(createdId, AnimalEventType.Adoption, firstEventTime.AddMinutes(1));
         dto = await factory.GetAsync(createdId);
         dto.IsInShelter.Should().Be(false);
 
-        await factory.AddEvent(createdId, AnimalEventType.AdmissionToShelter);
+        await factory.AddEvent(createdId, AnimalEventType.AdmissionToShelter, firstEventTime.AddMinutes(2));
         dto = await factory.GetAsync(createdId);
         dto.IsInShelter.Should().Be(true);
 
-        await factory.AddEvent(createdId, AnimalEventType.Adoption);
+        await factory.AddEvent(createdId, AnimalEventType.Adoption, firstEventTime.AddMinutes(3));
         dto = await factory.GetAsync(createdId);
         dto.IsInShelter.Should().Be(false);
 
-        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.Adoption).Id);
+        var latestAdoptionEvent = dto.Events
+            .Where(e => e.Type == AnimalEventType.Adoption)
+            .OrderByDescending(e => e.OccurredOn)
+            .First();
+        await factory.DeleteEvent(createdId, latestAdoptionEvent.Id);
         dto = await factory.GetAsync(createdId);
         dto.IsInShelter.Should().Be(true);
 
-        await factory.DeleteEvent(createdId, dto.Events.First(e => e.Type == AnimalEventType.AdmissionToShelter).Id);
+        var latestAdmissionEvent = dto.Events
+            .Where(e => e.Type == AnimalEventType.AdmissionToShelter)
+            .OrderByDescending(e => e.OccurredOn)
+            .First();
+        await factory.DeleteEvent(createdId, latestAdmissionEvent.Id);
         dto = await factory.GetAsync(createdId);
         dto.IsInShelter.Should().Be(false);
     }

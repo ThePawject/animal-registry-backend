@@ -161,13 +161,14 @@ public sealed class AnimalFactory(ApiClient api)
         return updated.AnimalId;
     }
 
-    public async Task AddEvent(Guid animalId, AnimalEventType animalEvent)
+    public async Task AddEvent(Guid animalId, AnimalEventType animalEvent, DateTimeOffset? occurredOn = null)
     {
+        var occurredOnValue = occurredOn ?? DateTimeOffset.UtcNow;
         var payload = new
         {
             AnimalId = animalId,
             Type = (int)animalEvent,
-            OccurredOn = DateTimeOffset.UtcNow.ToString("o"),
+            OccurredOn = occurredOnValue.ToString("o"),
             Description = "description",
         };
 
