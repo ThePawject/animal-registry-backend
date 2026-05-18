@@ -43,7 +43,7 @@ internal sealed class UpdateAnimalValidator : Validator<UpdateAnimalRequest>
             .IsInEnum();
 
         RuleFor(x => x.Sex)
-            .NotEmpty()
+            .NotNull()
             .IsInEnum();
 
         RuleFor(x => x.MainPhotoIndex)
