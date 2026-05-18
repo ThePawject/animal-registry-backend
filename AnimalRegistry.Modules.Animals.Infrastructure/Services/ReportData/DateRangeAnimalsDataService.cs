@@ -14,6 +14,7 @@ internal sealed class DateRangeAnimalsDataService(
         DateTimeOffset startDate,
         DateTimeOffset endDate,
         IReadOnlyList<AnimalSpecies>? species = null,
+        IReadOnlyList<AnimalEventType>? eventTypes = null,
         CancellationToken cancellationToken = default)
     {
         var eventsInRange = await animalEventRepository.GetByDateRangeAsync(
@@ -22,12 +23,17 @@ internal sealed class DateRangeAnimalsDataService(
             endDate,
             cancellationToken);
 
-        var animalIds = eventsInRange.Where(e => species == null || species.Contains(e.Species)).Select(e => e.AnimalId).Distinct().ToList();
+        var filteredEvents = eventsInRange
+            .Where(e => species == null || species.Contains(e.Species))
+            .Where(e => eventTypes == null || eventTypes.Contains(e.AnimalEvent.Type))
+            .ToList();
+
+        var animalIds = filteredEvents.Select(e => e.AnimalId).Distinct().ToList();
         var animals = await animalRepository.GetByIdsAsync(animalIds, shelterId, cancellationToken);
 
         var animalsWithFilteredEvents = animals.Select(animal =>
         {
-            var animalEvents = eventsInRange
+            var animalEvents = filteredEvents
                 .Where(e => e.AnimalId == animal.Id)
                 .Select(e => e.AnimalEvent)
                 .OrderByDescending(e => e.OccurredOn)

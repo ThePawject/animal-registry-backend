@@ -24,7 +24,7 @@ internal sealed class GenerateDateRangeAnimalsReport(IMediator mediator)
     {
         var command = new GenerateDateRangeAnimalsReportCommand
         {
-            StartDate = req.StartDate, EndDate = req.EndDate, Species = req.Species,
+            StartDate = req.StartDate, EndDate = req.EndDate, Species = req.Species, EventTypes = req.EventTypes,
         };
 
         var result = await mediator.Send(command, ct);
