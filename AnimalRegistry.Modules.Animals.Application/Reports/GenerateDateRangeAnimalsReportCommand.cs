@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 
@@ -9,6 +10,7 @@ internal sealed class GenerateDateRangeAnimalsReportCommand : IRequest<Result<Ge
     public DateTimeOffset StartDate { get; init; }
     public DateTimeOffset EndDate { get; init; }
     public List<AnimalSpecies>? Species { get; init; }
+    public List<AnimalEventType>? EventTypes { get; init; }
 }
 
 public sealed record GenerateDateRangeAnimalsReportResponse

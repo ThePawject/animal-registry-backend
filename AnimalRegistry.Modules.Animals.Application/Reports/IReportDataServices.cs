@@ -1,5 +1,6 @@
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 
 namespace AnimalRegistry.Modules.Animals.Application.Reports;
 
@@ -25,5 +26,6 @@ public interface IDateRangeAnimalsDataService
         DateTimeOffset startDate,
         DateTimeOffset endDate,
         IReadOnlyList<AnimalSpecies>? species = null,
+        IReadOnlyList<AnimalEventType>? eventTypes = null,
         CancellationToken cancellationToken = default);
 }

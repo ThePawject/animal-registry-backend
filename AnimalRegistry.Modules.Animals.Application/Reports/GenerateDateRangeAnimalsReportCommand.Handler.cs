@@ -21,6 +21,7 @@ internal sealed class GenerateDateRangeAnimalsReportCommandHandler(
             request.StartDate,
             request.EndDate,
             request.Species,
+            request.EventTypes,
             cancellationToken);
 
         var pdfBytes = pdfService.GenerateReport(reportData, generatedAt);

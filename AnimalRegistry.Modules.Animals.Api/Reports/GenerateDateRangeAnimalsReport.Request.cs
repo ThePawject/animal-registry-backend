@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Animals.Api.Reports;
@@ -12,4 +13,6 @@ public sealed class GenerateDateRangeAnimalsReportRequest
     [QueryParam] public DateTimeOffset EndDate { get; init; }
 
     [QueryParam] public List<AnimalSpecies>? Species { get; init; }
+
+    [QueryParam] public List<AnimalEventType>? EventTypes { get; init; }
 }
