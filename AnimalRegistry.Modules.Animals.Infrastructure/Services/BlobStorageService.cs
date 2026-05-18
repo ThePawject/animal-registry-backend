@@ -44,7 +44,7 @@ internal sealed class BlobStorageService : IBlobStorageService
         _imageOptimizationService = imageOptimizationService;
     }
 
-    public async Task<Result<string>> UploadAsync(
+    public async Task<Result<string>> UploadImageToWebpAsync(
         string fileName,
         Stream content,
         string contentType,
@@ -98,6 +98,49 @@ internal sealed class BlobStorageService : IBlobStorageService
         {
             await optimizedStream.DisposeAsync();
         }
+    }
+
+    public async Task<Result<string>> UploadDocumentAsync(
+        string fileName,
+        Stream content,
+        string contentType,
+        string shelterId,
+        Guid animalId,
+        CancellationToken cancellationToken = default)
+    {
+        var validationResult = ValidateFile(fileName, content);
+        if (validationResult.IsFailure)
+        {
+            return Result<string>.ValidationError(validationResult.Error!);
+        }
+
+        var originalName = Path.GetFileNameWithoutExtension(fileName);
+        var extension = Path.GetExtension(fileName);
+        var safeFileName = SanitizeFileName(originalName) + extension;
+        var timestamp = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff");
+        var blobPath = $"{shelterId}/{animalId}/{timestamp}_{safeFileName}";
+
+        var blobClient = _containerClient.GetBlobClient(blobPath);
+
+        var blobHttpHeaders = new BlobHttpHeaders
+        {
+            ContentType = contentType, CacheControl = "public, max-age=31536000",
+        };
+
+        content.Position = 0;
+        await blobClient.UploadAsync(content,
+            new BlobUploadOptions
+            {
+                HttpHeaders = blobHttpHeaders,
+                Metadata = new Dictionary<string, string>
+                {
+                    { "shelterId", shelterId },
+                    { "animalId", animalId.ToString() },
+                    { "originalFileName", fileName },
+                },
+            }, cancellationToken);
+
+        return Result<string>.Success(blobPath);
     }
 
     public async Task DeleteAsync(string blobPath, CancellationToken cancellationToken = default)

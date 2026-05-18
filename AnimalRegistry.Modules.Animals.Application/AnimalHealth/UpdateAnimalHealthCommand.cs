@@ -7,10 +7,14 @@ internal sealed class UpdateAnimalHealthCommand(
     Guid animalId,
     Guid healthRecordId,
     DateTimeOffset occurredOn,
-    string description) : IRequest<Result>
+    string description,
+    DocumentUploadInfo? documentFile = null,
+    bool deleteDocument = false) : IRequest<Result>
 {
     public Guid AnimalId { get; } = animalId;
     public Guid HealthRecordId { get; } = healthRecordId;
     public DateTimeOffset OccurredOn { get; } = occurredOn;
     public string Description { get; } = description;
+    public DocumentUploadInfo? DocumentFile { get; } = documentFile;
+    public bool DeleteDocument { get; } = deleteDocument;
 }

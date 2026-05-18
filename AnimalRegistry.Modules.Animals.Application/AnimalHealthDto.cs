@@ -6,7 +6,8 @@ public sealed record AnimalHealthDto(
     Guid Id,
     DateTimeOffset OccurredOn,
     string Description,
-    string PerformedBy
+    string PerformedBy,
+    HealthDocumentDto? Document
 )
 {
     public static AnimalHealthDto FromDomain(DomainAnimalHealth health)
@@ -15,7 +16,8 @@ public sealed record AnimalHealthDto(
             health.Id,
             health.OccurredOn,
             health.Description,
-            health.PerformedBy
+            health.PerformedBy,
+            health.Document != null ? HealthDocumentDto.FromDomain(health.Document) : null
         );
     }
 }

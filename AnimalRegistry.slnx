@@ -15,6 +15,7 @@
         <Project Path="AnimalRegistry.Modules.Animals\AnimalRegistry.Modules.Animals.csproj"/>
     </Folder>
     <Folder Name="/Solution Items/">
+        <File Path="Directory.Packages.props" />
         <File Path="docker-compose.yml"/>
         <File Path="github/git-commit-instructions.md"/>
         <File Path="LICENSE"/>
