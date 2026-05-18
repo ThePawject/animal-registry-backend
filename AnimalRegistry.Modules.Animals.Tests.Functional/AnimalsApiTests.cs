@@ -32,7 +32,7 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
 
         var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "Labrador", "tail",
             AnimalSpecies.Dog,
-            AnimalSex.Male);
+            AnimalSex.None);
         var dto = await factory.GetAsync(createdId);
 
         dto.Name.Should().Be("Integration");
