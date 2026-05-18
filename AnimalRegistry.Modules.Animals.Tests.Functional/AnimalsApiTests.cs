@@ -71,6 +71,49 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
+    public async Task List_ReturnsItems_WithCorrectOrdering()
+    {
+        const string shelterId = "test-shelter-ordering";
+        var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
+
+        await factory.CreateAsync("2024/0001", "t-1", "ListOne", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Female);
+        await factory.CreateAsync("2026/0002", "t-2", "ListTwo", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        await factory.CreateAsync("2025/1000", "t-3", "ListThree", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        await factory.CreateAsync("2026/0001", "t-4", "ListFour", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Male);
+
+        var list = await factory.ListAsync();
+
+        list.Items.Select(a => a.Signature)
+            .Should().ContainInOrder("2026/0002", "2026/0001", "2025/1000", "2024/0001");
+    }
+
+    [Fact]
+    public async Task List_FilterByKeyword_ReturnsItemsWithCorrectOrdering()
+    {
+        const string shelterId = "test-shelter-ordering-kw";
+        var factory = CreateFactory(TestUser.WithShelterAccess(shelterId));
+
+        await factory.CreateAsync("2024/0001", "t-1", "Keyword", "Labrador", "tail", AnimalSpecies.Cat,
+            AnimalSex.Female);
+        await factory.CreateAsync("2026/0002", "t-2", "Keyword", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        await factory.CreateAsync("2025/1000", "t-3", "Keyword", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
+        await factory.CreateAsync("2026/0001", "t-4", "Other", "Labrador", "tail", AnimalSpecies.Dog,
+            AnimalSex.Male);
+
+        var list = await factory.ListAsync("Keyword");
+
+        list.Items.Select(a => a.Signature)
+            .Should().ContainInOrder("2026/0002", "2025/1000", "2024/0001");
+        list.Items.Should().NotContain(a => a.Signature == "2026/0001");
+    }
+
+    [Fact]
     public async Task List_WithKeyWordSearch_ReturnsMatchingItems()
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));

@@ -182,7 +182,7 @@ internal sealed class AnimalRepository(
 
             var filteredTotalCount = filteredAnimals.Count;
             var filteredItems = filteredAnimals
-                .OrderByDescending(x => x.CreatedOn)
+                .OrderByDescending(x => x.Signature.Value)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
@@ -198,7 +198,7 @@ internal sealed class AnimalRepository(
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
-            .OrderByDescending(x => x.ModifiedOn)
+            .OrderByDescending(x => x.Signature)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
