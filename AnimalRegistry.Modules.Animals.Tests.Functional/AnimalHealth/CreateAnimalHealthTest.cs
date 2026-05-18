@@ -5,7 +5,6 @@ using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
 using JetBrains.Annotations;
 using System.Net;
-using System.Text;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Functional.AnimalHealth;
 

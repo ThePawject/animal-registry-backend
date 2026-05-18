@@ -27,7 +27,7 @@ public sealed class AnimalFactory(ApiClient api)
         content.Add(new StringContent(signature), "Signature");
         content.Add(new StringContent(transponder), "TransponderCode");
         content.Add(new StringContent(name), "Name");
-        content.Add(new StringContent("Unknown"), "Color");
+        content.Add(new StringContent(""), "Color");
         content.Add(new StringContent(breed), "Breed");
         content.Add(new StringContent(distinguishingMarks), "DistinguishingMarks");
         content.Add(new StringContent(((int)species).ToString()), "Species");

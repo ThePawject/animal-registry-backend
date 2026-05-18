@@ -42,6 +42,19 @@ public sealed class AnimalsApiTests(ApiTestFixture fixture) : IntegrationTestBas
     }
 
     [Fact]
+    public async Task Create_Get_WithEmpty_Workflow_WithShelterRole()
+    {
+        var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
+
+        var createdId = await factory.CreateAsync(NextSig(), "trans-123", "Integration", "", "",
+            AnimalSpecies.Dog,
+            AnimalSex.Male);
+        var dto = await factory.GetAsync(createdId);
+
+        dto.Name.Should().Be("Integration");
+    }
+
+    [Fact]
     public async Task List_ReturnsCreatedItems_WithShelterRole()
     {
         var factory = CreateFactory(TestUser.WithShelterAccess(TestShelterId));
