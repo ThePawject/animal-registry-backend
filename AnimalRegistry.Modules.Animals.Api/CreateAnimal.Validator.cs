@@ -24,15 +24,15 @@ internal sealed class CreateAnimalValidator : Validator<CreateAnimalRequest>
             .MaximumLength(100);
 
         RuleFor(x => x.Color)
-            .NotEmpty()
+            .NotNull()
             .MaximumLength(50);
 
         RuleFor(x => x.Breed)
-            .NotEmpty()
+            .NotNull()
             .MaximumLength(100);
 
         RuleFor(x => x.DistinguishingMarks)
-            .NotEmpty()
+            .NotNull()
             .MaximumLength(100);
 
         RuleFor(x => x.Species)
