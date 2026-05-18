@@ -94,6 +94,8 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9107",
             "TRANS-HEALTH-7",
             "Health Delete Doc",
+            "Labrador",
+            "tail",
             AnimalSpecies.Dog,
             AnimalSex.Male);
 
@@ -138,6 +140,8 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9108",
             "TRANS-HEALTH-8",
             "Health Keep Doc",
+            "Labrador",
+            "tail",
             AnimalSpecies.Cat,
             AnimalSex.Female);
 
@@ -181,6 +185,8 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9109",
             "TRANS-HEALTH-9",
             "Health Keep Existing Doc",
+            "Labrador",
+            "tail",
             AnimalSpecies.Dog,
             AnimalSex.Male);
 
@@ -227,6 +233,8 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9110",
             "TRANS-HEALTH-10",
             "Health Replace Doc",
+            "Labrador",
+            "tail",
             AnimalSpecies.Dog,
             AnimalSex.Female);
 
@@ -277,6 +285,8 @@ public class UpdateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9111",
             "TRANS-HEALTH-11",
             "Health Delete Existing Doc",
+            "Labrador",
+            "tail",
             AnimalSpecies.Cat,
             AnimalSex.Male);
 

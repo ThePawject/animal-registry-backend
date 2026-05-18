@@ -101,6 +101,8 @@ public class CreateAnimalHealthTest(ApiTestFixture fixture) : IntegrationTestBas
             "2024/9103",
             "TRANS-HEALTH-3",
             "Health Animal With Attachment",
+            "Labrador",
+            "tail",
             AnimalSpecies.Dog,
             AnimalSex.Male);
 
