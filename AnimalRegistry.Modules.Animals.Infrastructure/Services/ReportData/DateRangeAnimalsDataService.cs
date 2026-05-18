@@ -13,6 +13,7 @@ internal sealed class DateRangeAnimalsDataService(
         string shelterId,
         DateTimeOffset startDate,
         DateTimeOffset endDate,
+        IReadOnlyList<AnimalSpecies>? species = null,
         CancellationToken cancellationToken = default)
     {
         var eventsInRange = await animalEventRepository.GetByDateRangeAsync(
@@ -23,6 +24,11 @@ internal sealed class DateRangeAnimalsDataService(
 
         var animalIds = eventsInRange.Select(e => e.AnimalId).Distinct().ToList();
         var animals = await animalRepository.GetByIdsAsync(animalIds, shelterId, cancellationToken);
+
+        if (species is { Count: > 0 })
+        {
+            animals = animals.Where(a => species.Contains(a.Species)).ToList();
+        }
 
         var animalsWithFilteredEvents = animals.Select(animal =>
         {

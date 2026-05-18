@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
+using AnimalRegistry.Modules.Animals.Domain.Animals;
 
 namespace AnimalRegistry.Modules.Animals.Application.Reports;
 
@@ -23,5 +24,6 @@ public interface IDateRangeAnimalsDataService
         string shelterId,
         DateTimeOffset startDate,
         DateTimeOffset endDate,
+        IReadOnlyList<AnimalSpecies>? species = null,
         CancellationToken cancellationToken = default);
 }
