@@ -22,13 +22,8 @@ internal sealed class DateRangeAnimalsDataService(
             endDate,
             cancellationToken);
 
-        var animalIds = eventsInRange.Select(e => e.AnimalId).Distinct().ToList();
+        var animalIds = eventsInRange.Where(e => species == null || species.Contains(e.Species)).Select(e => e.AnimalId).Distinct().ToList();
         var animals = await animalRepository.GetByIdsAsync(animalIds, shelterId, cancellationToken);
-
-        if (species is { Count: > 0 })
-        {
-            animals = animals.Where(a => species.Contains(a.Species)).ToList();
-        }
 
         var animalsWithFilteredEvents = animals.Select(animal =>
         {
