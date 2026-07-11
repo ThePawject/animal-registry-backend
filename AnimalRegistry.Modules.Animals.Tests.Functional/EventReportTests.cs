@@ -135,4 +135,74 @@ public sealed class EventReportTests(ApiTestFixture fixture) : IntegrationTestBa
         var pdfBytes = await response.Content.ReadAsByteArrayAsync();
         pdfBytes.Should().NotBeNullOrEmpty();
     }
+
+    [Fact]
+    public async Task GenerateEventReport_ShouldReturnPdf_WhenSinglePeriodProvided()
+    {
+        var user = TestUser.WithShelterAccess(TestShelterId);
+        var client = Factory.CreateAuthenticatedClient(user);
+
+        var response = await client.GetAsync("/reports/events?periods=Week");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/pdf");
+        var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+        pdfBytes.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task GenerateEventReport_ShouldReturnPdf_WhenMultiplePeriodsProvided()
+    {
+        var user = TestUser.WithShelterAccess(TestShelterId);
+        var client = Factory.CreateAuthenticatedClient(user);
+
+        var response = await client.GetAsync("/reports/events?periods=Week&periods=Month&periods=Quarter");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/pdf");
+        var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+        pdfBytes.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task GenerateEventReport_ShouldReturnPdf_WhenCustomPeriodProvided()
+    {
+        var user = TestUser.WithShelterAccess(TestShelterId);
+        var client = Factory.CreateAuthenticatedClient(user);
+        var startDate = DateTimeOffset.UtcNow.AddDays(-45).ToString("O");
+        var endDate = DateTimeOffset.UtcNow.AddDays(-15).ToString("O");
+
+        var response = await client.GetAsync(
+            $"/reports/events?periods=Custom&customStartDate={Uri.EscapeDataString(startDate)}&customEndDate={Uri.EscapeDataString(endDate)}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/pdf");
+        var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+        pdfBytes.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task GenerateEventReport_ShouldReturnValidationError_WhenCustomPeriodDatesMissing()
+    {
+        var user = TestUser.WithShelterAccess(TestShelterId);
+        var client = Factory.CreateAuthenticatedClient(user);
+
+        var response = await client.GetAsync("/reports/events?periods=Custom");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GenerateEventReport_ShouldReturnValidationError_WhenCustomStartDateAfterEndDate()
+    {
+        var user = TestUser.WithShelterAccess(TestShelterId);
+        var client = Factory.CreateAuthenticatedClient(user);
+        var startDate = DateTimeOffset.UtcNow.ToString("O");
+        var endDate = DateTimeOffset.UtcNow.AddDays(-1).ToString("O");
+
+        var response = await client.GetAsync(
+            $"/reports/events?periods=Custom&customStartDate={Uri.EscapeDataString(startDate)}&customEndDate={Uri.EscapeDataString(endDate)}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }

@@ -70,31 +70,16 @@ public class EventReportPdfServiceTests
                 new()
                 {
                     Species = AnimalSpecies.Dog,
-                    QuarterStats =
-                        new PeriodStats
-                        {
-                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90),
-                            PeriodTo = DateTimeOffset.UtcNow,
-                            EventCounts =
-                                new List<EventTypeCount>
-                                {
-                                    new() { EventType = AnimalEventType.Adoption, Count = 5 },
-                                    new() { EventType = AnimalEventType.Sterilization, Count = 3 },
-                                },
-                        },
-                    MonthStats =
-                        new PeriodStats
-                        {
-                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-30),
-                            PeriodTo = DateTimeOffset.UtcNow,
-                            EventCounts = new List<EventTypeCount>(),
-                        },
-                    WeekStats = new PeriodStats
-                    {
-                        PeriodFrom = DateTimeOffset.UtcNow.AddDays(-7),
-                        PeriodTo = DateTimeOffset.UtcNow,
-                        EventCounts = new List<EventTypeCount>(),
-                    },
+                    PeriodStats =
+                    [
+                        CreatePeriodStats("Okres kwartalny", -90,
+                        [
+                            new EventTypeCount { EventType = AnimalEventType.Adoption, Count = 5 },
+                            new EventTypeCount { EventType = AnimalEventType.Sterilization, Count = 3 },
+                        ]),
+                        CreatePeriodStats("Okres miesięczny", -30, []),
+                        CreatePeriodStats("Okres tygodniowy", -7, []),
+                    ],
                 },
             },
         };
@@ -115,30 +100,15 @@ public class EventReportPdfServiceTests
                 new()
                 {
                     Species = AnimalSpecies.Dog,
-                    QuarterStats =
-                        new PeriodStats
-                        {
-                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90),
-                            PeriodTo = DateTimeOffset.UtcNow,
-                            EventCounts =
-                                new List<EventTypeCount>
-                                {
-                                    new() { EventType = AnimalEventType.Adoption, Count = 5 },
-                                },
-                        },
-                    MonthStats =
-                        new PeriodStats
-                        {
-                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-30),
-                            PeriodTo = DateTimeOffset.UtcNow,
-                            EventCounts = new List<EventTypeCount>(),
-                        },
-                    WeekStats = new PeriodStats
-                    {
-                        PeriodFrom = DateTimeOffset.UtcNow.AddDays(-7),
-                        PeriodTo = DateTimeOffset.UtcNow,
-                        EventCounts = new List<EventTypeCount>(),
-                    },
+                    PeriodStats =
+                    [
+                        CreatePeriodStats("Okres kwartalny", -90,
+                        [
+                            new EventTypeCount { EventType = AnimalEventType.Adoption, Count = 5 },
+                        ]),
+                        CreatePeriodStats("Okres miesięczny", -30, []),
+                        CreatePeriodStats("Okres tygodniowy", -7, []),
+                    ],
                 },
             },
         };
@@ -155,28 +125,28 @@ public class EventReportPdfServiceTests
                 new()
                 {
                     Species = species,
-                    QuarterStats =
-                        new PeriodStats
-                        {
-                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-90),
-                            PeriodTo = DateTimeOffset.UtcNow,
-                            EventCounts = new List<EventTypeCount>(),
-                        },
-                    MonthStats =
-                        new PeriodStats
-                        {
-                            PeriodFrom = DateTimeOffset.UtcNow.AddDays(-30),
-                            PeriodTo = DateTimeOffset.UtcNow,
-                            EventCounts = new List<EventTypeCount>(),
-                        },
-                    WeekStats = new PeriodStats
-                    {
-                        PeriodFrom = DateTimeOffset.UtcNow.AddDays(-7),
-                        PeriodTo = DateTimeOffset.UtcNow,
-                        EventCounts = new List<EventTypeCount>(),
-                    },
+                    PeriodStats =
+                    [
+                        CreatePeriodStats("Okres kwartalny", -90, []),
+                        CreatePeriodStats("Okres miesięczny", -30, []),
+                        CreatePeriodStats("Okres tygodniowy", -7, []),
+                    ],
                 },
             },
+        };
+    }
+
+    private static PeriodStats CreatePeriodStats(
+        string title,
+        int startDaysOffset,
+        List<EventTypeCount> eventCounts)
+    {
+        return new PeriodStats
+        {
+            Title = title,
+            PeriodFrom = DateTimeOffset.UtcNow.AddDays(startDaysOffset),
+            PeriodTo = DateTimeOffset.UtcNow,
+            EventCounts = eventCounts,
         };
     }
 }
