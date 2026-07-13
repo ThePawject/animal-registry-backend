@@ -13,13 +13,12 @@ public sealed class EventReportData
 public sealed class SpeciesEventStats
 {
     public required AnimalSpecies Species { get; init; }
-    public required PeriodStats QuarterStats { get; init; }
-    public required PeriodStats MonthStats { get; init; }
-    public required PeriodStats WeekStats { get; init; }
+    public required List<PeriodStats> PeriodStats { get; init; }
 }
 
 public sealed class PeriodStats
 {
+    public required string Title { get; init; }
     public required DateTimeOffset PeriodFrom { get; init; }
     public required DateTimeOffset PeriodTo { get; init; }
     public required List<EventTypeCount> EventCounts { get; init; }

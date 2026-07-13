@@ -3,7 +3,20 @@ using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application.Reports;
 
-internal sealed class GenerateEventReportCommand : IRequest<Result<GenerateEventReportResponse>>;
+internal enum EventReportPeriod
+{
+    Week,
+    Month,
+    Quarter,
+    Custom,
+}
+
+internal sealed class GenerateEventReportCommand : IRequest<Result<GenerateEventReportResponse>>
+{
+    public List<EventReportPeriod>? Periods { get; init; }
+    public DateTimeOffset? CustomStartDate { get; init; }
+    public DateTimeOffset? CustomEndDate { get; init; }
+}
 
 public sealed record GenerateEventReportResponse
 {

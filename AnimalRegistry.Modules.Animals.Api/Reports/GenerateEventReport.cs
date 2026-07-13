@@ -6,7 +6,7 @@ using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Animals.Api.Reports;
 
-internal sealed class GenerateEventReport(IMediator mediator) : EndpointWithoutRequest
+internal sealed class GenerateEventReport(IMediator mediator) : Endpoint<GenerateEventReportRequest>
 {
     public override void Configure()
     {
@@ -19,9 +19,14 @@ internal sealed class GenerateEventReport(IMediator mediator) : EndpointWithoutR
         });
     }
 
-    public override async Task HandleAsync(CancellationToken ct)
+    public override async Task HandleAsync(GenerateEventReportRequest req, CancellationToken ct)
     {
-        var result = await mediator.Send(new GenerateEventReportCommand(), ct);
+        var result = await mediator.Send(new GenerateEventReportCommand
+        {
+            Periods = ParsePeriods(req.Periods),
+            CustomStartDate = req.CustomStartDate,
+            CustomEndDate = req.CustomEndDate,
+        }, ct);
 
         if (await this.SendResultIfFailureAsync(result, ct))
         {
@@ -32,5 +37,10 @@ internal sealed class GenerateEventReport(IMediator mediator) : EndpointWithoutR
         HttpContext.Response.ContentType = response.ContentType;
         HttpContext.Response.Headers.ContentDisposition = $"attachment; filename=\"{response.FileName}\"";
         await HttpContext.Response.Body.WriteAsync(response.Data, ct);
+    }
+
+    private static List<EventReportPeriod>? ParsePeriods(List<string>? periods)
+    {
+        return periods?.Select(period => Enum.Parse<EventReportPeriod>(period, ignoreCase: true)).ToList();
     }
 }

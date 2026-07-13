@@ -21,7 +21,7 @@ internal sealed class GenerateEventReportCommandHandler(
 
         var events = await animalEventRepository.GetAllByShelterIdAsync(currentUser.ShelterId, cancellationToken);
 
-        var periods = DateTimeHelper.GetReportPeriods(generatedAt);
+        var selectedPeriods = GetSelectedPeriods(request.Periods);
 
         var dogEvents = events.Where(e => e.Species == AnimalSpecies.Dog).Select(e => e.AnimalEvent).ToList();
         var catEvents = events.Where(e => e.Species == AnimalSpecies.Cat).Select(e => e.AnimalEvent).ToList();
@@ -32,8 +32,8 @@ internal sealed class GenerateEventReportCommandHandler(
             ReportDate = generatedAt,
             SpeciesStats =
             [
-                CreateSpeciesStats(AnimalSpecies.Dog, dogEvents, periods),
-                CreateSpeciesStats(AnimalSpecies.Cat, catEvents, periods),
+                CreateSpeciesStats(AnimalSpecies.Dog, dogEvents, selectedPeriods, generatedAt, request),
+                CreateSpeciesStats(AnimalSpecies.Cat, catEvents, selectedPeriods, generatedAt, request),
             ],
         };
 
@@ -49,19 +49,41 @@ internal sealed class GenerateEventReportCommandHandler(
     private static SpeciesEventStats CreateSpeciesStats(
         AnimalSpecies species,
         List<AnimalEvent> events,
-        PeriodRange periods)
+        IReadOnlyCollection<EventReportPeriod> selectedPeriods,
+        DateTimeOffset generatedAt,
+        GenerateEventReportCommand request)
     {
         return new SpeciesEventStats
         {
             Species = species,
-            QuarterStats = CreatePeriodStats(events, periods.QuarterStart, periods.EndDate),
-            MonthStats = CreatePeriodStats(events, periods.MonthStart, periods.EndDate),
-            WeekStats = CreatePeriodStats(events, periods.WeekStart, periods.EndDate),
+            PeriodStats = selectedPeriods.Select(period => CreatePeriodStats(events, period, generatedAt, request))
+                .ToList(),
         };
     }
 
-    private static PeriodStats CreatePeriodStats(List<AnimalEvent> events, DateTimeOffset from, DateTimeOffset to)
+    private static IReadOnlyCollection<EventReportPeriod> GetSelectedPeriods(List<EventReportPeriod>? periods)
     {
+        return periods is { Count: > 0 }
+            ? periods.Distinct().ToList()
+            : [EventReportPeriod.Quarter, EventReportPeriod.Month, EventReportPeriod.Week];
+    }
+
+    private static PeriodStats CreatePeriodStats(
+        List<AnimalEvent> events,
+        EventReportPeriod period,
+        DateTimeOffset generatedAt,
+        GenerateEventReportCommand request)
+    {
+        var reportPeriods = DateTimeHelper.GetReportPeriods(generatedAt);
+        var (title, from, to) = period switch
+        {
+            EventReportPeriod.Week => ("Okres tygodniowy", reportPeriods.WeekStart, reportPeriods.EndDate),
+            EventReportPeriod.Month => ("Okres miesięczny", reportPeriods.MonthStart, reportPeriods.EndDate),
+            EventReportPeriod.Quarter => ("Okres kwartalny", reportPeriods.QuarterStart, reportPeriods.EndDate),
+            EventReportPeriod.Custom => ("Własny zakres", request.CustomStartDate!.Value, request.CustomEndDate!.Value),
+            _ => throw new ArgumentOutOfRangeException(nameof(period), period, null),
+        };
+
         var periodEvents = events.Where(e => e.OccurredOn >= from && e.OccurredOn <= to).ToList();
 
         var eventCounts = periodEvents
@@ -70,6 +92,6 @@ internal sealed class GenerateEventReportCommandHandler(
             .OrderBy(ec => ec.EventType)
             .ToList();
 
-        return new PeriodStats { PeriodFrom = from, PeriodTo = to, EventCounts = eventCounts };
+        return new PeriodStats { Title = title, PeriodFrom = from, PeriodTo = to, EventCounts = eventCounts };
     }
 }

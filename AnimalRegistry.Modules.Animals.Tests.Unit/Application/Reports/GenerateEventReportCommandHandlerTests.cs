@@ -121,13 +121,87 @@ public class GenerateEventReportCommandHandlerTests
 
         receivedData.Should().NotBeNull();
         var dogStats = receivedData.SpeciesStats.First(s => s.Species == AnimalSpecies.Dog);
-        var weekAdoptions = dogStats.WeekStats.EventCounts.FirstOrDefault(e => e.EventType == AnimalEventType.Adoption);
+        var weekAdoptions = dogStats.PeriodStats.First(s => s.Title == "Okres tygodniowy").EventCounts
+            .FirstOrDefault(e => e.EventType == AnimalEventType.Adoption);
         var quarterAdoptions =
-            dogStats.QuarterStats.EventCounts.FirstOrDefault(e => e.EventType == AnimalEventType.Adoption);
+            dogStats.PeriodStats.First(s => s.Title == "Okres kwartalny").EventCounts
+                .FirstOrDefault(e => e.EventType == AnimalEventType.Adoption);
 
         weekAdoptions.Should().NotBeNull();
         weekAdoptions.Count.Should().Be(2);
         quarterAdoptions.Should().NotBeNull();
         quarterAdoptions.Count.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldGenerateOnlySelectedPeriods()
+    {
+        var repoMock = Substitute.For<IAnimalEventRepository>();
+        repoMock.GetAllByShelterIdAsync(TestShelterId, Arg.Any<CancellationToken>())
+            .Returns([]);
+
+        var currentUserMock = CreateCurrentUserMock();
+        var pdfServiceMock = Substitute.For<IEventReportPdfService>();
+        pdfServiceMock.GenerateReport(Arg.Any<EventReportData>(), Arg.Any<DateTimeOffset>())
+            .Returns("%PDF"u8.ToArray());
+
+        var handler = new GenerateEventReportCommandHandler(repoMock, currentUserMock, pdfServiceMock);
+
+        await handler.Handle(new GenerateEventReportCommand { Periods = [EventReportPeriod.Week] }, CancellationToken.None);
+
+        var receivedData = pdfServiceMock.ReceivedCalls()
+            .First(c => c.GetMethodInfo().Name == "GenerateReport")
+            .GetArguments()[0] as EventReportData;
+
+        receivedData.Should().NotBeNull();
+        receivedData!.SpeciesStats.Should().AllSatisfy(stats =>
+        {
+            stats.PeriodStats.Should().ContainSingle();
+            stats.PeriodStats[0].Title.Should().Be("Okres tygodniowy");
+        });
+    }
+
+    [Fact]
+    public async Task Handle_ShouldAggregateCustomPeriod()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var customStart = now.AddDays(-50);
+        var customEnd = now.AddDays(-20);
+        var events = new List<AnimalEventWithAnimalInfo>
+        {
+            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-45), "Adopted", "User1"),
+                AnimalSpecies.Dog, Guid.NewGuid(), "Dog1"),
+            new(AnimalEvent.Create(AnimalEventType.Adoption, now.AddDays(-10), "Adopted", "User1"),
+                AnimalSpecies.Dog, Guid.NewGuid(), "Dog2"),
+        };
+
+        var repoMock = Substitute.For<IAnimalEventRepository>();
+        repoMock.GetAllByShelterIdAsync(TestShelterId, Arg.Any<CancellationToken>())
+            .Returns(events);
+
+        var currentUserMock = CreateCurrentUserMock();
+        var pdfServiceMock = Substitute.For<IEventReportPdfService>();
+        pdfServiceMock.GenerateReport(Arg.Any<EventReportData>(), Arg.Any<DateTimeOffset>())
+            .Returns("%PDF"u8.ToArray());
+
+        var handler = new GenerateEventReportCommandHandler(repoMock, currentUserMock, pdfServiceMock);
+
+        await handler.Handle(new GenerateEventReportCommand
+        {
+            Periods = [EventReportPeriod.Custom],
+            CustomStartDate = customStart,
+            CustomEndDate = customEnd,
+        }, CancellationToken.None);
+
+        var receivedData = pdfServiceMock.ReceivedCalls()
+            .First(c => c.GetMethodInfo().Name == "GenerateReport")
+            .GetArguments()[0] as EventReportData;
+
+        var dogStats = receivedData!.SpeciesStats.First(s => s.Species == AnimalSpecies.Dog);
+        var customStats = dogStats.PeriodStats.Single();
+
+        customStats.Title.Should().Be("Własny zakres");
+        customStats.EventCounts.Should().ContainSingle(e =>
+            e.EventType == AnimalEventType.Adoption && e.Count == 1);
     }
 }

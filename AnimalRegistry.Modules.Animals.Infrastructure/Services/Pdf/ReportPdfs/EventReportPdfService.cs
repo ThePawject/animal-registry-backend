@@ -51,14 +51,15 @@ internal sealed class EventReportPdfService : ReportPdfBase, IEventReportPdfServ
             AddSectionTitle(column, speciesName);
         }
 
-        AddPeriodTable(column, "Okres kwartalny", stats.QuarterStats);
-        AddPeriodTable(column, "Okres miesięczny", stats.MonthStats);
-        AddPeriodTable(column, "Okres tygodniowy", stats.WeekStats);
+        foreach (var periodStats in stats.PeriodStats)
+        {
+            AddPeriodTable(column, periodStats);
+        }
     }
 
-    private static void AddPeriodTable(ColumnDescriptor column, string periodTitle, PeriodStats stats)
+    private static void AddPeriodTable(ColumnDescriptor column, PeriodStats stats)
     {
-        AddSubsectionTitle(column, periodTitle);
+        AddSubsectionTitle(column, stats.Title);
         column.Item().Text($"{stats.PeriodFrom:dd.MM.yyyy} – {stats.PeriodTo:dd.MM.yyyy}").FontSize(11);
         column.Item().Height(0.3f, Unit.Centimetre);
 
