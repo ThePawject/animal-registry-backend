@@ -10,11 +10,11 @@ using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
-using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Reflection;
 
 namespace AnimalRegistry.Modules.Animals;
 
@@ -22,16 +22,10 @@ public sealed class AnimalsModule : IModule
 {
     public string Name => "Animals";
 
+    public IReadOnlyCollection<Assembly> EndpointAssemblies => [typeof(CreateAnimal).Assembly];
+
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddFastEndpoints(options =>
-        {
-            options.Assemblies =
-            [
-                typeof(CreateAnimal).Assembly,
-            ];
-        });
-
         services.AddMediator(typeof(CreateAnimalCommandHandler).Assembly);
 
         services.Configure<AnimalsDatabaseSettings>(options =>

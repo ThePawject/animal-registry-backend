@@ -1,4 +1,6 @@
 using AnimalRegistry.Modules.Animals.Infrastructure;
+using AnimalRegistry.Modules.Contact.Infrastructure;
+using AnimalRegistry.Modules.Contact.Infrastructure.Email;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -18,6 +20,8 @@ public sealed class FunctionalTestWebApplicationFactory : WebApplicationFactory<
     private Respawner _respawner = null!;
     public string ConnectionString { get; set; } = string.Empty;
     public string BlobStorageConnectionString { get; set; } = string.Empty;
+
+    public RecordingEmailSender EmailSender { get; } = new();
     private TestJwtTokenGenerator TokenGenerator { get; set; } = null!;
 
     public async Task InitializeAsync()
@@ -80,6 +84,39 @@ public sealed class FunctionalTestWebApplicationFactory : WebApplicationFactory<
                 options.AccountName = "devstoreaccount1";
             });
 
+            var contactDbSettingsDescriptor = services.FirstOrDefault(d =>
+                d.ServiceType == typeof(IConfigureOptions<ContactDatabaseSettings>));
+            if (contactDbSettingsDescriptor != null)
+            {
+                services.Remove(contactDbSettingsDescriptor);
+            }
+
+            services.Configure<ContactDatabaseSettings>(options =>
+            {
+                options.ConnectionString = ConnectionString;
+            });
+
+            services.Configure<EmailSettings>(options =>
+            {
+                options.Enabled = true;
+                options.Host = "localhost";
+                options.Port = 587;
+                options.UserName = null;
+                options.Password = null;
+                options.FromAddress = "noreply@test.local";
+                options.FromDisplayName = "MojeSchronisko";
+                options.ContactRecipient = "team@test.local";
+                options.TimeoutSeconds = 5;
+            });
+
+            var emailSenderDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(IEmailSender));
+            if (emailSenderDescriptor != null)
+            {
+                services.Remove(emailSenderDescriptor);
+            }
+
+            services.AddSingleton<IEmailSender>(EmailSender);
+
             var jwtDescriptor = services.FirstOrDefault(d =>
                 d.ServiceType == typeof(IConfigureOptions<JwtBearerOptions>));
             if (jwtDescriptor != null)
@@ -104,6 +141,7 @@ public sealed class FunctionalTestWebApplicationFactory : WebApplicationFactory<
 
     public async Task ResetDatabaseAsync()
     {
+        EmailSender.Reset();
         await _respawner.ResetAsync(_dbConnection);
     }
 }
