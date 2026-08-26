@@ -27,6 +27,7 @@
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.5" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
+    <PackageVersion Include="MailKit" Version="4.17.0" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.23.0" />
     <PackageVersion Include="Azure.Identity" Version="1.14.1" />
     <PackageVersion Include="QuestPDF" Version="2025.4.0" />

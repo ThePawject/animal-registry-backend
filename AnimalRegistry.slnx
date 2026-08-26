@@ -1,6 +1,10 @@
 <Solution>
     <Folder Name="/Modules/"/>
     <Folder Name="/Modules/Accounts/"/>
+    <Folder Name="/Modules/Contact/">
+        <Project Path="AnimalRegistry.Modules.Contact\AnimalRegistry.Modules.Contact.csproj"/>
+        <Project Path="AnimalRegistry.Modules.Contact.Tests.Unit\AnimalRegistry.Modules.Contact.Tests.Unit.csproj"/>
+    </Folder>
     <Folder Name="/Modules/Animals/">
         <Project Path="AnimalRegistry.Modules.Animals.Api\AnimalRegistry.Modules.Animals.Api.csproj"/>
         <Project Path="AnimalRegistry.Modules.Animals.Application\AnimalRegistry.Modules.Animals.Application.csproj"/>

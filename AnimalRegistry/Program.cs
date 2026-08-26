@@ -1,5 +1,6 @@
 global using AnimalRegistry;
 using AnimalRegistry.Modules.Animals;
+using AnimalRegistry.Modules.Contact;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.Pagination;
@@ -7,10 +8,11 @@ using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
-var modules = new List<IModule> { new AnimalsModule() };
+var modules = new List<IModule> { new AnimalsModule(), new ContactModule() };
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +21,19 @@ builder.WebHost.ConfigureKestrel(options =>
     options.Limits.MaxRequestBodySize = 100 * 1024 * 1024; // 100MB
 });
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 builder.Services.AddSingleton<IAuthorizationHandler, ShelterAccessHandler>();
+
+builder.Services.AddFastEndpoints(options =>
+{
+    options.Assemblies = modules.SelectMany(module => module.EndpointAssemblies).Distinct().ToArray();
+});
 
 builder.Services.AddAuth0OpenApi(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
@@ -78,6 +92,8 @@ var app = builder.Build();
 
 await MigrateAsync(app, modules);
 
+app.UseForwardedHeaders();
+
 app.UseBusinessRuleExceptionHandling();
 app.UseDefaultExceptionHandler();
 
@@ -92,6 +108,7 @@ app.MapScalarWithAuth0(builder.Configuration);
 
 app.UseHttpsRedirection();
 app.UseCors();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseFastEndpoints();

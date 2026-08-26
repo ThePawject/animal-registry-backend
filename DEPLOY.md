@@ -48,3 +48,46 @@ volumes:
 
 - Replace `thepawject` with your GitHub username or organization.
 - Change `YourStrong!Passw0rd` to your desired SQL Server SA password.
+
+## Contact form (`POST /contact`)
+
+The public contact form endpoint needs a mailbox to notify. Configuration lives under `Email` and
+`Contact:RateLimit`; on Azure App Service supply the secrets as application settings
+(`Email__UserName`, `Email__Password`, `Email__FromAddress`, `Email__ContactRecipient`).
+
+| Setting | Default | Notes |
+| --- | --- | --- |
+| `Email:Enabled` | `true` | `false` skips sending entirely; submissions are still stored. |
+| `Email:Host` | `smtp.gmail.com` | |
+| `Email:Port` | `587` | **Port 25 is blocked outbound on App Service** and is rejected on start-up. Use 587 (STARTTLS) or 465 (`Email:UseImplicitTls: true`). |
+| `Email:UserName` / `Email:Password` | - | For Gmail this is the mailbox plus an **app password** (2FA has to be on). |
+| `Email:FromAddress` | - | Must be the authenticated mailbox or one of its aliases. |
+| `Email:ContactRecipient` | - | Team mailbox that receives the submissions. |
+| `Contact:RateLimit:PermitLimit` | `5` | Fixed window per client IP. |
+| `Contact:RateLimit:WindowMinutes` | `15` | |
+
+The settings are validated when the host starts, so a misconfiguration fails the deployment instead of the
+first submission.
+
+### Running it locally
+
+`appsettings.Development.json` ships with `Email:Enabled: false`, so the app runs without SMTP credentials and
+only logs what it would have sent. To send for real, put the credentials in user secrets and flip the flag:
+
+```bash
+cd AnimalRegistry
+dotnet user-secrets set "Email:Enabled" "true"
+dotnet user-secrets set "Email:UserName" "you@gmail.com"
+dotnet user-secrets set "Email:Password" "<gmail app password>"
+dotnet user-secrets set "Email:FromAddress" "you@gmail.com"
+dotnet user-secrets set "Email:ContactRecipient" "you@gmail.com"
+```
+
+Every submission is stored in `ContactRequests` with the consent timestamp and a delivery status, so leads
+survive a mail outage:
+
+```sql
+SELECT Id, ShelterName, Email, ConsentGivenOn, DeliveryStatus, DeliveryError
+FROM ContactRequests
+WHERE DeliveryStatus = 'Failed';
+```
