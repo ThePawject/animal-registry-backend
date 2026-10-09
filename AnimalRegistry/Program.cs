@@ -3,12 +3,16 @@ using AnimalRegistry.Modules.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.Pagination;
+using AnimalRegistry.Shared.Telemetry;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var modules = new List<IModule> { new AnimalsModule() };
 
@@ -29,6 +33,20 @@ builder.Services.Configure<FormOptions>(options =>
 });
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddPagination(builder.Configuration);
+
+var telemetryOptions = builder.Configuration.GetSection(TelemetryOptions.SectionName).Get<TelemetryOptions>()
+                       ?? new TelemetryOptions();
+
+var appInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+if (!string.IsNullOrWhiteSpace(appInsightsConnectionString))
+{
+    builder.Services.AddOpenTelemetry()
+        .ConfigureResource(resource => resource.AddService(AnimalRegistryTelemetry.SourceName))
+        .UseAzureMonitor(options => options.ConnectionString = appInsightsConnectionString)
+        .WithTracing(tracing => tracing
+            .AddSource(AnimalRegistryTelemetry.SourceName)
+            .SetSampler(new ParentBasedSampler(new TraceIdRatioBasedSampler(telemetryOptions.EffectiveSamplingRatio))));
+}
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
@@ -74,7 +92,18 @@ builder.Services.AddAuthorization(options =>
 });
 ApplyModuleServices(modules, builder);
 
+builder.Services.AddMediatorTracing();
+
 var app = builder.Build();
+
+if (!telemetryOptions.HasValidSamplingRatio)
+{
+    app.Logger.LogWarning(
+        "{Section}:SamplingRatio must be between 0 and 1 but was {SamplingRatio}. Using default {DefaultSamplingRatio}.",
+        TelemetryOptions.SectionName,
+        telemetryOptions.SamplingRatio,
+        TelemetryOptions.DefaultSamplingRatio);
+}
 
 await MigrateAsync(app, modules);
 
@@ -93,6 +122,7 @@ app.MapScalarWithAuth0(builder.Configuration);
 app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
+app.UseRequestTelemetryEnrichment();
 app.UseAuthorization();
 app.UseFastEndpoints();
 

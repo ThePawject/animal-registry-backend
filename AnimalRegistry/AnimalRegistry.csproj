@@ -17,6 +17,7 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Scalar.AspNetCore"/>
+        <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore"/>
     </ItemGroup>
 
     <ItemGroup>
