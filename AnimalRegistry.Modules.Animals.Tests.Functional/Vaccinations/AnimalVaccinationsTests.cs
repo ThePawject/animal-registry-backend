@@ -228,18 +228,21 @@ public sealed class AnimalVaccinationsTests(ApiTestFixture fixture) : Vaccinatio
     }
 
     [Fact]
-    public async Task Attachment_ShouldReturnBadRequest_WhenFileIsMissingOrHasUnsupportedType()
+    public async Task Attachment_ShouldReturnBadRequest_WhenFileIsMissingOrInvalid()
     {
         await SetModuleAsync(true);
         var animalId = await CreateAnimalAsync("2026/0001");
         var created = await CreateVaccinationAsync(animalId);
 
         var unsupported = await UploadAttachmentAsync(animalId, created.Id, "script.exe", "application/x-msdownload");
+        var tooLongName = await UploadAttachmentAsync(animalId, created.Id, new string('a', 300) + ".pdf");
         var missing = await Worker.PutAsync(UploadVaccinationAttachmentRequest.BuildRoute(animalId, created.Id),
             new MultipartFormDataContent { { new StringContent("x"), "Other" } });
 
         unsupported.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        tooLongName.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         missing.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await ListAsync(animalId)).Single().Attachment.Should().BeNull();
     }
 
     [Fact]

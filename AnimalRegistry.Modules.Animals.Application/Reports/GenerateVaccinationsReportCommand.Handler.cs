@@ -1,7 +1,6 @@
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Application.Vaccinations;
 using AnimalRegistry.Modules.Animals.Domain;
-using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.MediatorPattern;
@@ -10,7 +9,7 @@ namespace AnimalRegistry.Modules.Animals.Application.Reports;
 
 internal sealed class GenerateVaccinationsReportCommandHandler(
     ICurrentUser currentUser,
-    IAnimalVaccinationRepository vaccinationRepository,
+    IVaccinationQuery vaccinationQuery,
     IBlobStorageService blobStorageService,
     IVaccinationsReportPdfService pdfService)
     : IRequestHandler<GenerateVaccinationsReportCommand, Result<GenerateVaccinationReportResponse>>
@@ -22,7 +21,7 @@ internal sealed class GenerateVaccinationsReportCommandHandler(
         var fromDate = ShelterCalendar.ToLocal(request.From).Date;
         var toDate = ShelterCalendar.ToLocal(request.To).Date;
 
-        var vaccinations = await vaccinationRepository.GetAdministeredBetweenAsync(
+        var vaccinations = await vaccinationQuery.GetAdministeredBetweenAsync(
             currentUser.ShelterId,
             ShelterCalendar.StartOfDay(fromDate),
             ShelterCalendar.StartOfDay(toDate.AddDays(1)),

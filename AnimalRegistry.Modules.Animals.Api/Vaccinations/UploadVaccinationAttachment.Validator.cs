@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using FastEndpoints;
 using FluentValidation;
 
@@ -16,6 +17,10 @@ internal sealed class UploadVaccinationAttachmentValidator : Validator<UploadVac
             RuleFor(x => x.File)
                 .Must(file => file!.Length <= 10 * 1024 * 1024)
                 .WithMessage("Attachment must be 10MB or less");
+
+            RuleFor(x => x.File!.FileName)
+                .MaximumLength(VaccinationAttachment.FileNameMaxLength)
+                .WithMessage($"Attachment file name must be {VaccinationAttachment.FileNameMaxLength} characters or less");
 
             RuleFor(x => x.File)
                 .Must(file => IsAllowedDocumentType(file!.ContentType))

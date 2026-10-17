@@ -1,5 +1,4 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
-using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 
 namespace AnimalRegistry.Modules.Animals.Application.Vaccinations;
 

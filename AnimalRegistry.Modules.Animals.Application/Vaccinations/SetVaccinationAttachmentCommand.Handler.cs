@@ -40,10 +40,20 @@ internal sealed class SetVaccinationAttachmentCommandHandler(
             VaccinationAttachment.Create(uploadResult.Value!, request.File.FileName, request.File.ContentType, now),
             now);
 
-        var saveResult = await unitOfWork.SaveChangesAsync(cancellationToken);
+        Result saveResult;
+        try
+        {
+            saveResult = await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            await blobStorageService.DeleteAsync(uploadResult.Value!, CancellationToken.None);
+            throw;
+        }
+
         if (saveResult.IsFailure)
         {
-            await blobStorageService.DeleteAsync(uploadResult.Value!, cancellationToken);
+            await blobStorageService.DeleteAsync(uploadResult.Value!, CancellationToken.None);
             return Result<AnimalVaccinationDto>.ValidationError(saveResult.Error!);
         }
 

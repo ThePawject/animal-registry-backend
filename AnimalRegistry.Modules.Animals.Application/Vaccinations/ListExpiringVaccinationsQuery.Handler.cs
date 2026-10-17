@@ -1,4 +1,3 @@
-using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.MediatorPattern;
@@ -6,7 +5,7 @@ using AnimalRegistry.Shared.MediatorPattern;
 namespace AnimalRegistry.Modules.Animals.Application.Vaccinations;
 
 internal sealed class ListExpiringVaccinationsQueryHandler(
-    IAnimalVaccinationRepository vaccinationRepository,
+    IVaccinationQuery vaccinationQuery,
     IBlobStorageService blobStorageService,
     ICurrentUser currentUser)
     : IRequestHandler<ListExpiringVaccinationsQuery, Result<IReadOnlyList<VaccinationWithAnimalDto>>>
@@ -18,7 +17,7 @@ internal sealed class ListExpiringVaccinationsQueryHandler(
         var (validFrom, validBefore) =
             ExpiringVaccinationsWindow.Resolve(request.ExpiresInDays, request.IncludeExpired, now);
 
-        var vaccinations = await vaccinationRepository.GetExpiringAsync(currentUser.ShelterId, validFrom,
+        var vaccinations = await vaccinationQuery.GetExpiringAsync(currentUser.ShelterId, validFrom,
             validBefore, request.InShelterOnly, cancellationToken);
 
         IReadOnlyList<VaccinationWithAnimalDto> dtos = vaccinations

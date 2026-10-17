@@ -25,7 +25,8 @@ internal sealed class AnimalVaccinationConfiguration : IEntityTypeConfiguration<
         builder.OwnsOne(v => v.Attachment, attachment =>
         {
             attachment.Property(a => a.BlobPath).HasColumnName("AttachmentBlobPath").IsRequired().HasMaxLength(500);
-            attachment.Property(a => a.FileName).HasColumnName("AttachmentFileName").IsRequired().HasMaxLength(255);
+            attachment.Property(a => a.FileName).HasColumnName("AttachmentFileName").IsRequired()
+                .HasMaxLength(VaccinationAttachment.FileNameMaxLength);
             attachment.Property(a => a.ContentType).HasColumnName("AttachmentContentType").IsRequired()
                 .HasMaxLength(100);
             attachment.Property(a => a.UploadedOn).HasColumnName("AttachmentUploadedOn").IsRequired();
