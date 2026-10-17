@@ -2,9 +2,11 @@ using AnimalRegistry.Modules.Animals.Api;
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Application.Reports;
+using AnimalRegistry.Modules.Animals.Application.Vaccinations;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
@@ -13,6 +15,7 @@ using AnimalRegistry.Modules.Animals.Infrastructure.Origin;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
+using AnimalRegistry.Modules.Animals.Infrastructure.Vaccinations;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 using AnimalRegistry.Shared.ShelterFeatures;
@@ -62,6 +65,7 @@ public sealed class AnimalsModule : IModule
         services.AddScoped<IAnimalReportFieldsProvider, AnimalReportFieldsProvider>();
 
         RegisterOriginFeature(services);
+        RegisterVaccinationFeature(services);
 
         services.Configure<BlobStorageSettings>(options =>
         {
@@ -98,5 +102,13 @@ public sealed class AnimalsModule : IModule
         services.AddScoped<IOriginReportQuery, OriginReportQuery>();
         services.AddScoped<IOriginMonthlyReportPdfService, OriginMonthlyReportPdfService>();
         services.AddScoped<IOriginYearlyReportPdfService, OriginYearlyReportPdfService>();
+    }
+
+    private static void RegisterVaccinationFeature(IServiceCollection services)
+    {
+        services.AddShelterFeature<AnimalVaccinationFeature>();
+        services.AddScoped<IAnimalVaccinationRepository, AnimalVaccinationRepository>();
+        services.AddScoped<IExpiringVaccinationsReportPdfService, ExpiringVaccinationsReportPdfService>();
+        services.AddScoped<IVaccinationsReportPdfService, VaccinationsReportPdfService>();
     }
 }
