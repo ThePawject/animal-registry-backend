@@ -15,7 +15,7 @@ public class AnimalOriginTests
     private AnimalOrigin Create(AnimalOriginData data, params Municipality[] municipalities)
     {
         return AnimalOrigin.Create(_animalId, ShelterId, data,
-            municipalities.Length == 0 ? [_found, _contractor] : municipalities, StartOfNextDay);
+            municipalities.Length == 0 ? [_found, _contractor] : municipalities, Now);
     }
 
     [Fact]
@@ -121,7 +121,7 @@ public class AnimalOriginTests
         var date = AdmissionDate.AddDays(-3);
 
         origin.Update(Data(_contractor.Id, _contractor.Id, date, AdmissionMethod.Other, "Polna 2"),
-            [_contractor], StartOfNextDay);
+            [_contractor], Now);
 
         origin.AdmissionDate.Should().Be(date);
         origin.AdmissionMethod.Should().Be(AdmissionMethod.Other);
@@ -135,8 +135,7 @@ public class AnimalOriginTests
     {
         var origin = Create(Data(_found.Id, _contractor.Id));
 
-        var act = () => origin.Update(Data(_found.Id, _contractor.Id, street: " "), [_found, _contractor],
-            StartOfNextDay);
+        var act = () => origin.Update(Data(_found.Id, _contractor.Id, street: " "), [_found, _contractor], Now);
 
         act.Should().Throw<BusinessRuleValidationException>();
         origin.FoundStreet.Should().Be("Leśna 1");
@@ -148,8 +147,7 @@ public class AnimalOriginTests
         var origin = Create(Data(_found.Id, _contractor.Id));
         _contractor.Archive();
 
-        var act = () => origin.Update(Data(_found.Id, _contractor.Id, street: "Polna 2"), [_found, _contractor],
-            StartOfNextDay);
+        var act = () => origin.Update(Data(_found.Id, _contractor.Id, street: "Polna 2"), [_found, _contractor], Now);
 
         act.Should().NotThrow();
         origin.FoundStreet.Should().Be("Polna 2");
@@ -161,7 +159,7 @@ public class AnimalOriginTests
         var origin = Create(Data(_found.Id, _contractor.Id));
         _found.Archive();
 
-        var act = () => origin.Update(Data(_found.Id, _found.Id), [_found, _contractor], StartOfNextDay);
+        var act = () => origin.Update(Data(_found.Id, _found.Id), [_found, _contractor], Now);
 
         act.Should().NotThrow();
         origin.ContractorMunicipalityId.Should().Be(_found.Id);
@@ -173,7 +171,7 @@ public class AnimalOriginTests
         var origin = Create(Data(_found.Id, _found.Id));
         _contractor.Archive();
 
-        var act = () => origin.Update(Data(_found.Id, _contractor.Id), [_found, _contractor], StartOfNextDay);
+        var act = () => origin.Update(Data(_found.Id, _contractor.Id), [_found, _contractor], Now);
 
         act.Should().Throw<BusinessRuleValidationException>()
             .WithMessage("The contractor municipality 'Gmina B' is archived.");

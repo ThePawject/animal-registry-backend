@@ -8,7 +8,9 @@ internal static class OriginTestData
 {
     public const string ShelterId = "test-shelter-id";
     public static readonly DateTimeOffset AdmissionDate = new(2026, 3, 15, 10, 0, 0, TimeSpan.Zero);
+    public static readonly DateTimeOffset Now = new(2026, 3, 15, 12, 0, 0, TimeSpan.Zero);
     public static readonly DateTimeOffset StartOfNextDay = new(2026, 3, 16, 0, 0, 0, TimeSpan.FromHours(1));
+    private static readonly DateTimeOffset FarFuture = new(2100, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
     public static Animal CreateAnimal(string signature = "2026/0001")
     {
@@ -41,6 +43,6 @@ internal static class OriginTestData
         DateTimeOffset? admissionDate = null)
     {
         return AnimalOrigin.Create(animal.Id, animal.ShelterId, Data(found.Id, contractor.Id, admissionDate),
-            [found, contractor], DateTimeOffset.MaxValue);
+            [found, contractor], FarFuture);
     }
 }

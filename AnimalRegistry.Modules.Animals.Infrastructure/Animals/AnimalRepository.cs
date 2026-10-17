@@ -36,6 +36,16 @@ internal sealed class AnimalRepository(
         return Result<Animal>.Success(entityEntry.Entity);
     }
 
+    public void Add(Animal entity)
+    {
+        context.Animals.Add(entity);
+    }
+
+    public void Update(Animal entity)
+    {
+        context.Update(entity);
+    }
+
     public async Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default)
     {
         context.Update(entity);
@@ -103,23 +113,6 @@ internal sealed class AnimalRepository(
         }
 
         return animals;
-    }
-
-    public async Task<IReadOnlyList<Animal>> GetAdmittedBetweenAsync(string shelterId, DateTimeOffset from,
-        DateTimeOffset to, CancellationToken cancellationToken = default)
-    {
-        var origins = context.AnimalOrigins.Where(o => o.ShelterId == shelterId);
-        var admittedIds = origins
-            .Where(o => o.AdmissionDate >= from && o.AdmissionDate < to)
-            .Select(o => o.AnimalId);
-
-        return await context.Animals
-            .AsNoTracking()
-            .Where(a => a.ShelterId == shelterId)
-            .Where(a =>
-                admittedIds.Contains(a.Id) ||
-                (!origins.Any(o => o.AnimalId == a.Id) && a.CreatedOn >= from && a.CreatedOn < to))
-            .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, AnimalSpecies species,

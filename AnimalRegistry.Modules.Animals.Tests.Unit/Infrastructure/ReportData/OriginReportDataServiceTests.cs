@@ -1,6 +1,4 @@
-using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
-using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 using FluentAssertions;
@@ -14,35 +12,33 @@ public class OriginReportDataServiceTests
     private static readonly Municipality Zabki = CreateMunicipality("Ząbki");
     private static readonly Municipality Lomianki = CreateMunicipality("Łomianki");
 
-    private readonly IAnimalRepository _animals = Substitute.For<IAnimalRepository>();
-    private readonly IAnimalOriginReader _originReader = Substitute.For<IAnimalOriginReader>();
-    private readonly Dictionary<Guid, AnimalOrigin> _origins = new();
+    private readonly IOriginReportQuery _query = Substitute.For<IOriginReportQuery>();
+    private readonly IMunicipalityRepository _municipalities = Substitute.For<IMunicipalityRepository>();
     private readonly OriginReportDataService _service;
 
     public OriginReportDataServiceTests()
     {
-        _originReader.LoadAsync(Arg.Any<IReadOnlyCollection<Animal>>(), Arg.Any<CancellationToken>())
-            .Returns(new AnimalOriginLookup(_origins, new Dictionary<Guid, string>
-            {
-                [Zabki.Id] = "Ząbki", [Lomianki.Id] = "Łomianki",
-            }));
-        _service = new OriginReportDataService(_animals, _originReader);
+        _municipalities.GetByIdsAsync(Arg.Any<IEnumerable<Guid>>(), ShelterId, Arg.Any<CancellationToken>())
+            .Returns([Zabki, Lomianki]);
+        _service = new OriginReportDataService(_query, _municipalities);
     }
 
-    private Animal AdmittedAnimal(string signature, Municipality? contractor, DateTimeOffset? admittedOn = null)
+    private static AdmittedAnimal AdmittedAnimal(string signature, Municipality? contractor,
+        DateTimeOffset? admittedOn = null)
     {
         var animal = CreateAnimal(signature);
-        if (contractor is not null)
+        if (contractor is null)
         {
-            _origins[animal.Id] = CreateOrigin(animal, contractor, contractor, admittedOn);
+            return new AdmittedAnimal(animal, null, animal.CreatedOn);
         }
 
-        return animal;
+        var origin = CreateOrigin(animal, contractor, contractor, admittedOn);
+        return new AdmittedAnimal(animal, origin, origin.AdmissionDate);
     }
 
-    private void GivenAnimals(params Animal[] animals)
+    private void GivenAnimals(params AdmittedAnimal[] animals)
     {
-        _animals.GetAdmittedBetweenAsync(ShelterId, Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(),
+        _query.GetAdmittedBetweenAsync(ShelterId, Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(),
                 Arg.Any<CancellationToken>())
             .Returns(animals);
     }
@@ -72,7 +68,7 @@ public class OriginReportDataServiceTests
 
         await _service.PrepareMonthlyReportDataAsync(ShelterId, 2026, 3);
 
-        await _animals.Received(1).GetAdmittedBetweenAsync(
+        await _query.Received(1).GetAdmittedBetweenAsync(
             ShelterId,
             new DateTimeOffset(2026, 3, 1, 0, 0, 0, TimeSpan.FromHours(1)),
             new DateTimeOffset(2026, 4, 1, 0, 0, 0, TimeSpan.FromHours(2)),

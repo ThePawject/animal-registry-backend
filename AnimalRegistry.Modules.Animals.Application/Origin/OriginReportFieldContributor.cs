@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Application.Reports;
+using AnimalRegistry.Modules.Animals.Domain;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 
 namespace AnimalRegistry.Modules.Animals.Application.Origin;
@@ -30,7 +31,7 @@ internal sealed class OriginReportFieldContributor(IAnimalOriginReader originRea
         return
         [
             new AnimalReportField("Data przyjęcia", a => Resolve(a).AdmissionDate is { } date
-                ? OriginReportPeriod.ToLocal(date).ToString("dd.MM.yyyy")
+                ? ShelterCalendar.ToLocal(date).ToString("dd.MM.yyyy")
                 : OriginLabels.Unassigned),
             new AnimalReportField("Sposób trafienia", a => Resolve(a).AdmissionMethodName),
             new AnimalReportField("Ulica znalezienia", a => Resolve(a).FoundStreet),

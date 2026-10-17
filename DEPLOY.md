@@ -48,3 +48,10 @@ volumes:
 
 - Replace `thepawject` with your GitHub username or organization.
 - Change `YourStrong!Passw0rd` to your desired SQL Server SA password.
+## Building the Docker Image
+
+Release builds need the Six Labors license used by ImageSharp. Keep `sixlabors.lic` in the repository root (it is ignored by git and Docker) and pass it as a build secret:
+
+```bash
+docker build --secret id=sixlabors_license,src=sixlabors.lic -t animal-registry-backend .
+```

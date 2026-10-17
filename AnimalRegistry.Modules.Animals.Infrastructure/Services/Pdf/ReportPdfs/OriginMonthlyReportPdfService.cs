@@ -1,5 +1,7 @@
+using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
+using AnimalRegistry.Modules.Animals.Domain;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -119,8 +121,9 @@ internal sealed class OriginMonthlyReportPdfService : ReportPdfBase, IOriginMont
                 table.Cell().Element(ReportStyles.CellStyle).Text(entry.Animal.Name ?? "-");
                 table.Cell().Element(ReportStyles.CellStyle)
                     .Text(AnimalPdfComponents.GetSpeciesName(entry.Animal.Species));
-                table.Cell().Element(ReportStyles.CellStyle)
-                    .Text(OriginReportPeriod.ToLocal(entry.AdmittedOn).ToString("dd.MM.yyyy"));
+                table.Cell().Element(ReportStyles.CellStyle).Text(origin.AdmissionDate is { } admissionDate
+                    ? ShelterCalendar.ToLocal(admissionDate).ToString("dd.MM.yyyy")
+                    : OriginLabels.Unassigned);
                 table.Cell().Element(ReportStyles.CellStyle).Text(origin.AdmissionMethodName);
                 table.Cell().Element(ReportStyles.CellStyle).Text(foundPlace);
             }

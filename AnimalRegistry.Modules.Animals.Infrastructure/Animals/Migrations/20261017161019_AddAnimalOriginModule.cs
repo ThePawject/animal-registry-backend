@@ -63,6 +63,11 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Animals_ShelterId_CreatedOn",
+                table: "Animals",
+                columns: new[] { "ShelterId", "CreatedOn" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AnimalOrigins_AnimalId",
                 table: "AnimalOrigins",
                 column: "AnimalId",
@@ -98,6 +103,10 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 
             migrationBuilder.DropTable(
                 name: "Municipalities");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Animals_ShelterId_CreatedOn",
+                table: "Animals");
         }
     }
 }

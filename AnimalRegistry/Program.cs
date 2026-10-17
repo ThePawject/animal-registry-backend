@@ -83,8 +83,8 @@ var app = builder.Build();
 
 await MigrateAsync(app, modules);
 
-app.UseBusinessRuleExceptionHandling();
 app.UseDefaultExceptionHandler();
+app.UseBusinessRuleExceptionHandling();
 
 if (app.Environment.IsDevelopment())
 {

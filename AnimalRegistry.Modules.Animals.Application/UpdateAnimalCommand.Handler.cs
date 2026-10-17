@@ -11,7 +11,8 @@ internal sealed class UpdateAnimalCommandHandler(
     IAnimalSignatureService signatureService,
     ICurrentUser currentUser,
     IBlobStorageService blobStorageService,
-    IAnimalOriginWriter originWriter)
+    IAnimalOriginWriter originWriter,
+    IAnimalsUnitOfWork unitOfWork)
     : IRequestHandler<UpdateAnimalCommand, Result<UpdateAnimalCommandResponse>>
 {
     public async Task<Result<UpdateAnimalCommandResponse>> Handle(
@@ -101,11 +102,11 @@ internal sealed class UpdateAnimalCommandHandler(
             animal.SetMainPhoto(request.MainPhotoId.Value);
         }
 
-        var result = await animalRepository.UpdateAsync(animal, cancellationToken);
-
-        if (!result.IsSuccess || result.Value == null)
+        animalRepository.Update(animal);
+        var saveResult = await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (saveResult.IsFailure)
         {
-            return Result<UpdateAnimalCommandResponse>.Failure("Failed to update animal.");
+            return Result<UpdateAnimalCommandResponse>.ValidationError(saveResult.Error!);
         }
 
         return Result<UpdateAnimalCommandResponse>.Success(

@@ -2,6 +2,7 @@ using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.DDD;
 using AnimalRegistry.Shared.ShelterFeatures;
 using FluentAssertions;
 using NSubstitute;
@@ -94,31 +95,31 @@ public class AnimalOriginWriterTests
     }
 
     [Fact]
-    public async Task ApplyAsync_ShouldReturnRuleMessage_WhenDomainRuleIsBroken()
+    public async Task ApplyAsync_ShouldThrow_WhenDomainRuleIsBroken()
     {
         EnableModule();
         var found = CreateMunicipality("Gmina A");
         GivenMunicipalities(found);
         var unknownId = Guid.NewGuid();
 
-        var result = await _writer.ApplyAsync(CreateAnimal(), Data(found.Id, unknownId));
+        var act = () => _writer.ApplyAsync(CreateAnimal(), Data(found.Id, unknownId));
 
-        result.Status.Should().Be(ResultStatus.ValidationError);
-        result.Error.Should().Be($"The contractor municipality '{unknownId}' does not exist.");
+        await act.Should().ThrowAsync<BusinessRuleValidationException>()
+            .WithMessage($"The contractor municipality '{unknownId}' does not exist.");
         _origins.DidNotReceiveWithAnyArgs().Add(default!);
     }
 
     [Fact]
-    public async Task ApplyAsync_ShouldRejectAdmissionDateAfterToday()
+    public async Task ApplyAsync_ShouldThrow_WhenAdmissionDateIsAfterToday()
     {
         EnableModule();
         var municipality = CreateMunicipality("Gmina A");
         GivenMunicipalities(municipality);
 
-        var result = await _writer.ApplyAsync(CreateAnimal(),
+        var act = () => _writer.ApplyAsync(CreateAnimal(),
             Data(municipality.Id, municipality.Id, DateTimeOffset.UtcNow.AddDays(2)));
 
-        result.Status.Should().Be(ResultStatus.ValidationError);
-        result.Error.Should().Be("Admission date cannot be in the future.");
+        await act.Should().ThrowAsync<BusinessRuleValidationException>()
+            .WithMessage("Admission date cannot be in the future.");
     }
 }

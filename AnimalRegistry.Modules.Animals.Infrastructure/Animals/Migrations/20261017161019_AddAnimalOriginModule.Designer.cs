@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 {
     [DbContext(typeof(AnimalsDbContext))]
-    [Migration("20261017151852_AddAnimalOriginModule")]
+    [Migration("20261017161019_AddAnimalOriginModule")]
     partial class AddAnimalOriginModule
     {
         /// <inheritdoc />
@@ -88,6 +88,8 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ShelterId");
+
+                    b.HasIndex("ShelterId", "CreatedOn");
 
                     b.HasIndex("ShelterId", "Species", "Signature")
                         .IsUnique()
@@ -167,7 +169,8 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AnimalId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_AnimalOrigins_AnimalId");
 
                     b.HasIndex("ContractorMunicipalityId");
 

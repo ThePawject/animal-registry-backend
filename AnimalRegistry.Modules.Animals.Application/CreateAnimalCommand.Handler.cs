@@ -11,7 +11,8 @@ internal sealed class CreateAnimalCommandHandler(
     IAnimalSignatureService signatureService,
     ICurrentUser currentUser,
     IBlobStorageService blobStorageService,
-    IAnimalOriginWriter originWriter)
+    IAnimalOriginWriter originWriter,
+    IAnimalsUnitOfWork unitOfWork)
     : IRequestHandler<CreateAnimalCommand, Result<CreateAnimalCommandResponse>>
 {
     public async Task<Result<CreateAnimalCommandResponse>> Handle(CreateAnimalCommand request,
@@ -68,13 +69,14 @@ internal sealed class CreateAnimalCommandHandler(
             }
         }
 
-        var result = await animalRepository.AddAsync(animal, cancellationToken);
-        if (!result.IsSuccess || result.Value == null)
+        animalRepository.Add(animal);
+        var saveResult = await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (saveResult.IsFailure)
         {
-            return Result<CreateAnimalCommandResponse>.Failure("Failed to create animal.");
+            return Result<CreateAnimalCommandResponse>.ValidationError(saveResult.Error!);
         }
 
-        return Result<CreateAnimalCommandResponse>.Success(new CreateAnimalCommandResponse(result.Value.Id));
+        return Result<CreateAnimalCommandResponse>.Success(new CreateAnimalCommandResponse(animal.Id));
     }
 
     private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, Guid animalId,

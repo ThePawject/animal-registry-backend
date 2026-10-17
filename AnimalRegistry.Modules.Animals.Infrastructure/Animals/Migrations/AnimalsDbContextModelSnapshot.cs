@@ -86,6 +86,8 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
 
                     b.HasIndex("ShelterId");
 
+                    b.HasIndex("ShelterId", "CreatedOn");
+
                     b.HasIndex("ShelterId", "Species", "Signature")
                         .IsUnique()
                         .HasDatabaseName("IX_Animals_ShelterId_Species_Signature");
@@ -164,7 +166,8 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AnimalId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_AnimalOrigins_AnimalId");
 
                     b.HasIndex("ContractorMunicipalityId");
 

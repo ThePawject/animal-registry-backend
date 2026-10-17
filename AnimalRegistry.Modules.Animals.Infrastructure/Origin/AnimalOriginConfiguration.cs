@@ -8,6 +8,8 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Origin;
 
 internal sealed class AnimalOriginConfiguration : IEntityTypeConfiguration<AnimalOrigin>
 {
+    public const string AnimalIdIndexName = "IX_AnimalOrigins_AnimalId";
+
     public void Configure(EntityTypeBuilder<AnimalOrigin> builder)
     {
         builder.ToTable("AnimalOrigins");
@@ -23,7 +25,7 @@ internal sealed class AnimalOriginConfiguration : IEntityTypeConfiguration<Anima
         builder.Property(o => o.FoundMunicipalityId).IsRequired();
         builder.Property(o => o.ContractorMunicipalityId).IsRequired();
 
-        builder.HasIndex(o => o.AnimalId).IsUnique();
+        builder.HasIndex(o => o.AnimalId).IsUnique().HasDatabaseName(AnimalIdIndexName);
         builder.HasIndex(o => new { o.ShelterId, o.AdmissionDate });
 
         builder.HasOne<Animal>()

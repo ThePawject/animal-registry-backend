@@ -48,6 +48,7 @@ public sealed class AnimalsModule : IModule
         services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
         services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
         services.AddScoped<IAnimalOriginRepository, AnimalOriginRepository>();
+        services.AddScoped<IAnimalsUnitOfWork, AnimalsUnitOfWork>();
 
         services.AddScoped<IRepositoryDumpDataService, RepositoryDumpDataService>();
         services.AddScoped<ISelectedAnimalsDataService, SelectedAnimalsDataService>();
@@ -94,6 +95,7 @@ public sealed class AnimalsModule : IModule
         services.AddScoped<IAnimalOriginWriter, AnimalOriginWriter>();
         services.AddScoped<IAnimalReportFieldContributor, OriginReportFieldContributor>();
         services.AddScoped<IOriginReportDataService, OriginReportDataService>();
+        services.AddScoped<IOriginReportQuery, OriginReportQuery>();
         services.AddScoped<IOriginMonthlyReportPdfService, OriginMonthlyReportPdfService>();
         services.AddScoped<IOriginYearlyReportPdfService, OriginYearlyReportPdfService>();
     }

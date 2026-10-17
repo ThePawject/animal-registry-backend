@@ -29,27 +29,27 @@ public sealed class AnimalOrigin : Entity, IAggregateRoot
         string shelterId,
         AnimalOriginData data,
         IReadOnlyCollection<Municipality> municipalities,
-        DateTimeOffset startOfNextDay)
+        DateTimeOffset now)
     {
         var origin = new AnimalOrigin(animalId, shelterId);
-        origin.Apply(data, municipalities, startOfNextDay);
+        origin.Apply(data, municipalities, now);
         return origin;
     }
 
     public void Update(
         AnimalOriginData data,
         IReadOnlyCollection<Municipality> municipalities,
-        DateTimeOffset startOfNextDay)
+        DateTimeOffset now)
     {
-        Apply(data, municipalities, startOfNextDay);
+        Apply(data, municipalities, now);
     }
 
     private void Apply(
         AnimalOriginData data,
         IReadOnlyCollection<Municipality> municipalities,
-        DateTimeOffset startOfNextDay)
+        DateTimeOffset now)
     {
-        CheckRule(new AdmissionDateCannotBeInFutureRule(data.AdmissionDate, startOfNextDay));
+        CheckRule(new AdmissionDateCannotBeInFutureRule(data.AdmissionDate, now));
         CheckRule(new AdmissionMethodMustBeAssignedRule(data.AdmissionMethod));
         CheckRule(new FoundStreetMustBeProvidedRule(data.FoundStreet));
         CheckMunicipality(data.FoundMunicipalityId, "found", municipalities);

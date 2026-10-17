@@ -1,6 +1,7 @@
 using AnimalRegistry.Modules.Animals.Api.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
+using AnimalRegistry.Modules.Animals.Domain;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
@@ -145,8 +146,8 @@ public sealed class OriginReportsTests(ApiTestFixture fixture) : OriginModuleTes
         await SetModuleAsync(true);
         var municipality = await CreateMunicipalityAsync("Gmina A");
         await CreateAnimalAsync("2026/0002", OriginFields(municipality.Id, municipality.Id,
-            admissionDate: DateTimeOffset.Now));
-        var now = DateTimeOffset.Now;
+            admissionDate: DateTimeOffset.UtcNow));
+        var now = ShelterCalendar.ToLocal(DateTimeOffset.UtcNow);
 
         var data = await MonthlyDataAsync(now.Year, now.Month);
 
@@ -156,19 +157,63 @@ public sealed class OriginReportsTests(ApiTestFixture fixture) : OriginModuleTes
         unassigned.Entries.Should().ContainSingle().Which.Animal.Id.Should().Be(legacyId);
     }
 
+    private async Task<Guid> CreateOtherShelterAnimalAsync(HttpClient otherAdmin, string signature,
+        IReadOnlyDictionary<string, string>? origin = null)
+    {
+        return await new AnimalFactory(new ApiClient(otherAdmin)).CreateAsync(signature, $"o-{signature}", "Obcy",
+            "Mix", "none", AnimalSpecies.Dog, AnimalSex.Male, extraFields: origin);
+    }
+
     [Fact]
-    public async Task MonthlyData_ShouldNotIncludeAnimalsOfAnotherShelter()
+    public async Task MonthlyData_ShouldContainOnlyAnimalsAndMunicipalitiesOfOwnShelter()
     {
         var otherAdmin = await CreateOtherShelterAdminWithModuleAsync();
-        var foreign = await CreateMunicipalityAsync("Gmina Obca", otherAdmin);
-        await new AnimalFactory(new ApiClient(otherAdmin)).CreateAsync("2026/0001", "t-1", "Obcy", "Mix", "none",
-            AnimalSpecies.Dog, AnimalSex.Male,
-            extraFields: OriginFields(foreign.Id, foreign.Id, admissionDate: March));
+        var foreign = await CreateMunicipalityAsync("Gmina A", otherAdmin);
+        await CreateOtherShelterAnimalAsync(otherAdmin, "2026/0001",
+            OriginFields(foreign.Id, foreign.Id, admissionDate: March));
         await SetModuleAsync(true);
+        var own = await CreateMunicipalityAsync("Gmina A");
+        var ownId = await CreateAnimalAsync("2026/0001", OriginFields(own.Id, own.Id, admissionDate: March));
 
         var data = await MonthlyDataAsync(2026, 3);
 
+        var entry = data.Groups.Should().ContainSingle().Which.Entries.Should().ContainSingle().Which;
+        entry.Animal.Id.Should().Be(ownId);
+        entry.Animal.ShelterId.Should().Be(ShelterId);
+        entry.Origin.ContractorMunicipality.Id.Should().Be(own.Id);
+    }
+
+    [Fact]
+    public async Task MonthlyData_ShouldNotListAnimalsWithoutOriginOfAnotherShelter()
+    {
+        var otherAdmin = await CreateOtherShelterAdminWithModuleAsync();
+        (await PutModuleAsync(otherAdmin, false)).EnsureSuccessStatusCode();
+        await CreateOtherShelterAnimalAsync(otherAdmin, "2026/0001");
+        await SetModuleAsync(true);
+        var now = ShelterCalendar.ToLocal(DateTimeOffset.UtcNow);
+
+        var data = await MonthlyDataAsync(now.Year, now.Month);
+
         data.TotalAnimals.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task YearlyData_ShouldNotCountAnimalsOfAnotherShelter()
+    {
+        var otherAdmin = await CreateOtherShelterAdminWithModuleAsync();
+        var foreign = await CreateMunicipalityAsync("Ząbki", otherAdmin);
+        await CreateOtherShelterAnimalAsync(otherAdmin, "2026/0001",
+            OriginFields(foreign.Id, foreign.Id, admissionDate: March));
+        (await PutModuleAsync(otherAdmin, false)).EnsureSuccessStatusCode();
+        await CreateOtherShelterAnimalAsync(otherAdmin, "2026/0002");
+        await SetModuleAsync(true);
+        var own = await CreateMunicipalityAsync("Ząbki");
+        await CreateAnimalAsync("2026/0001", OriginFields(own.Id, own.Id, admissionDate: March));
+
+        var data = await YearlyDataAsync(2026);
+
+        data.Rows.Should().ContainSingle().Which.ContractorName.Should().Be("Ząbki");
+        data.Total.Should().Be(1);
     }
 
     [Fact]

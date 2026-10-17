@@ -12,6 +12,10 @@ internal interface IAnimalRepository
 
     Task<Result<Animal>> AddAsync(Animal entity, CancellationToken cancellationToken = default);
 
+    void Add(Animal entity);
+
+    void Update(Animal entity);
+
     Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default);
 
     Task RemoveAsync(Animal entity, CancellationToken cancellationToken = default);
@@ -23,9 +27,6 @@ internal interface IAnimalRepository
 
     Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, AnimalSpecies species,
         Guid? excludeAnimalId = null,
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<Animal>> GetAdmittedBetweenAsync(string shelterId, DateTimeOffset from, DateTimeOffset to,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId, AnimalSpecies species,

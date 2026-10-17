@@ -33,6 +33,7 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
         builder.Property(a => a.IsInShelter).IsRequired();
         builder.Property(a => a.ShelterId).IsRequired().HasMaxLength(100);
         builder.HasIndex(a => a.ShelterId);
+        builder.HasIndex(a => new { a.ShelterId, a.CreatedOn });
         builder.Property(a => a.MainPhotoId);
 
         builder.OwnsMany(a => a.Photos, photoBuilder =>

@@ -35,7 +35,7 @@ public sealed class SheltersModule : IModule
         });
 
         services.AddScoped<IShelterFeatureActivationRepository, ShelterFeatureActivationRepository>();
-        services.AddScoped<IShelterFeatureToggles, ShelterFeatureToggles>();
+        services.AddShelterFeatureToggles<ShelterFeatureToggles>();
     }
 
     public async Task MigrateAsync(IServiceProvider serviceProvider)

@@ -1,14 +1,15 @@
 using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
-using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain;
+using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using System.Globalization;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 
 internal sealed class OriginReportDataService(
-    IAnimalRepository animalRepository,
-    IAnimalOriginReader originReader) : IOriginReportDataService
+    IOriginReportQuery query,
+    IMunicipalityRepository municipalityRepository) : IOriginReportDataService
 {
     private static readonly StringComparer PolishComparer = StringComparer.Create(new CultureInfo("pl-PL"), true);
 
@@ -57,7 +58,7 @@ internal sealed class OriginReportDataService(
                 var counts = new int[12];
                 foreach (var entry in g.Entries)
                 {
-                    counts[OriginReportPeriod.ToLocal(entry.AdmittedOn).Month - 1]++;
+                    counts[ShelterCalendar.ToLocal(entry.AdmittedOn).Month - 1]++;
                 }
 
                 return new OriginYearlyRow
@@ -79,17 +80,20 @@ internal sealed class OriginReportDataService(
         DateTimeOffset to,
         CancellationToken cancellationToken)
     {
-        var animals = await animalRepository.GetAdmittedBetweenAsync(shelterId, from, to, cancellationToken);
-        var lookup = await originReader.LoadAsync(animals, cancellationToken);
+        var admitted = await query.GetAdmittedBetweenAsync(shelterId, from, to, cancellationToken);
+        var origins = admitted
+            .Where(a => a.Origin is not null)
+            .ToDictionary(a => a.Animal.Id, a => a.Origin!);
+        var municipalities = await municipalityRepository.GetByIdsAsync(
+            origins.Values.SelectMany(o => new[] { o.FoundMunicipalityId, o.ContractorMunicipalityId }),
+            shelterId,
+            cancellationToken);
+        var lookup = new AnimalOriginLookup(origins, municipalities.ToDictionary(m => m.Id, m => m.Name));
 
-        return animals
-            .Select(animal =>
+        return admitted
+            .Select(a => new OriginReportEntry
             {
-                var origin = lookup?.Resolve(animal) ?? AnimalOriginDto.Unassigned;
-                return new OriginReportEntry
-                {
-                    Animal = animal, Origin = origin, AdmittedOn = origin.AdmissionDate ?? animal.CreatedOn,
-                };
+                Animal = a.Animal, Origin = lookup.Resolve(a.Animal), AdmittedOn = a.AdmittedOn,
             })
             .ToList();
     }

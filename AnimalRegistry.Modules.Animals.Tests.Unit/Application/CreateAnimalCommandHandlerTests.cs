@@ -11,6 +11,13 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Application;
 
 public class CreateAnimalCommandHandlerTests
 {
+    private readonly IAnimalsUnitOfWork _unitOfWork = Substitute.For<IAnimalsUnitOfWork>();
+
+    public CreateAnimalCommandHandlerTests()
+    {
+        _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(Result.Success());
+    }
+
     private const string TestShelterId = "test-shelter-id";
 
     private static ICurrentUser CreateCurrentUserMock()
@@ -48,8 +55,6 @@ public class CreateAnimalCommandHandlerTests
             new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)
         );
         var repoMock = Substitute.For<IAnimalRepository>();
-        repoMock.AddAsync(Arg.Any<Animal>(), Arg.Any<CancellationToken>())
-            .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
@@ -59,14 +64,46 @@ public class CreateAnimalCommandHandlerTests
             .Returns(true);
 
         var handler = new CreateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock,
-            CreateOriginWriterMock());
+            CreateOriginWriterMock(), _unitOfWork);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
         response.Should().NotBeNull();
         response.IsSuccess.Should().BeTrue();
+        repoMock.Received(1).Add(Arg.Any<Animal>());
+        await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
         response.Value.Should().NotBeNull();
         response.Value.Should().BeOfType<CreateAnimalCommandResponse>();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnValidationError_WhenSavingFails()
+    {
+        var command = new CreateAnimalCommand(
+            Sig("2024/0003"),
+            "TR124",
+            "Burek",
+            "Brown",
+            "labrador",
+            "tail",
+            AnimalSpecies.Dog,
+            AnimalSex.Male,
+            new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)
+        );
+        var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
+        signatureServiceMock.IsSignatureUniqueAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<AnimalSpecies>(),
+                Arg.Any<Guid?>(),
+                Arg.Any<CancellationToken>())
+            .Returns(true);
+        _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(Result.ValidationError("Conflict."));
+
+        var handler = new CreateAnimalCommandHandler(Substitute.For<IAnimalRepository>(), signatureServiceMock,
+            CreateCurrentUserMock(), Substitute.For<IBlobStorageService>(), CreateOriginWriterMock(), _unitOfWork);
+
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        response.Status.Should().Be(ResultStatus.ValidationError);
+        response.Error.Should().Be("Conflict.");
     }
 
     [Fact]
@@ -84,8 +121,6 @@ public class CreateAnimalCommandHandlerTests
             new DateTimeOffset(2018, 5, 10, 0, 0, 0, TimeSpan.Zero)
         );
         var repoMock = Substitute.For<IAnimalRepository>();
-        repoMock.AddAsync(Arg.Any<Animal>(), Arg.Any<CancellationToken>())
-            .Returns(ci => Task.FromResult(Result<Animal>.Success(ci.ArgAt<Animal>(0))));
         var currentUserMock = CreateCurrentUserMock();
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
@@ -95,7 +130,7 @@ public class CreateAnimalCommandHandlerTests
             .Returns(true);
 
         var handler = new CreateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock,
-            CreateOriginWriterMock());
+            CreateOriginWriterMock(), _unitOfWork);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -128,7 +163,7 @@ public class CreateAnimalCommandHandlerTests
             .Returns(false);
 
         var handler = new CreateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock,
-            CreateOriginWriterMock());
+            CreateOriginWriterMock(), _unitOfWork);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -162,12 +197,13 @@ public class CreateAnimalCommandHandlerTests
             .Returns(true);
 
         var handler = new CreateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock,
-            CreateOriginWriterMock(Result.ValidationError("Animal origin is required.")));
+            CreateOriginWriterMock(Result.ValidationError("Animal origin is required.")), _unitOfWork);
 
         var response = await handler.Handle(command, CancellationToken.None);
 
         response.Status.Should().Be(ResultStatus.ValidationError);
         response.Error.Should().Be("Animal origin is required.");
-        await repoMock.DidNotReceiveWithAnyArgs().AddAsync(default!, default);
+        repoMock.DidNotReceiveWithAnyArgs().Add(default!);
+        await _unitOfWork.DidNotReceiveWithAnyArgs().SaveChangesAsync();
     }
 }

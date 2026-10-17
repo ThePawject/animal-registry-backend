@@ -28,6 +28,12 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
         (await response.Content.ReadAsStringAsync()).Should().Contain(message);
     }
 
+    private static async Task ShouldBeConflictAsync(HttpResponseMessage response, string message)
+    {
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        (await response.Content.ReadAsStringAsync()).Should().Contain(message);
+    }
+
     [Fact]
     public async Task CreateAnimal_ShouldNotRequireOrigin_WhenModuleIsDisabled()
     {
@@ -148,7 +154,7 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
     }
 
     [Fact]
-    public async Task CreateAnimal_ShouldReturnBadRequest_WhenAdmissionDateIsInFuture()
+    public async Task CreateAnimal_ShouldReturnConflict_WhenAdmissionDateIsInFuture()
     {
         await SetModuleAsync(true);
         var municipality = await CreateMunicipalityAsync("Gmina A");
@@ -156,7 +162,7 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
         var response = await PostAnimalAsync("2026/0001",
             OriginFields(municipality.Id, municipality.Id, admissionDate: DateTimeOffset.UtcNow.AddDays(2)));
 
-        await ShouldBeBadRequestAsync(response, "Admission date cannot be in the future.");
+        await ShouldBeConflictAsync(response, "Admission date cannot be in the future.");
         (await AnimalCountAsync()).Should().Be(0);
     }
 
@@ -173,7 +179,7 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
     }
 
     [Fact]
-    public async Task CreateAnimal_ShouldReturnBadRequest_WhenMunicipalityDoesNotExist()
+    public async Task CreateAnimal_ShouldReturnConflict_WhenMunicipalityDoesNotExist()
     {
         await SetModuleAsync(true);
         var found = await CreateMunicipalityAsync("Gmina A");
@@ -181,12 +187,12 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
 
         var response = await PostAnimalAsync("2026/0001", OriginFields(found.Id, unknownId));
 
-        await ShouldBeBadRequestAsync(response, $"The contractor municipality '{unknownId}' does not exist.");
+        await ShouldBeConflictAsync(response, $"The contractor municipality '{unknownId}' does not exist.");
         (await AnimalCountAsync()).Should().Be(0);
     }
 
     [Fact]
-    public async Task CreateAnimal_ShouldReturnBadRequest_WhenMunicipalityBelongsToAnotherShelter()
+    public async Task CreateAnimal_ShouldReturnConflict_WhenMunicipalityBelongsToAnotherShelter()
     {
         var otherAdmin = await CreateOtherShelterAdminWithModuleAsync();
         var foreign = await CreateMunicipalityAsync("Gmina Obca", otherAdmin);
@@ -195,18 +201,18 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
 
         var response = await PostAnimalAsync("2026/0001", OriginFields(foreign.Id, own.Id));
 
-        await ShouldBeBadRequestAsync(response, $"The found municipality '{foreign.Id}' does not exist.");
+        await ShouldBeConflictAsync(response, $"The found municipality '{foreign.Id}' does not exist.");
     }
 
     [Fact]
-    public async Task CreateAnimal_ShouldReturnBadRequest_WhenMunicipalityIsArchived()
+    public async Task CreateAnimal_ShouldReturnConflict_WhenMunicipalityIsArchived()
     {
         await SetModuleAsync(true);
         var archived = await CreateArchivedMunicipalityAsync("Gmina Archiwalna");
 
         var response = await PostAnimalAsync("2026/0001", OriginFields(archived.Id, archived.Id));
 
-        await ShouldBeBadRequestAsync(response, "The found municipality 'Gmina Archiwalna' is archived.");
+        await ShouldBeConflictAsync(response, "The found municipality 'Gmina Archiwalna' is archived.");
         (await AnimalCountAsync()).Should().Be(0);
     }
 
@@ -301,10 +307,26 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
         var response = await PutAnimalAsync(id, "2026/0001",
             OriginFields(municipality.Id, Guid.NewGuid(), street: "Polna 2"), name: "Azor");
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
         var animal = await Animals.GetAsync(id);
         animal.Name.Should().Be("Burek");
         animal.Origin!.FoundStreet.Should().Be("Leśna 1");
+    }
+
+    [Fact]
+    public async Task UpdateAnimal_ShouldStoreSingleOrigin_WhenOriginIsAddedConcurrently()
+    {
+        var id = await CreateAnimalAsync("2026/0001");
+        await SetModuleAsync(true);
+        var municipality = await CreateMunicipalityAsync("Gmina A");
+
+        var responses = await Task.WhenAll(Enumerable.Range(0, 5).Select(_ =>
+            PutAnimalAsync(id, "2026/0001", OriginFields(municipality.Id, municipality.Id))));
+
+        responses.Should().Contain(r => r.StatusCode == HttpStatusCode.OK);
+        responses.Should().OnlyContain(r =>
+            r.StatusCode == HttpStatusCode.OK || r.StatusCode == HttpStatusCode.BadRequest);
+        (await WithDbAsync(db => db.AnimalOrigins.CountAsync(o => o.AnimalId == id))).Should().Be(1);
     }
 
     [Fact]
@@ -325,7 +347,7 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
     }
 
     [Fact]
-    public async Task UpdateAnimal_ShouldReturnBadRequest_WhenArchivedMunicipalityIsNewlyAssigned()
+    public async Task UpdateAnimal_ShouldReturnConflict_WhenArchivedMunicipalityIsNewlyAssigned()
     {
         await SetModuleAsync(true);
         var municipality = await CreateMunicipalityAsync("Gmina A");
@@ -334,7 +356,7 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
 
         var response = await PutAnimalAsync(id, "2026/0001", OriginFields(municipality.Id, archived.Id));
 
-        await ShouldBeBadRequestAsync(response, "The contractor municipality 'Gmina Archiwalna' is archived.");
+        await ShouldBeConflictAsync(response, "The contractor municipality 'Gmina Archiwalna' is archived.");
     }
 
     [Fact]
