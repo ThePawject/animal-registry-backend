@@ -21,3 +21,13 @@ public interface IEventReportPdfService
 {
     byte[] GenerateReport(EventReportData data, DateTimeOffset generatedAt);
 }
+
+public interface IOriginMonthlyReportPdfService
+{
+    byte[] GenerateReport(OriginMonthlyReportData data, DateTimeOffset generatedAt);
+}
+
+public interface IOriginYearlyReportPdfService
+{
+    byte[] GenerateReport(OriginYearlyReportData data, DateTimeOffset generatedAt);
+}

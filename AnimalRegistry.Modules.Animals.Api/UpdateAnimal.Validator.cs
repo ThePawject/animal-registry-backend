@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Api.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using FastEndpoints;
 using FluentValidation;
@@ -45,6 +46,10 @@ internal sealed class UpdateAnimalValidator : Validator<UpdateAnimalRequest>
         RuleFor(x => x.Sex)
             .NotNull()
             .IsInEnum();
+
+        RuleFor(x => x.Origin!)
+            .SetValidator(new AnimalOriginRequestValidator())
+            .When(x => x.Origin is not null);
 
         RuleFor(x => x.MainPhotoIndex)
             .GreaterThanOrEqualTo(0)

@@ -7,7 +7,8 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 
 internal sealed class DateRangeAnimalsDataService(
     IAnimalRepository animalRepository,
-    IAnimalEventRepository animalEventRepository) : IDateRangeAnimalsDataService
+    IAnimalEventRepository animalEventRepository,
+    IAnimalReportFieldsProvider reportFieldsProvider) : IDateRangeAnimalsDataService
 {
     public async Task<DateRangeAnimalsReportData> PrepareReportDataAsync(
         string shelterId,
@@ -31,6 +32,8 @@ internal sealed class DateRangeAnimalsDataService(
         var animalIds = filteredEvents.Select(e => e.AnimalId).Distinct().ToList();
         var animals = await animalRepository.GetByIdsAsync(animalIds, shelterId, cancellationToken);
 
+        var extraFields = await reportFieldsProvider.GetFieldsAsync(animals, cancellationToken);
+
         var animalsWithFilteredEvents = animals.Select(animal =>
         {
             var animalEvents = filteredEvents
@@ -49,6 +52,7 @@ internal sealed class DateRangeAnimalsDataService(
             EndDate = endDate,
             Animals = animalsWithFilteredEvents,
             ReportDate = DateTimeOffset.UtcNow,
+            ExtraFields = extraFields,
         };
     }
 }

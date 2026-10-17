@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Infrastructure;
+using AnimalRegistry.Modules.Shelters.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -64,6 +65,11 @@ public sealed class FunctionalTestWebApplicationFactory : WebApplicationFactory<
             services.AddDbContext<AnimalsDbContext>((_, opts) =>
             {
                 opts.UseSqlServer(ConnectionString);
+            });
+
+            services.Configure<SheltersDatabaseSettings>(options =>
+            {
+                options.ConnectionString = ConnectionString;
             });
 
             var blobStorageSettingsDescriptor = services.FirstOrDefault(d =>

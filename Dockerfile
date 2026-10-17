@@ -7,7 +7,8 @@ RUN dotnet restore ./AnimalRegistry/AnimalRegistry.csproj
 COPY . .
 WORKDIR /src/AnimalRegistry
 
-RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+RUN --mount=type=secret,id=sixlabors_license,target=/src/sixlabors.lic \
+    dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app

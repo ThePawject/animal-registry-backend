@@ -4,7 +4,8 @@ namespace AnimalRegistry.Shared.Access;
 
 public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
-    public string UserId => httpContextAccessor.HttpContext?.User.FindFirst("https://ThePawject/user_id")?.Value!;
+    public string UserId => (httpContextAccessor.HttpContext?.User.FindFirst("https://ThePawject/user_id") ??
+                             httpContextAccessor.HttpContext?.User.FindFirst("sub"))?.Value!;
     public string Email => httpContextAccessor.HttpContext?.User.FindFirst("https://ThePawject/email")?.Value!;
 
     public string ShelterId =>

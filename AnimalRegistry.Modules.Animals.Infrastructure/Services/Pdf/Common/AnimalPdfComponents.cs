@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalHealths;
@@ -9,7 +10,8 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 internal static class AnimalPdfComponents
 {
     public static void AddAnimalSection(ColumnDescriptor column, Animal animal, int index, int total,
-        bool showPhotosAsImages = false, Dictionary<string, byte[]>? photoData = null)
+        bool showPhotosAsImages = false, Dictionary<string, byte[]>? photoData = null,
+        IReadOnlyList<AnimalReportField>? extraFields = null)
     {
         if (index > 0)
         {
@@ -19,7 +21,7 @@ internal static class AnimalPdfComponents
         column.Item().Text($"{animal.Name}").FontSize(16).Bold();
         column.Item().Height(0.3f, Unit.Centimetre);
 
-        AddAnimalBasicInfo(column, animal);
+        AddAnimalBasicInfo(column, animal, extraFields ?? []);
 
         if (animal.Events.Any())
         {
@@ -47,7 +49,8 @@ internal static class AnimalPdfComponents
         }
     }
 
-    private static void AddAnimalBasicInfo(ColumnDescriptor column, Animal animal)
+    private static void AddAnimalBasicInfo(ColumnDescriptor column, Animal animal,
+        IReadOnlyList<AnimalReportField> extraFields)
     {
         var info = new Dictionary<string, string>
         {
@@ -66,6 +69,8 @@ internal static class AnimalPdfComponents
             { "Data utworzenia", animal.CreatedOn.ToString("dd.MM.yyyy HH:mm") },
             { "Ostatnia modyfikacja", animal.ModifiedOn.ToString("dd.MM.yyyy HH:mm") },
         };
+
+        AddExtraFields(info, animal, extraFields);
 
         column.Item().Table(table =>
         {
@@ -203,6 +208,15 @@ internal static class AnimalPdfComponents
                     row.RelativeItem();
                 }
             });
+        }
+    }
+
+    public static void AddExtraFields(Dictionary<string, string> info, Animal animal,
+        IReadOnlyList<AnimalReportField> extraFields)
+    {
+        foreach (var field in extraFields)
+        {
+            info[field.Label] = field.Format(animal);
         }
     }
 

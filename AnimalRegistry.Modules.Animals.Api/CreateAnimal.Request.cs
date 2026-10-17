@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Api.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using Microsoft.AspNetCore.Http;
 
@@ -17,4 +18,6 @@ public sealed class CreateAnimalRequest
     public DateTimeOffset? BirthDate { get; init; }
     public IFormFileCollection Photos { get; init; } = new FormFileCollection();
     public int? MainPhotoIndex { get; init; }
+
+    public AnimalOriginRequest? Origin { get; init; }
 }

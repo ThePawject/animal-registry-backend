@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
@@ -9,7 +10,9 @@ internal sealed class CreateAnimalCommandHandler(
     IAnimalRepository animalRepository,
     IAnimalSignatureService signatureService,
     ICurrentUser currentUser,
-    IBlobStorageService blobStorageService)
+    IBlobStorageService blobStorageService,
+    IAnimalOriginWriter originWriter,
+    IAnimalsUnitOfWork unitOfWork)
     : IRequestHandler<CreateAnimalCommand, Result<CreateAnimalCommandResponse>>
 {
     public async Task<Result<CreateAnimalCommandResponse>> Handle(CreateAnimalCommand request,
@@ -41,6 +44,12 @@ internal sealed class CreateAnimalCommandHandler(
             currentUser.ShelterId
         );
 
+        var originResult = await originWriter.ApplyAsync(animal, request.Origin, cancellationToken);
+        if (originResult.IsFailure)
+        {
+            return Result<CreateAnimalCommandResponse>.ValidationError(originResult.Error!);
+        }
+
         if (request.Photos.Count > 0)
         {
             var uploadTasks = request.Photos.Select(photo =>
@@ -60,13 +69,14 @@ internal sealed class CreateAnimalCommandHandler(
             }
         }
 
-        var result = await animalRepository.AddAsync(animal, cancellationToken);
-        if (!result.IsSuccess || result.Value == null)
+        animalRepository.Add(animal);
+        var saveResult = await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (saveResult.IsFailure)
         {
-            return Result<CreateAnimalCommandResponse>.Failure("Failed to create animal.");
+            return Result<CreateAnimalCommandResponse>.ValidationError(saveResult.Error!);
         }
 
-        return Result<CreateAnimalCommandResponse>.Success(new CreateAnimalCommandResponse(result.Value.Id));
+        return Result<CreateAnimalCommandResponse>.Success(new CreateAnimalCommandResponse(animal.Id));
     }
 
     private async Task<Result<string>> UploadPhotoAsync(PhotoUploadInfo photo, Guid animalId,

@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
@@ -9,7 +10,9 @@ internal sealed class UpdateAnimalCommandHandler(
     IAnimalRepository animalRepository,
     IAnimalSignatureService signatureService,
     ICurrentUser currentUser,
-    IBlobStorageService blobStorageService)
+    IBlobStorageService blobStorageService,
+    IAnimalOriginWriter originWriter,
+    IAnimalsUnitOfWork unitOfWork)
     : IRequestHandler<UpdateAnimalCommand, Result<UpdateAnimalCommandResponse>>
 {
     public async Task<Result<UpdateAnimalCommandResponse>> Handle(
@@ -54,6 +57,12 @@ internal sealed class UpdateAnimalCommandHandler(
             request.Sex,
             request.BirthDate);
 
+        var originResult = await originWriter.ApplyAsync(animal, request.Origin, cancellationToken);
+        if (originResult.IsFailure)
+        {
+            return Result<UpdateAnimalCommandResponse>.ValidationError(originResult.Error!);
+        }
+
         var currentPhotoIds = animal.Photos.Select(p => p.Id).ToHashSet();
         var requestedPhotoIds = request.ExistingPhotoIds.ToHashSet();
 
@@ -93,11 +102,11 @@ internal sealed class UpdateAnimalCommandHandler(
             animal.SetMainPhoto(request.MainPhotoId.Value);
         }
 
-        var result = await animalRepository.UpdateAsync(animal, cancellationToken);
-
-        if (!result.IsSuccess || result.Value == null)
+        animalRepository.Update(animal);
+        var saveResult = await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (saveResult.IsFailure)
         {
-            return Result<UpdateAnimalCommandResponse>.Failure("Failed to update animal.");
+            return Result<UpdateAnimalCommandResponse>.ValidationError(saveResult.Error!);
         }
 
         return Result<UpdateAnimalCommandResponse>.Success(
