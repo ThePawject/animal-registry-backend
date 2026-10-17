@@ -1,0 +1,7 @@
+using AnimalRegistry.Shared;
+using AnimalRegistry.Shared.MediatorPattern;
+
+namespace AnimalRegistry.Modules.Animals.Application.Vaccinations;
+
+internal sealed record ListAnimalVaccinationsQuery(Guid AnimalId)
+    : IRequest<Result<IReadOnlyList<AnimalVaccinationDto>>>;
