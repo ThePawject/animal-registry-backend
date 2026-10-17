@@ -2,6 +2,8 @@ namespace AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 
 public sealed class VaccinationAttachment
 {
+    public const int FileNameMaxLength = 255;
+
     private VaccinationAttachment()
     {
     }

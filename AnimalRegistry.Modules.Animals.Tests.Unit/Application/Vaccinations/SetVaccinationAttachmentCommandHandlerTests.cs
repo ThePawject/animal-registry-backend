@@ -92,6 +92,18 @@ public sealed class SetVaccinationAttachmentCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ShouldDeleteNewBlobAndRethrow_WhenSaveThrows()
+    {
+        _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
+            .Returns<Result>(_ => throw new InvalidOperationException("db down"));
+
+        var act = () => _handler.Handle(Command(), CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        await _blobs.Received(1).DeleteAsync(NewBlobPath, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Handle_ShouldReturnValidationError_WhenUploadFails()
     {
         _blobs.UploadDocumentAsync(Arg.Any<string>(), Arg.Any<Stream>(), Arg.Any<string>(), ShelterId,

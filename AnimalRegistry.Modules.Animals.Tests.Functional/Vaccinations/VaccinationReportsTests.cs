@@ -74,6 +74,18 @@ public sealed class VaccinationReportsTests(ApiTestFixture fixture) : Vaccinatio
         reversed.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
+    [Theory]
+    [InlineData("0001-01-01T00:00:00Z", "2026-01-01T00:00:00Z")]
+    [InlineData("2026-01-01T00:00:00Z", "9999-12-31T00:00:00Z")]
+    public async Task PeriodReport_ShouldReturnBadRequest_WhenDatesAreOutOfRange(string from, string to)
+    {
+        await SetModuleAsync(true);
+
+        var response = await Worker.GetAsync(PeriodRoute(DateTimeOffset.Parse(from), DateTimeOffset.Parse(to)));
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
     [Fact]
     public async Task ExpiringReport_ShouldReturnBadRequest_WhenDaysAreOutOfRange()
     {
