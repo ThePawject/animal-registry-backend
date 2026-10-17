@@ -4,7 +4,9 @@ using AnimalRegistry.Modules.Animals.Domain.Animals;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 
-internal sealed class RepositoryDumpDataService(IAnimalRepository animalRepository) : IRepositoryDumpDataService
+internal sealed class RepositoryDumpDataService(
+    IAnimalRepository animalRepository,
+    IAnimalReportFieldsProvider reportFieldsProvider) : IRepositoryDumpDataService
 {
     private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
 
@@ -15,10 +17,15 @@ internal sealed class RepositoryDumpDataService(IAnimalRepository animalReposito
         var animals = await animalRepository.GetAllByShelterIdAsync(shelterId, cancellationToken);
 
         var photoData = await DownloadPhotosAsync(animals, cancellationToken);
+        var extraFields = await reportFieldsProvider.GetFieldsAsync(animals, cancellationToken);
 
         return new RepositoryDumpReportData
         {
-            ShelterId = shelterId, Animals = animals, ReportDate = DateTimeOffset.UtcNow, PhotoData = photoData,
+            ShelterId = shelterId,
+            Animals = animals,
+            ReportDate = DateTimeOffset.UtcNow,
+            PhotoData = photoData,
+            ExtraFields = extraFields,
         };
     }
 

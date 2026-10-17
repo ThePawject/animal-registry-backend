@@ -37,7 +37,8 @@ internal sealed class RepositoryDumpReportPdfService : ReportPdfBase, IRepositor
                     {
                         for (var i = 0; i < data.Animals.Count; i++)
                         {
-                            AnimalPdfComponents.AddAnimalSection(column, data.Animals[i], i, data.TotalAnimals);
+                            AnimalPdfComponents.AddAnimalSection(column, data.Animals[i], i, data.TotalAnimals,
+                                extraFields: data.ExtraFields);
                         }
                     }
                 });

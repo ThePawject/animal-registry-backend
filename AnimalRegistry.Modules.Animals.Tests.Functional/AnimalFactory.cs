@@ -21,7 +21,33 @@ public sealed class AnimalFactory(ApiClient api)
         AnimalSpecies species,
         AnimalSex sex,
         List<(string FileName, byte[] Data, string ContentType)>? photos = null,
-        int? mainPhotoIndex = null)
+        int? mainPhotoIndex = null,
+        IReadOnlyDictionary<string, string>? extraFields = null)
+    {
+        var resp = await PostCreateAsync(signature, transponder, name, breed, distinguishingMarks, species, sex,
+            photos, mainPhotoIndex, extraFields);
+        if (!resp.IsSuccessStatusCode)
+        {
+            var errorContent = await resp.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"Request failed with status {resp.StatusCode}: {errorContent}");
+        }
+
+        var created = await resp.Content.ReadFromJsonAsync<CreateAnimalCommandResponse>()
+                      ?? throw new InvalidOperationException("Create response null");
+        return created.AnimalId;
+    }
+
+    public async Task<HttpResponseMessage> PostCreateAsync(
+        string signature,
+        string transponder,
+        string name,
+        string breed,
+        string distinguishingMarks,
+        AnimalSpecies species,
+        AnimalSex sex,
+        List<(string FileName, byte[] Data, string ContentType)>? photos = null,
+        int? mainPhotoIndex = null,
+        IReadOnlyDictionary<string, string>? extraFields = null)
     {
         var content = new MultipartFormDataContent();
         content.Add(new StringContent(signature), "Signature");
@@ -48,16 +74,9 @@ public sealed class AnimalFactory(ApiClient api)
             }
         }
 
-        var resp = await api.PostFormAsync(CreateAnimalRequest.Route, content);
-        if (!resp.IsSuccessStatusCode)
-        {
-            var errorContent = await resp.Content.ReadAsStringAsync();
-            throw new HttpRequestException($"Request failed with status {resp.StatusCode}: {errorContent}");
-        }
+        AddExtraFields(content, extraFields);
 
-        var created = await resp.Content.ReadFromJsonAsync<CreateAnimalCommandResponse>()
-                      ?? throw new InvalidOperationException("Create response null");
-        return created.AnimalId;
+        return await api.PostFormAsync(CreateAnimalRequest.Route, content);
     }
 
     public async Task<AnimalDto> GetAsync(Guid id)
@@ -111,7 +130,36 @@ public sealed class AnimalFactory(ApiClient api)
         List<Guid> existingPhotoIds,
         List<(string FileName, byte[] Data, string ContentType)>? newPhotos = null,
         Guid? mainPhotoId = null,
-        int? mainPhotoIndex = null)
+        int? mainPhotoIndex = null,
+        IReadOnlyDictionary<string, string>? extraFields = null)
+    {
+        var resp = await PutUpdateAsync(id, signature, transponder, name, breed, distinguishingMarks, species, sex,
+            existingPhotoIds, newPhotos, mainPhotoId, mainPhotoIndex, extraFields);
+        if (!resp.IsSuccessStatusCode)
+        {
+            var errorContent = await resp.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"Request failed with status {resp.StatusCode}: {errorContent}");
+        }
+
+        var updated = await resp.Content.ReadFromJsonAsync<UpdateAnimalCommandResponse>()
+                      ?? throw new InvalidOperationException("Update response null");
+        return updated.AnimalId;
+    }
+
+    public async Task<HttpResponseMessage> PutUpdateAsync(
+        Guid id,
+        string signature,
+        string transponder,
+        string name,
+        string breed,
+        string distinguishingMarks,
+        AnimalSpecies species,
+        AnimalSex sex,
+        List<Guid> existingPhotoIds,
+        List<(string FileName, byte[] Data, string ContentType)>? newPhotos = null,
+        Guid? mainPhotoId = null,
+        int? mainPhotoIndex = null,
+        IReadOnlyDictionary<string, string>? extraFields = null)
     {
         var content = new MultipartFormDataContent();
         content.Add(new StringContent(signature), "Signature");
@@ -149,16 +197,22 @@ public sealed class AnimalFactory(ApiClient api)
             content.Add(new StringContent(mainPhotoIndex.Value.ToString()), "MainPhotoIndex");
         }
 
-        var resp = await api.PutFormAsync(UpdateAnimalRequest.BuildRoute(id), content);
-        if (!resp.IsSuccessStatusCode)
+        AddExtraFields(content, extraFields);
+
+        return await api.PutFormAsync(UpdateAnimalRequest.BuildRoute(id), content);
+    }
+
+    private static void AddExtraFields(MultipartFormDataContent content, IReadOnlyDictionary<string, string>? fields)
+    {
+        if (fields is null)
         {
-            var errorContent = await resp.Content.ReadAsStringAsync();
-            throw new HttpRequestException($"Request failed with status {resp.StatusCode}: {errorContent}");
+            return;
         }
 
-        var updated = await resp.Content.ReadFromJsonAsync<UpdateAnimalCommandResponse>()
-                      ?? throw new InvalidOperationException("Update response null");
-        return updated.AnimalId;
+        foreach (var (key, value) in fields)
+        {
+            content.Add(new StringContent(value), key);
+        }
     }
 
     public async Task AddEvent(Guid animalId, AnimalEventType animalEvent, DateTimeOffset? occurredOn = null)

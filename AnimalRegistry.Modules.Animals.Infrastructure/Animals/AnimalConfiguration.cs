@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -34,6 +35,31 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
         builder.Property(a => a.ShelterId).IsRequired().HasMaxLength(100);
         builder.HasIndex(a => a.ShelterId);
         builder.Property(a => a.MainPhotoId);
+
+        builder.OwnsOne(a => a.Origin, originBuilder =>
+        {
+            originBuilder.ToTable("AnimalOrigins");
+            originBuilder.WithOwner().HasForeignKey("AnimalId");
+            originBuilder.Property(o => o.AdmissionDate).IsRequired();
+            originBuilder.Property(o => o.AdmissionMethod)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasConversion<string>();
+            originBuilder.Property(o => o.FoundStreet).IsRequired().HasMaxLength(200);
+            originBuilder.Property(o => o.FoundMunicipalityId).IsRequired();
+            originBuilder.Property(o => o.ContractorMunicipalityId).IsRequired();
+
+            originBuilder.HasOne<Municipality>()
+                .WithMany()
+                .HasForeignKey(o => o.FoundMunicipalityId)
+                .OnDelete(DeleteBehavior.Restrict);
+            originBuilder.HasOne<Municipality>()
+                .WithMany()
+                .HasForeignKey(o => o.ContractorMunicipalityId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            originBuilder.HasIndex(o => o.AdmissionDate);
+        });
 
         builder.OwnsMany(a => a.Photos, photoBuilder =>
         {

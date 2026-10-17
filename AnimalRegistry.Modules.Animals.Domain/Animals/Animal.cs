@@ -2,6 +2,7 @@ using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents.Reactions;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalHealths;
 using AnimalRegistry.Modules.Animals.Domain.Animals.DomainEvents;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Shared.DDD;
 
 namespace AnimalRegistry.Modules.Animals.Domain.Animals;
@@ -58,6 +59,7 @@ public sealed class Animal : Entity, IAggregateRoot
     public bool IsInShelter { get; private set; }
     public string ShelterId { get; private set; } = null!;
     public Guid? MainPhotoId { get; private set; }
+    public AnimalOrigin? Origin { get; private set; }
     public IReadOnlyCollection<AnimalPhoto> Photos => GetOrderedPhotos();
     public IReadOnlyCollection<AnimalEvent> Events => _events.AsReadOnly();
     public IReadOnlyCollection<AnimalHealth> HealthRecords => _healthRecords.AsReadOnly();
@@ -127,6 +129,12 @@ public sealed class Animal : Entity, IAggregateRoot
         ModifiedOn = DateTimeOffset.UtcNow;
 
         AddDomainEvent(new AnimalUpdatedDomainEvent(Id, Name, Signature.Value));
+    }
+
+    public void SetOrigin(AnimalOrigin origin)
+    {
+        Origin = origin;
+        ModifiedOn = DateTimeOffset.UtcNow;
     }
 
     internal void SetOutOfShelter()

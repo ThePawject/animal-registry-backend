@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
@@ -9,7 +10,8 @@ internal sealed class CreateAnimalCommandHandler(
     IAnimalRepository animalRepository,
     IAnimalSignatureService signatureService,
     ICurrentUser currentUser,
-    IBlobStorageService blobStorageService)
+    IBlobStorageService blobStorageService,
+    IAnimalOriginWriter originWriter)
     : IRequestHandler<CreateAnimalCommand, Result<CreateAnimalCommandResponse>>
 {
     public async Task<Result<CreateAnimalCommandResponse>> Handle(CreateAnimalCommand request,
@@ -40,6 +42,12 @@ internal sealed class CreateAnimalCommandHandler(
             request.BirthDate,
             currentUser.ShelterId
         );
+
+        var originResult = await originWriter.ApplyAsync(animal, request.Origin, cancellationToken);
+        if (originResult.IsFailure)
+        {
+            return Result<CreateAnimalCommandResponse>.ValidationError(originResult.Error!);
+        }
 
         if (request.Photos.Count > 0)
         {

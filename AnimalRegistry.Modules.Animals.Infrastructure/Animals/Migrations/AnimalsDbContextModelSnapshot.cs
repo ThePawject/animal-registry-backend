@@ -128,6 +128,37 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.ToTable("AnimalHealthDocuments");
                 });
 
+            modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Municipalities.Municipality", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ShelterId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShelterId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Municipalities_ShelterId_Name");
+
+                    b.ToTable("Municipalities");
+                });
+
             modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Animals.Animal", b =>
                 {
                     b.OwnsMany("AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents.AnimalEvent", "Events", b1 =>
@@ -236,9 +267,61 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                                 .HasForeignKey("AnimalId");
                         });
 
+                    b.OwnsOne("AnimalRegistry.Modules.Animals.Domain.Animals.Origin.AnimalOrigin", "Origin", b1 =>
+                        {
+                            b1.Property<Guid>("AnimalId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTimeOffset>("AdmissionDate")
+                                .HasColumnType("datetimeoffset");
+
+                            b1.Property<string>("AdmissionMethod")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)");
+
+                            b1.Property<Guid>("ContractorMunicipalityId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("FoundMunicipalityId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("FoundStreet")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)");
+
+                            b1.HasKey("AnimalId");
+
+                            b1.HasIndex("AdmissionDate");
+
+                            b1.HasIndex("ContractorMunicipalityId");
+
+                            b1.HasIndex("FoundMunicipalityId");
+
+                            b1.ToTable("AnimalOrigins", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AnimalId");
+
+                            b1.HasOne("AnimalRegistry.Modules.Animals.Domain.Municipalities.Municipality", null)
+                                .WithMany()
+                                .HasForeignKey("ContractorMunicipalityId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+
+                            b1.HasOne("AnimalRegistry.Modules.Animals.Domain.Municipalities.Municipality", null)
+                                .WithMany()
+                                .HasForeignKey("FoundMunicipalityId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+                        });
+
                     b.Navigation("Events");
 
                     b.Navigation("HealthRecords");
+
+                    b.Navigation("Origin");
 
                     b.Navigation("Photos");
                 });

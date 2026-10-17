@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Application;
+using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
@@ -16,6 +17,14 @@ public class UpdateAnimalCommandHandlerTests
         var currentUserMock = Substitute.For<ICurrentUser>();
         currentUserMock.ShelterId.Returns(TestShelterId);
         return currentUserMock;
+    }
+
+    private static IAnimalOriginWriter CreateOriginWriterMock(Result? result = null)
+    {
+        var originWriterMock = Substitute.For<IAnimalOriginWriter>();
+        originWriterMock.ApplyAsync(Arg.Any<Animal>(), Arg.Any<AnimalOriginInput?>(), Arg.Any<CancellationToken>())
+            .Returns(result ?? Result.Success());
+        return originWriterMock;
     }
 
     private static AnimalSignature Sig(string signature)
@@ -67,7 +76,8 @@ public class UpdateAnimalCommandHandlerTests
                 Arg.Any<CancellationToken>())
             .Returns(true);
 
-        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock,
+            CreateOriginWriterMock());
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -104,7 +114,8 @@ public class UpdateAnimalCommandHandlerTests
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
 
-        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock,
+            CreateOriginWriterMock());
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -157,7 +168,8 @@ public class UpdateAnimalCommandHandlerTests
                 Arg.Any<CancellationToken>())
             .Returns(true);
 
-        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock,
+            CreateOriginWriterMock());
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -209,7 +221,8 @@ public class UpdateAnimalCommandHandlerTests
                 Arg.Any<CancellationToken>())
             .Returns(false);
 
-        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock,
+            CreateOriginWriterMock());
 
         var response = await handler.Handle(command, CancellationToken.None);
 
@@ -259,7 +272,8 @@ public class UpdateAnimalCommandHandlerTests
         var blobStorageMock = Substitute.For<IBlobStorageService>();
         var signatureServiceMock = Substitute.For<IAnimalSignatureService>();
 
-        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock);
+        var handler = new UpdateAnimalCommandHandler(repoMock, signatureServiceMock, currentUserMock, blobStorageMock,
+            CreateOriginWriterMock());
 
         var response = await handler.Handle(command, CancellationToken.None);
 

@@ -105,6 +105,18 @@ internal sealed class AnimalRepository(
         return animals;
     }
 
+    public async Task<IReadOnlyList<Animal>> GetAdmittedBetweenAsync(string shelterId, DateTimeOffset from,
+        DateTimeOffset to, CancellationToken cancellationToken = default)
+    {
+        return await context.Animals
+            .AsNoTracking()
+            .Where(a => a.ShelterId == shelterId)
+            .Where(a =>
+                (a.Origin != null && a.Origin.AdmissionDate >= from && a.Origin.AdmissionDate < to) ||
+                (a.Origin == null && a.CreatedOn >= from && a.CreatedOn < to))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> IsSignatureUniqueAsync(string signature, string shelterId, AnimalSpecies species,
         Guid? excludeAnimalId = null,
         CancellationToken cancellationToken = default)

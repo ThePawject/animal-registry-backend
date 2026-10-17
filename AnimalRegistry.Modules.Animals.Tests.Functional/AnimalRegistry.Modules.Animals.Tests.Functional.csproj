@@ -32,6 +32,7 @@
     <ItemGroup>
         <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Infrastructure\AnimalRegistry.Modules.Animals.Infrastructure.csproj"/>
         <ProjectReference Include="..\AnimalRegistry\AnimalRegistry.csproj"/>
+        <ProjectReference Include="..\AnimalRegistry.Modules.Shelters\AnimalRegistry.Modules.Shelters.csproj"/>
         <ProjectReference Include="..\AnimalRegistry.Modules.Animals.Api\AnimalRegistry.Modules.Animals.Api.csproj"/>
         <ProjectReference Include="..\AnimalRegistry.Shared\AnimalRegistry.Shared.csproj"/>
     </ItemGroup>

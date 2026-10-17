@@ -43,6 +43,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Add Six Labors license
+        env:
+          SIXLABORS_LICENSE_KEY: ${{ secrets.SIXLABORS_LICENSE_KEY }}
+        run: printf '%s' "$SIXLABORS_LICENSE_KEY" > sixlabors.lic
+
       - name: Restore dependencies
         run: dotnet restore
 

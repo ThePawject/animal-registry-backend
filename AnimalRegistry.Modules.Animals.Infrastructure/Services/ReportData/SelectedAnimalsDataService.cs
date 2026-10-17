@@ -4,7 +4,9 @@ using AnimalRegistry.Modules.Animals.Domain.Animals;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 
-internal sealed class SelectedAnimalsDataService(IAnimalRepository animalRepository) : ISelectedAnimalsDataService
+internal sealed class SelectedAnimalsDataService(
+    IAnimalRepository animalRepository,
+    IAnimalReportFieldsProvider reportFieldsProvider) : ISelectedAnimalsDataService
 {
     private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
 
@@ -16,6 +18,7 @@ internal sealed class SelectedAnimalsDataService(IAnimalRepository animalReposit
         var animals = await animalRepository.GetByIdsAsync(animalIds, shelterId, cancellationToken);
 
         var photoData = await DownloadPhotosAsync(animals, cancellationToken);
+        var extraFields = await reportFieldsProvider.GetFieldsAsync(animals, cancellationToken);
 
         return new SelectedAnimalsReportData
         {
@@ -24,6 +27,7 @@ internal sealed class SelectedAnimalsDataService(IAnimalRepository animalReposit
             RequestedIds = animalIds,
             ReportDate = DateTimeOffset.UtcNow,
             PhotoData = photoData,
+            ExtraFields = extraFields,
         };
     }
 

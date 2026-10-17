@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
@@ -9,7 +10,8 @@ internal sealed class UpdateAnimalCommandHandler(
     IAnimalRepository animalRepository,
     IAnimalSignatureService signatureService,
     ICurrentUser currentUser,
-    IBlobStorageService blobStorageService)
+    IBlobStorageService blobStorageService,
+    IAnimalOriginWriter originWriter)
     : IRequestHandler<UpdateAnimalCommand, Result<UpdateAnimalCommandResponse>>
 {
     public async Task<Result<UpdateAnimalCommandResponse>> Handle(
@@ -53,6 +55,12 @@ internal sealed class UpdateAnimalCommandHandler(
             request.Species,
             request.Sex,
             request.BirthDate);
+
+        var originResult = await originWriter.ApplyAsync(animal, request.Origin, cancellationToken);
+        if (originResult.IsFailure)
+        {
+            return Result<UpdateAnimalCommandResponse>.ValidationError(originResult.Error!);
+        }
 
         var currentPhotoIds = animal.Photos.Select(p => p.Id).ToHashSet();
         var requestedPhotoIds = request.ExistingPhotoIds.ToHashSet();

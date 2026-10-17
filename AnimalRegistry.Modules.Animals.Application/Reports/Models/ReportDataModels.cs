@@ -10,6 +10,7 @@ public sealed class RepositoryDumpReportData
     public required DateTimeOffset ReportDate { get; init; }
     public int TotalAnimals => Animals.Count;
     public Dictionary<string, byte[]> PhotoData { get; init; } = new();
+    public IReadOnlyList<AnimalReportField> ExtraFields { get; init; } = [];
 }
 
 public sealed class SelectedAnimalsReportData
@@ -22,6 +23,7 @@ public sealed class SelectedAnimalsReportData
     public int FoundAnimals => Animals.Count;
     public int MissingAnimals => RequestedIds.Count - FoundAnimals;
     public Dictionary<string, byte[]> PhotoData { get; init; } = new();
+    public IReadOnlyList<AnimalReportField> ExtraFields { get; init; } = [];
 }
 
 public sealed class DateRangeAnimalsReportData
@@ -33,6 +35,7 @@ public sealed class DateRangeAnimalsReportData
     public required DateTimeOffset ReportDate { get; init; }
     public int TotalAnimals => Animals.Count;
     public int TotalEvents => Animals.Sum(a => a.Events.Count);
+    public IReadOnlyList<AnimalReportField> ExtraFields { get; init; } = [];
 }
 
 public sealed class AnimalWithFilteredEvents

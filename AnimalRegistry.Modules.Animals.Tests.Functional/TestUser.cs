@@ -16,6 +16,11 @@ public sealed class TestUser
         return new TestUser { Roles = [$"Shelter_Access_{shelterId}"] };
     }
 
+    public static TestUser WithShelterAdmin(string shelterId)
+    {
+        return new TestUser { Roles = [$"Shelter_Access_{shelterId}", "Shelter_Admin"] };
+    }
+
     public static TestUser WithoutShelterAccess()
     {
         return new TestUser { Roles = Array.Empty<string>() };

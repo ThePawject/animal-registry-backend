@@ -25,6 +25,9 @@ internal interface IAnimalRepository
         Guid? excludeAnimalId = null,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Animal>> GetAdmittedBetweenAsync(string shelterId, DateTimeOffset from, DateTimeOffset to,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<int>> GetExistingNumbersForYearAsync(int year, string shelterId, AnimalSpecies species,
         CancellationToken cancellationToken = default);
 }

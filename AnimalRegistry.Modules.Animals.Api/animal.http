@@ -23,3 +23,77 @@ Content-Type: application/json
 ### Get Animal
 GET {{HostAddress}}/animals/34c897df-8085-420b-942b-9e75e7e5fa99
 Authorization: Bearer {{$auth.token("auth0")}}
+
+
+### Shelter modules (enabled state for the current shelter)
+GET {{HostAddress}}/shelter/features
+Authorization: Bearer {{$auth.token("auth0")}}
+
+### Enable animal origin module (requires Shelter_Admin role)
+PUT {{HostAddress}}/shelter/features/animal-origin
+Authorization: Bearer {{$auth.token("auth0")}}
+Content-Type: application/json
+
+{
+  "isEnabled": true
+}
+
+### List municipalities (contractors)
+GET {{HostAddress}}/municipalities?includeArchived=false
+Authorization: Bearer {{$auth.token("auth0")}}
+
+### Create municipality (requires Shelter_Admin role)
+POST {{HostAddress}}/municipalities
+Authorization: Bearer {{$auth.token("auth0")}}
+Content-Type: application/json
+
+{
+  "name": "Gmina Ząbki"
+}
+
+### Create animal with origin (origin module enabled)
+POST {{HostAddress}}/animals
+Authorization: Bearer {{$auth.token("auth0")}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="Signature"
+
+2026/0001
+--boundary
+Content-Disposition: form-data; name="Name"
+
+Burek
+--boundary
+Content-Disposition: form-data; name="Color"
+
+Brown
+--boundary
+Content-Disposition: form-data; name="Breed"
+
+Mix
+--boundary
+Content-Disposition: form-data; name="DistinguishingMarks"
+
+
+--boundary
+Content-Disposition: form-data; name="Species"
+
+1
+--boundary
+Content-Disposition: form-data; name="Sex"
+
+1
+--boundary
+Content-Disposition: form-data; name="Origin"
+
+{"admissionDate":"2026-03-15T10:00:00+01:00","admissionMethod":1,"foundStreet":"Leśna 1","foundMunicipalityId":"00000000-0000-0000-0000-000000000000","contractorMunicipalityId":"00000000-0000-0000-0000-000000000000"}
+--boundary--
+
+### Monthly origin report
+GET {{HostAddress}}/reports/origin/monthly?year=2026&month=3
+Authorization: Bearer {{$auth.token("auth0")}}
+
+### Yearly origin summary
+GET {{HostAddress}}/reports/origin/yearly?year=2026
+Authorization: Bearer {{$auth.token("auth0")}}
