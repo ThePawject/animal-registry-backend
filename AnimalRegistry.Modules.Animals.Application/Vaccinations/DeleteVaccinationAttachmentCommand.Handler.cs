@@ -8,7 +8,7 @@ namespace AnimalRegistry.Modules.Animals.Application.Vaccinations;
 internal sealed class DeleteVaccinationAttachmentCommandHandler(
     IAnimalVaccinationRepository vaccinationRepository,
     IAnimalsUnitOfWork unitOfWork,
-    IBlobStorageService blobStorageService,
+    AttachmentBlobCleaner blobCleaner,
     ICurrentUser currentUser)
     : IRequestHandler<DeleteVaccinationAttachmentCommand, Result>
 {
@@ -34,7 +34,7 @@ internal sealed class DeleteVaccinationAttachmentCommandHandler(
             return saveResult;
         }
 
-        await blobStorageService.DeleteAsync(attachment.BlobPath, cancellationToken);
+        await blobCleaner.DeleteAsync(attachment.BlobPath);
         return Result.Success();
     }
 }

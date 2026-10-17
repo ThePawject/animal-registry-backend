@@ -5,6 +5,7 @@ using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using static AnimalRegistry.Modules.Animals.Tests.Unit.VaccinationTestData;
 
@@ -32,7 +33,8 @@ public sealed class SetVaccinationAttachmentCommandHandlerTests
             .Returns(Result<string>.Success(NewBlobPath));
         _blobs.GetBlobUrl(Arg.Any<string>()).Returns(call => $"https://blob/{call.Arg<string>()}");
         _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(Result.Success());
-        _handler = new SetVaccinationAttachmentCommandHandler(_vaccinations, _unitOfWork, _blobs, _currentUser);
+        _handler = new SetVaccinationAttachmentCommandHandler(_vaccinations, _unitOfWork, _blobs,
+            new AttachmentBlobCleaner(_blobs, NullLogger<AttachmentBlobCleaner>.Instance), _currentUser);
     }
 
     private SetVaccinationAttachmentCommand Command(Guid? vaccinationId = null)
@@ -101,6 +103,32 @@ public sealed class SetVaccinationAttachmentCommandHandlerTests
 
         await act.Should().ThrowAsync<InvalidOperationException>();
         await _blobs.Received(1).DeleteAsync(NewBlobPath, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ShouldSucceed_WhenPreviousBlobCannotBeDeleted()
+    {
+        _vaccination.SetAttachment(VaccinationAttachment.Create(OldBlobPath, "old.pdf", "application/pdf", Now), Now);
+        _blobs.DeleteAsync(OldBlobPath, Arg.Any<CancellationToken>())
+            .Returns(_ => throw new InvalidOperationException("storage down"));
+
+        var result = await _handler.Handle(Command(), CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        _vaccination.Attachment!.BlobPath.Should().Be(NewBlobPath);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldRethrowSaveError_WhenNewBlobCannotBeDeleted()
+    {
+        _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
+            .Returns<Result>(_ => throw new InvalidOperationException("db down"));
+        _blobs.DeleteAsync(NewBlobPath, Arg.Any<CancellationToken>())
+            .Returns(_ => throw new TimeoutException("storage down"));
+
+        var act = () => _handler.Handle(Command(), CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("db down");
     }
 
     [Fact]

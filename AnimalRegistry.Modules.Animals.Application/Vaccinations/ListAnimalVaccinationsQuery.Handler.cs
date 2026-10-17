@@ -16,13 +16,12 @@ internal sealed class ListAnimalVaccinationsQueryHandler(
     public async Task<Result<IReadOnlyList<AnimalVaccinationDto>>> Handle(ListAnimalVaccinationsQuery request,
         CancellationToken cancellationToken)
     {
-        var animal = await animalRepository.GetByIdAsync(request.AnimalId, currentUser.ShelterId, cancellationToken);
-        if (animal is null)
+        if (!await animalRepository.ExistsAsync(request.AnimalId, currentUser.ShelterId, cancellationToken))
         {
             return Result<IReadOnlyList<AnimalVaccinationDto>>.NotFound("Animal not found.");
         }
 
-        var vaccinations = await vaccinationRepository.ListByAnimalIdAsync(animal.Id, currentUser.ShelterId,
+        var vaccinations = await vaccinationRepository.ListByAnimalIdAsync(request.AnimalId, currentUser.ShelterId,
             cancellationToken);
         var now = DateTimeOffset.UtcNow;
 

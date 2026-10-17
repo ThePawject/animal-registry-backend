@@ -236,11 +236,18 @@ public sealed class AnimalVaccinationsTests(ApiTestFixture fixture) : Vaccinatio
 
         var unsupported = await UploadAttachmentAsync(animalId, created.Id, "script.exe", "application/x-msdownload");
         var tooLongName = await UploadAttachmentAsync(animalId, created.Id, new string('a', 300) + ".pdf");
+        var withoutContentType = new MultipartFormDataContent
+        {
+            { new StreamContent(new MemoryStream("%PDF-1.4"u8.ToArray())), "File", "scan.pdf" },
+        };
+        var noContentType = await Worker.PutAsync(
+            UploadVaccinationAttachmentRequest.BuildRoute(animalId, created.Id), withoutContentType);
         var missing = await Worker.PutAsync(UploadVaccinationAttachmentRequest.BuildRoute(animalId, created.Id),
             new MultipartFormDataContent { { new StringContent("x"), "Other" } });
 
         unsupported.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         tooLongName.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        noContentType.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         missing.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         (await ListAsync(animalId)).Single().Attachment.Should().BeNull();
     }

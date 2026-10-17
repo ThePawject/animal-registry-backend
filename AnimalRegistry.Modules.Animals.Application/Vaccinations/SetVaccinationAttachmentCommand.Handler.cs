@@ -9,6 +9,7 @@ internal sealed class SetVaccinationAttachmentCommandHandler(
     IAnimalVaccinationRepository vaccinationRepository,
     IAnimalsUnitOfWork unitOfWork,
     IBlobStorageService blobStorageService,
+    AttachmentBlobCleaner blobCleaner,
     ICurrentUser currentUser)
     : IRequestHandler<SetVaccinationAttachmentCommand, Result<AnimalVaccinationDto>>
 {
@@ -47,19 +48,19 @@ internal sealed class SetVaccinationAttachmentCommandHandler(
         }
         catch
         {
-            await blobStorageService.DeleteAsync(uploadResult.Value!, CancellationToken.None);
+            await blobCleaner.DeleteAsync(uploadResult.Value!);
             throw;
         }
 
         if (saveResult.IsFailure)
         {
-            await blobStorageService.DeleteAsync(uploadResult.Value!, CancellationToken.None);
+            await blobCleaner.DeleteAsync(uploadResult.Value!);
             return Result<AnimalVaccinationDto>.ValidationError(saveResult.Error!);
         }
 
         if (previous is not null)
         {
-            await blobStorageService.DeleteAsync(previous.BlobPath, cancellationToken);
+            await blobCleaner.DeleteAsync(previous.BlobPath);
         }
 
         return Result<AnimalVaccinationDto>.Success(

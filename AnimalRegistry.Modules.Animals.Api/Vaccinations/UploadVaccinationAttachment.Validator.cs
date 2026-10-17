@@ -28,8 +28,13 @@ internal sealed class UploadVaccinationAttachmentValidator : Validator<UploadVac
         });
     }
 
-    private static bool IsAllowedDocumentType(string contentType)
+    private static bool IsAllowedDocumentType(string? contentType)
     {
+        if (string.IsNullOrEmpty(contentType))
+        {
+            return false;
+        }
+
         var allowedTypes = new[]
         {
             "application/pdf",

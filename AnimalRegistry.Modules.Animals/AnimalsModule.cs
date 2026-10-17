@@ -109,6 +109,7 @@ public sealed class AnimalsModule : IModule
         services.AddShelterFeature<AnimalVaccinationFeature>();
         services.AddScoped<IAnimalVaccinationRepository, AnimalVaccinationRepository>();
         services.AddScoped<IVaccinationQuery, VaccinationQuery>();
+        services.AddScoped<AttachmentBlobCleaner>();
         services.AddScoped<IExpiringVaccinationsReportPdfService, ExpiringVaccinationsReportPdfService>();
         services.AddScoped<IVaccinationsReportPdfService, VaccinationsReportPdfService>();
     }
