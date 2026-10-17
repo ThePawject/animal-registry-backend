@@ -97,3 +97,71 @@ Authorization: Bearer {{$auth.token("auth0")}}
 ### Yearly origin summary
 GET {{HostAddress}}/reports/origin/yearly?year=2026
 Authorization: Bearer {{$auth.token("auth0")}}
+
+### Enable vaccinations module (requires Shelter_Admin)
+PUT {{HostAddress}}/shelter/features/animal-vaccinations
+Authorization: Bearer {{$auth.token("auth0")}}
+Content-Type: application/json
+
+{ "isEnabled": true }
+
+### List animal vaccinations
+GET {{HostAddress}}/animals/00000000-0000-0000-0000-000000000000/vaccinations
+Authorization: Bearer {{$auth.token("auth0")}}
+
+### Add vaccination (only vaccineName and administeredOn are required)
+POST {{HostAddress}}/animals/00000000-0000-0000-0000-000000000000/vaccinations
+Authorization: Bearer {{$auth.token("auth0")}}
+Content-Type: application/json
+
+{
+  "vaccineName": "Nobivac Rabies",
+  "administeredOn": "2026-10-10T00:00:00+02:00",
+  "validUntil": "2027-10-10T00:00:00+02:00",
+  "veterinarian": "Jan Kowalski",
+  "batchNumber": "A123",
+  "notes": "Pierwsza dawka"
+}
+
+### Update vaccination
+PUT {{HostAddress}}/animals/00000000-0000-0000-0000-000000000000/vaccinations/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{$auth.token("auth0")}}
+Content-Type: application/json
+
+{
+  "vaccineName": "Nobivac Rabies",
+  "administeredOn": "2026-10-10T00:00:00+02:00",
+  "validUntil": "2027-10-10T00:00:00+02:00"
+}
+
+### Delete vaccination
+DELETE {{HostAddress}}/animals/00000000-0000-0000-0000-000000000000/vaccinations/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{$auth.token("auth0")}}
+
+### Upload vaccination attachment
+PUT {{HostAddress}}/animals/00000000-0000-0000-0000-000000000000/vaccinations/00000000-0000-0000-0000-000000000000/attachment
+Authorization: Bearer {{$auth.token("auth0")}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="File"; filename="scan.pdf"
+Content-Type: application/pdf
+
+< ./scan.pdf
+--boundary--
+
+### Delete vaccination attachment
+DELETE {{HostAddress}}/animals/00000000-0000-0000-0000-000000000000/vaccinations/00000000-0000-0000-0000-000000000000/attachment
+Authorization: Bearer {{$auth.token("auth0")}}
+
+### Vaccinations ending within 14 days, including expired ones
+GET {{HostAddress}}/vaccinations?expiresInDays=14&includeExpired=true&inShelterOnly=true
+Authorization: Bearer {{$auth.token("auth0")}}
+
+### Expiring vaccinations report
+GET {{HostAddress}}/reports/vaccinations/expiring?expiresInDays=30&includeExpired=true
+Authorization: Bearer {{$auth.token("auth0")}}
+
+### Vaccinations administered in a period
+GET {{HostAddress}}/reports/vaccinations?from=2026-10-01T00:00:00%2B02:00&to=2026-10-31T00:00:00%2B01:00
+Authorization: Bearer {{$auth.token("auth0")}}
