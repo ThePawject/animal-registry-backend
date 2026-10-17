@@ -14,12 +14,3 @@ internal sealed class GenerateOriginMonthlyReportValidator : Validator<GenerateO
             .InclusiveBetween(1, 12);
     }
 }
-
-internal sealed class GenerateOriginYearlyReportValidator : Validator<GenerateOriginYearlyReportRequest>
-{
-    public GenerateOriginYearlyReportValidator()
-    {
-        RuleFor(x => x.Year)
-            .InclusiveBetween(2000, 2100);
-    }
-}

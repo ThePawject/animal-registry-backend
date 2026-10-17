@@ -83,11 +83,13 @@ internal sealed class OriginReportDataService(
         var lookup = await originReader.LoadAsync(animals, cancellationToken);
 
         return animals
-            .Select(animal => new OriginReportEntry
+            .Select(animal =>
             {
-                Animal = animal,
-                Origin = lookup?.Resolve(animal) ?? AnimalOriginDto.Unassigned,
-                AdmittedOn = animal.Origin?.AdmissionDate ?? animal.CreatedOn,
+                var origin = lookup?.Resolve(animal) ?? AnimalOriginDto.Unassigned;
+                return new OriginReportEntry
+                {
+                    Animal = animal, Origin = origin, AdmittedOn = origin.AdmissionDate ?? animal.CreatedOn,
+                };
             })
             .ToList();
     }

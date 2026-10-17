@@ -1,4 +1,3 @@
-using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 
 namespace AnimalRegistry.Modules.Animals.Api.Origin;
@@ -11,9 +10,9 @@ public sealed class AnimalOriginRequest
     public Guid? FoundMunicipalityId { get; init; }
     public Guid? ContractorMunicipalityId { get; init; }
 
-    internal AnimalOriginInput ToInput()
+    internal AnimalOriginData ToData()
     {
-        return new AnimalOriginInput(
+        return new AnimalOriginData(
             AdmissionDate!.Value,
             AdmissionMethod!.Value,
             FoundStreet!,

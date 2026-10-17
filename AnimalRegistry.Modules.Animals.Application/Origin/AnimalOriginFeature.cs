@@ -11,7 +11,10 @@ internal sealed class AnimalOriginFeature : IShelterFeature
     public string Name => "Pochodzenie zwierzęcia";
 
     public string Description =>
-        "Wymagane dane o pochodzeniu zwierzęcia (data i sposób przyjęcia, miejsce znalezienia, gmina rozliczeniowa), " +
-        "słownik gmin-kontrahentów oraz raport miesięczny i zestawienie roczne per gmina. " +
-        "Zwierzęta dodane przed włączeniem modułu otrzymują wartość „Brak przypisania”.";
+        "Pozwala zapisać, skąd zwierzę trafiło do schroniska: kiedy i w jaki sposób zostało przyjęte, " +
+        "gdzie je znaleziono oraz która gmina płaci za jego pobyt. " +
+        "Na tej podstawie przygotujesz miesięczne i roczne zestawienia do rozliczeń z gminami. " +
+        "Po włączeniu te informacje trzeba podawać przy dodawaniu i edycji każdego zwierzęcia. " +
+        "Przy zwierzętach dodanych wcześniej zobaczysz „Brak przypisania”, dopóki ich nie uzupełnisz. " +
+        "Moduł można w każdej chwili wyłączyć, a wpisane dane nie zostaną utracone.";
 }

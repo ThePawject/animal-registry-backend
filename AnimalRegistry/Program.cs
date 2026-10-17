@@ -32,7 +32,7 @@ builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddPagination(builder.Configuration);
 builder.Services.AddFastEndpoints(options =>
 {
-    options.Assemblies = modules.SelectMany(module => module.EndpointAssemblies).Distinct().ToArray();
+    options.Assemblies = [.. modules.SelectMany(module => module.EndpointAssemblies).Distinct()];
 });
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();

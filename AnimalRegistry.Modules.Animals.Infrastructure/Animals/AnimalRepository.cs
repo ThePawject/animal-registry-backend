@@ -108,12 +108,17 @@ internal sealed class AnimalRepository(
     public async Task<IReadOnlyList<Animal>> GetAdmittedBetweenAsync(string shelterId, DateTimeOffset from,
         DateTimeOffset to, CancellationToken cancellationToken = default)
     {
+        var origins = context.AnimalOrigins.Where(o => o.ShelterId == shelterId);
+        var admittedIds = origins
+            .Where(o => o.AdmissionDate >= from && o.AdmissionDate < to)
+            .Select(o => o.AnimalId);
+
         return await context.Animals
             .AsNoTracking()
             .Where(a => a.ShelterId == shelterId)
             .Where(a =>
-                (a.Origin != null && a.Origin.AdmissionDate >= from && a.Origin.AdmissionDate < to) ||
-                (a.Origin == null && a.CreatedOn >= from && a.CreatedOn < to))
+                admittedIds.Contains(a.Id) ||
+                (!origins.Any(o => o.AnimalId == a.Id) && a.CreatedOn >= from && a.CreatedOn < to))
             .ToListAsync(cancellationToken);
     }
 

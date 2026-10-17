@@ -1,5 +1,5 @@
-using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 
@@ -17,7 +17,7 @@ internal sealed class CreateAnimalCommand(
     DateTimeOffset? birthDate,
     List<PhotoUploadInfo>? photos = null,
     int? mainPhotoIndex = null,
-    AnimalOriginInput? origin = null)
+    AnimalOriginData? origin = null)
     : IRequest<Result<CreateAnimalCommandResponse>>
 {
     public AnimalSignature Signature { get; } = signature;
@@ -31,7 +31,7 @@ internal sealed class CreateAnimalCommand(
     public DateTimeOffset? BirthDate { get; } = birthDate;
     public List<PhotoUploadInfo> Photos { get; } = photos ?? [];
     public int? MainPhotoIndex { get; } = mainPhotoIndex;
-    public AnimalOriginInput? Origin { get; } = origin;
+    public AnimalOriginData? Origin { get; } = origin;
 }
 
 public sealed record PhotoUploadInfo(string FileName, Stream Content, string ContentType);

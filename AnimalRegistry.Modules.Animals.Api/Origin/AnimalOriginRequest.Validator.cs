@@ -1,4 +1,3 @@
-using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using FluentValidation;
 
@@ -9,9 +8,7 @@ internal sealed class AnimalOriginRequestValidator : AbstractValidator<AnimalOri
     public AnimalOriginRequestValidator()
     {
         RuleFor(x => x.AdmissionDate)
-            .NotNull()
-            .LessThan(_ => OriginReportPeriod.StartOfNextDay(DateTimeOffset.UtcNow))
-            .WithMessage("Admission date cannot be in the future.");
+            .NotNull();
 
         RuleFor(x => x.AdmissionMethod)
             .NotNull()

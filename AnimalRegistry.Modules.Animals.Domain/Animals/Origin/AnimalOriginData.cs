@@ -1,8 +1,6 @@
-using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
+namespace AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 
-namespace AnimalRegistry.Modules.Animals.Application.Origin;
-
-public sealed record AnimalOriginInput(
+public sealed record AnimalOriginData(
     DateTimeOffset AdmissionDate,
     AdmissionMethod AdmissionMethod,
     string FoundStreet,

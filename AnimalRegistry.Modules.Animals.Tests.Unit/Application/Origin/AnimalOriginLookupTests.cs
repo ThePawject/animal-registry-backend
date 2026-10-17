@@ -1,22 +1,16 @@
 using AnimalRegistry.Modules.Animals.Application.Origin;
-using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using FluentAssertions;
+using static AnimalRegistry.Modules.Animals.Tests.Unit.OriginTestData;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Unit.Application.Origin;
 
 public class AnimalOriginLookupTests
 {
-    private static Animal CreateAnimal()
-    {
-        return Animal.Create(AnimalSignature.Create("2026/0001").Value!, null, "Burek", "Brown", "Mix", "",
-            AnimalSpecies.Dog, AnimalSex.Male, null, "shelter");
-    }
-
     [Fact]
     public void Resolve_ShouldReturnUnassigned_WhenAnimalHasNoOrigin()
     {
-        var lookup = new AnimalOriginLookup(new Dictionary<Guid, string>());
+        var lookup = new AnimalOriginLookup(new Dictionary<Guid, AnimalOrigin>(), new Dictionary<Guid, string>());
 
         var origin = lookup.Resolve(CreateAnimal());
 
@@ -31,22 +25,33 @@ public class AnimalOriginLookupTests
     [Fact]
     public void Resolve_ShouldMapOriginWithMunicipalityNames()
     {
-        var foundId = Guid.NewGuid();
-        var contractorId = Guid.NewGuid();
+        var found = CreateMunicipality("Gmina A");
+        var contractor = CreateMunicipality("Gmina B");
         var animal = CreateAnimal();
-        animal.SetOrigin(AnimalOrigin.Create(DateTimeOffset.UtcNow, AdmissionMethod.BroughtByPrivatePerson,
-            "Leśna 1", foundId, contractorId));
-        var lookup = new AnimalOriginLookup(new Dictionary<Guid, string>
-        {
-            [foundId] = "Gmina A", [contractorId] = "Gmina B",
-        });
+        var stored = CreateOrigin(animal, found, contractor);
+        var lookup = new AnimalOriginLookup(
+            new Dictionary<Guid, AnimalOrigin> { [animal.Id] = stored },
+            new Dictionary<Guid, string> { [found.Id] = "Gmina A", [contractor.Id] = "Gmina B" });
 
         var origin = lookup.Resolve(animal);
 
         origin.IsAssigned.Should().BeTrue();
-        origin.AdmissionMethodName.Should().Be("Doprowadzony przez osobę fizyczną");
-        origin.FoundMunicipality.Should().Be(new MunicipalityReferenceDto(foundId, "Gmina A"));
-        origin.ContractorMunicipality.Should().Be(new MunicipalityReferenceDto(contractorId, "Gmina B"));
+        origin.AdmissionDate.Should().Be(AdmissionDate);
+        origin.AdmissionMethodName.Should().Be("Podrzucony");
+        origin.FoundMunicipality.Should().Be(new MunicipalityReferenceDto(found.Id, "Gmina A"));
+        origin.ContractorMunicipality.Should().Be(new MunicipalityReferenceDto(contractor.Id, "Gmina B"));
+    }
+
+    [Fact]
+    public void Resolve_ShouldReturnUnassignedMunicipality_WhenNameIsNotLoaded()
+    {
+        var found = CreateMunicipality("Gmina A");
+        var animal = CreateAnimal();
+        var lookup = new AnimalOriginLookup(
+            new Dictionary<Guid, AnimalOrigin> { [animal.Id] = CreateOrigin(animal, found, found) },
+            new Dictionary<Guid, string>());
+
+        lookup.Resolve(animal).FoundMunicipality.Should().Be(MunicipalityReferenceDto.Unassigned);
     }
 
     [Fact]

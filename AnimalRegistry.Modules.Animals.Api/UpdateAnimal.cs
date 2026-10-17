@@ -49,7 +49,7 @@ internal sealed class UpdateAnimal(IMediator mediator) : Endpoint<UpdateAnimalRe
             req.ExistingPhotoIds,
             req.MainPhotoId,
             req.MainPhotoIndex,
-            req.Origin?.ToInput()
+            req.Origin?.ToData()
         ), ct);
 
         await this.SendResultAsync(result, ct);

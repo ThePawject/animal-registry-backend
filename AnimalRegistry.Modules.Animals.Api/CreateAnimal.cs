@@ -46,7 +46,7 @@ internal sealed class CreateAnimal(IMediator mediator) : Endpoint<CreateAnimalRe
             req.BirthDate,
             photos,
             req.MainPhotoIndex,
-            req.Origin?.ToInput()
+            req.Origin?.ToData()
         ), ct);
 
         await this.SendResultAsync(result, ct);

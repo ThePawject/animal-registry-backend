@@ -1,6 +1,7 @@
 using AnimalRegistry.Modules.Animals.Application;
 using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using FluentAssertions;
@@ -22,7 +23,7 @@ public class CreateAnimalCommandHandlerTests
     private static IAnimalOriginWriter CreateOriginWriterMock(Result? result = null)
     {
         var originWriterMock = Substitute.For<IAnimalOriginWriter>();
-        originWriterMock.ApplyAsync(Arg.Any<Animal>(), Arg.Any<AnimalOriginInput?>(), Arg.Any<CancellationToken>())
+        originWriterMock.ApplyAsync(Arg.Any<Animal>(), Arg.Any<AnimalOriginData?>(), Arg.Any<CancellationToken>())
             .Returns(result ?? Result.Success());
         return originWriterMock;
     }

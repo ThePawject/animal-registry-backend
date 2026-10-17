@@ -8,29 +8,11 @@ using FastEndpoints;
 
 namespace AnimalRegistry.Modules.Animals.Api.Municipalities;
 
-internal sealed class ArchiveMunicipality(IMediator mediator)
-    : Endpoint<SetMunicipalityArchivedRequest, MunicipalityDto>
-{
-    public override void Configure()
-    {
-        Delete(SetMunicipalityArchivedRequest.ArchiveRoute);
-        Policies(ShelterAccessHandler.ShelterAccessPolicyName);
-        Roles(ShelterRoles.Admin);
-        Options(b => b.RequireShelterFeature(AnimalOriginFeature.FeatureKey));
-    }
-
-    public override async Task HandleAsync(SetMunicipalityArchivedRequest req, CancellationToken ct)
-    {
-        var result = await mediator.Send(new SetMunicipalityArchivedCommand(req.Id, true), ct);
-        await this.SendResultAsync(result, ct);
-    }
-}
-
 internal sealed class RestoreMunicipality(IMediator mediator) : EndpointWithoutRequest<MunicipalityDto>
 {
     public override void Configure()
     {
-        Post(SetMunicipalityArchivedRequest.RestoreRoute);
+        Post(RestoreMunicipalityRequest.Route);
         Policies(ShelterAccessHandler.ShelterAccessPolicyName);
         Roles(ShelterRoles.Admin);
         Options(b => b.RequireShelterFeature(AnimalOriginFeature.FeatureKey));

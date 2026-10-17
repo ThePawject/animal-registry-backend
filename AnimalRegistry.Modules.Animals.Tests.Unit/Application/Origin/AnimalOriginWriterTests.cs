@@ -1,35 +1,24 @@
 using AnimalRegistry.Modules.Animals.Application.Origin;
-using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Shared;
-using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.ShelterFeatures;
 using FluentAssertions;
 using NSubstitute;
+using static AnimalRegistry.Modules.Animals.Tests.Unit.OriginTestData;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Unit.Application.Origin;
 
 public class AnimalOriginWriterTests
 {
-    private const string ShelterId = "test-shelter-id";
-    private static readonly DateTimeOffset AdmissionDate = new(2026, 3, 15, 10, 0, 0, TimeSpan.Zero);
-
     private readonly IShelterFeatureToggles _toggles = Substitute.For<IShelterFeatureToggles>();
+    private readonly IAnimalOriginRepository _origins = Substitute.For<IAnimalOriginRepository>();
     private readonly IMunicipalityRepository _municipalities = Substitute.For<IMunicipalityRepository>();
     private readonly AnimalOriginWriter _writer;
 
     public AnimalOriginWriterTests()
     {
-        var currentUser = Substitute.For<ICurrentUser>();
-        currentUser.ShelterId.Returns(ShelterId);
-        _writer = new AnimalOriginWriter(_toggles, _municipalities, currentUser);
-    }
-
-    private static Animal CreateAnimal()
-    {
-        return Animal.Create(AnimalSignature.Create("2026/0001").Value!, null, "Burek", "Brown", "Mix", "",
-            AnimalSpecies.Dog, AnimalSex.Male, null, ShelterId);
+        _writer = new AnimalOriginWriter(_toggles, _origins, _municipalities);
     }
 
     private void EnableModule(bool isEnabled = true)
@@ -43,105 +32,93 @@ public class AnimalOriginWriterTests
             .Returns(municipalities);
     }
 
-    private static AnimalOriginInput Input(Guid foundId, Guid contractorId,
-        AdmissionMethod method = AdmissionMethod.Abandoned, string street = "Leśna 1")
-    {
-        return new AnimalOriginInput(AdmissionDate, method, street, foundId, contractorId);
-    }
-
     [Fact]
-    public async Task ApplyAsync_ShouldIgnoreInputAndKeepOrigin_WhenModuleIsDisabled()
+    public async Task ApplyAsync_ShouldIgnoreData_WhenModuleIsDisabled()
     {
         EnableModule(false);
-        var animal = CreateAnimal();
 
-        var result = await _writer.ApplyAsync(animal, Input(Guid.NewGuid(), Guid.NewGuid()));
+        var result = await _writer.ApplyAsync(CreateAnimal(), Data(Guid.NewGuid(), Guid.NewGuid()));
 
         result.IsSuccess.Should().BeTrue();
-        animal.Origin.Should().BeNull();
-        await _municipalities.DidNotReceiveWithAnyArgs().GetByIdsAsync(default!, default!, default);
+        await _origins.DidNotReceiveWithAnyArgs().GetByAnimalIdAsync(default, default!);
+        _origins.DidNotReceiveWithAnyArgs().Add(default!);
     }
 
     [Fact]
-    public async Task ApplyAsync_ShouldReturnValidationError_WhenModuleIsEnabledAndInputIsMissing()
+    public async Task ApplyAsync_ShouldReturnValidationError_WhenModuleIsEnabledAndDataIsMissing()
     {
         EnableModule();
 
         var result = await _writer.ApplyAsync(CreateAnimal(), null);
 
         result.Status.Should().Be(ResultStatus.ValidationError);
+        result.Error.Should().Be("Animal origin is required when the origin module is enabled.");
     }
 
     [Fact]
-    public async Task ApplyAsync_ShouldReturnValidationError_WhenAdmissionMethodIsUnassigned()
+    public async Task ApplyAsync_ShouldAddNewOrigin_WhenAnimalHasNone()
     {
         EnableModule();
-        var municipality = Municipality.Create(ShelterId, "Gmina");
-        GivenMunicipalities(municipality);
-
-        var result = await _writer.ApplyAsync(CreateAnimal(),
-            Input(municipality.Id, municipality.Id, AdmissionMethod.Unassigned));
-
-        result.Status.Should().Be(ResultStatus.ValidationError);
-    }
-
-    [Fact]
-    public async Task ApplyAsync_ShouldSetOrigin_WhenMunicipalitiesExist()
-    {
-        EnableModule();
-        var found = Municipality.Create(ShelterId, "Gmina A");
-        var contractor = Municipality.Create(ShelterId, "Gmina B");
+        var found = CreateMunicipality("Gmina A");
+        var contractor = CreateMunicipality("Gmina B");
         GivenMunicipalities(found, contractor);
         var animal = CreateAnimal();
 
-        var result = await _writer.ApplyAsync(animal, Input(found.Id, contractor.Id));
+        var result = await _writer.ApplyAsync(animal, Data(found.Id, contractor.Id));
 
         result.IsSuccess.Should().BeTrue();
-        animal.Origin.Should().NotBeNull();
-        animal.Origin!.FoundMunicipalityId.Should().Be(found.Id);
-        animal.Origin.ContractorMunicipalityId.Should().Be(contractor.Id);
+        _origins.Received(1).Add(Arg.Is<AnimalOrigin>(o =>
+            o.AnimalId == animal.Id &&
+            o.ShelterId == ShelterId &&
+            o.FoundMunicipalityId == found.Id &&
+            o.ContractorMunicipalityId == contractor.Id));
     }
 
     [Fact]
-    public async Task ApplyAsync_ShouldReturnValidationError_WhenMunicipalityDoesNotBelongToShelter()
+    public async Task ApplyAsync_ShouldUpdateExistingOrigin()
     {
         EnableModule();
-        var found = Municipality.Create(ShelterId, "Gmina A");
-        GivenMunicipalities(found);
-
-        var result = await _writer.ApplyAsync(CreateAnimal(), Input(found.Id, Guid.NewGuid()));
-
-        result.Status.Should().Be(ResultStatus.ValidationError);
-        result.Error.Should().Contain("contractor");
-    }
-
-    [Fact]
-    public async Task ApplyAsync_ShouldRejectArchivedMunicipality_WhenNewlyAssigned()
-    {
-        EnableModule();
-        var archived = Municipality.Create(ShelterId, "Gmina A");
-        archived.Archive();
-        GivenMunicipalities(archived);
-
-        var result = await _writer.ApplyAsync(CreateAnimal(), Input(archived.Id, archived.Id));
-
-        result.Status.Should().Be(ResultStatus.ValidationError);
-        result.Error.Should().Contain("archived");
-    }
-
-    [Fact]
-    public async Task ApplyAsync_ShouldAcceptArchivedMunicipality_WhenAnimalIsAlreadyAssignedToIt()
-    {
-        EnableModule();
-        var municipality = Municipality.Create(ShelterId, "Gmina A");
+        var municipality = CreateMunicipality("Gmina A");
         GivenMunicipalities(municipality);
         var animal = CreateAnimal();
-        (await _writer.ApplyAsync(animal, Input(municipality.Id, municipality.Id))).IsSuccess.Should().BeTrue();
-        municipality.Archive();
+        var origin = CreateOrigin(animal, municipality, municipality);
+        _origins.GetByAnimalIdAsync(animal.Id, ShelterId, Arg.Any<CancellationToken>()).Returns(origin);
 
-        var result = await _writer.ApplyAsync(animal, Input(municipality.Id, municipality.Id, street: "Polna 2"));
+        var result = await _writer.ApplyAsync(animal,
+            Data(municipality.Id, municipality.Id, method: AdmissionMethod.Other, street: "Polna 2"));
 
         result.IsSuccess.Should().BeTrue();
-        animal.Origin!.FoundStreet.Should().Be("Polna 2");
+        origin.FoundStreet.Should().Be("Polna 2");
+        origin.AdmissionMethod.Should().Be(AdmissionMethod.Other);
+        _origins.DidNotReceiveWithAnyArgs().Add(default!);
+    }
+
+    [Fact]
+    public async Task ApplyAsync_ShouldReturnRuleMessage_WhenDomainRuleIsBroken()
+    {
+        EnableModule();
+        var found = CreateMunicipality("Gmina A");
+        GivenMunicipalities(found);
+        var unknownId = Guid.NewGuid();
+
+        var result = await _writer.ApplyAsync(CreateAnimal(), Data(found.Id, unknownId));
+
+        result.Status.Should().Be(ResultStatus.ValidationError);
+        result.Error.Should().Be($"The contractor municipality '{unknownId}' does not exist.");
+        _origins.DidNotReceiveWithAnyArgs().Add(default!);
+    }
+
+    [Fact]
+    public async Task ApplyAsync_ShouldRejectAdmissionDateAfterToday()
+    {
+        EnableModule();
+        var municipality = CreateMunicipality("Gmina A");
+        GivenMunicipalities(municipality);
+
+        var result = await _writer.ApplyAsync(CreateAnimal(),
+            Data(municipality.Id, municipality.Id, DateTimeOffset.UtcNow.AddDays(2)));
+
+        result.Status.Should().Be(ResultStatus.ValidationError);
+        result.Error.Should().Be("Admission date cannot be in the future.");
     }
 }

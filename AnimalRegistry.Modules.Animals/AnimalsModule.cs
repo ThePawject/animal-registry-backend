@@ -4,10 +4,12 @@ using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
 using AnimalRegistry.Modules.Animals.Infrastructure.Municipalities;
+using AnimalRegistry.Modules.Animals.Infrastructure.Origin;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
@@ -45,6 +47,7 @@ public sealed class AnimalsModule : IModule
         services.AddScoped<IAnimalRepository, AnimalRepository>();
         services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
         services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
+        services.AddScoped<IAnimalOriginRepository, AnimalOriginRepository>();
 
         services.AddScoped<IRepositoryDumpDataService, RepositoryDumpDataService>();
         services.AddScoped<ISelectedAnimalsDataService, SelectedAnimalsDataService>();

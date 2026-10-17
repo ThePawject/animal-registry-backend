@@ -1,5 +1,5 @@
-using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
 
@@ -20,7 +20,7 @@ internal sealed class UpdateAnimalCommand(
     List<Guid> existingPhotoIds,
     Guid? mainPhotoId,
     int? mainPhotoIndex,
-    AnimalOriginInput? origin = null)
+    AnimalOriginData? origin = null)
     : IRequest<Result<UpdateAnimalCommandResponse>>
 {
     public Guid Id { get; } = id;
@@ -37,7 +37,7 @@ internal sealed class UpdateAnimalCommand(
     public List<Guid> ExistingPhotoIds { get; } = existingPhotoIds;
     public Guid? MainPhotoId { get; } = mainPhotoId;
     public int? MainPhotoIndex { get; } = mainPhotoIndex;
-    public AnimalOriginInput? Origin { get; } = origin;
+    public AnimalOriginData? Origin { get; } = origin;
 }
 
 public record UpdateAnimalCommandResponse(Guid AnimalId);

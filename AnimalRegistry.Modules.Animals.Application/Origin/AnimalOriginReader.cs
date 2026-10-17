@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Shared.Access;
 using AnimalRegistry.Shared.ShelterFeatures;
@@ -7,6 +8,7 @@ namespace AnimalRegistry.Modules.Animals.Application.Origin;
 
 internal sealed class AnimalOriginReader(
     IShelterFeatureToggles toggles,
+    IAnimalOriginRepository originRepository,
     IMunicipalityRepository municipalityRepository,
     ICurrentUser currentUser) : IAnimalOriginReader
 {
@@ -18,13 +20,17 @@ internal sealed class AnimalOriginReader(
             return null;
         }
 
-        var municipalityIds = animals
-            .Where(a => a.Origin is not null)
-            .SelectMany(a => new[] { a.Origin!.FoundMunicipalityId, a.Origin.ContractorMunicipalityId });
+        var origins = await originRepository.GetByAnimalIdsAsync(animals.Select(a => a.Id), currentUser.ShelterId,
+            cancellationToken);
+
+        var municipalityIds = origins
+            .SelectMany(o => new[] { o.FoundMunicipalityId, o.ContractorMunicipalityId });
 
         var municipalities =
             await municipalityRepository.GetByIdsAsync(municipalityIds, currentUser.ShelterId, cancellationToken);
 
-        return new AnimalOriginLookup(municipalities.ToDictionary(m => m.Id, m => m.Name));
+        return new AnimalOriginLookup(
+            origins.ToDictionary(o => o.AnimalId),
+            municipalities.ToDictionary(m => m.Id, m => m.Name));
     }
 }

@@ -3,6 +3,7 @@ using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using FluentAssertions;
 using NSubstitute;
+using static AnimalRegistry.Modules.Animals.Tests.Unit.OriginTestData;
 
 namespace AnimalRegistry.Modules.Animals.Tests.Unit.Application.Origin;
 
@@ -10,17 +11,15 @@ public class OriginReportFieldContributorTests
 {
     private readonly IAnimalOriginReader _reader = Substitute.For<IAnimalOriginReader>();
 
-    private static Animal CreateAnimal()
+    private void GivenLookup(AnimalOriginLookup? lookup)
     {
-        return Animal.Create(AnimalSignature.Create("2026/0001").Value!, null, "Burek", "Brown", "Mix", "",
-            AnimalSpecies.Dog, AnimalSex.Male, null, "shelter");
+        _reader.LoadAsync(Arg.Any<IReadOnlyCollection<Animal>>(), Arg.Any<CancellationToken>()).Returns(lookup);
     }
 
     [Fact]
     public async Task GetFieldsAsync_ShouldReturnNoFields_WhenModuleIsDisabled()
     {
-        _reader.LoadAsync(Arg.Any<IReadOnlyCollection<Animal>>(), Arg.Any<CancellationToken>())
-            .Returns((AnimalOriginLookup?)null);
+        GivenLookup(null);
 
         var fields = await new OriginReportFieldContributor(_reader).GetFieldsAsync([CreateAnimal()], default);
 
@@ -28,25 +27,33 @@ public class OriginReportFieldContributorTests
     }
 
     [Fact]
-    public async Task GetFieldsAsync_ShouldFormatAdmissionDateInPolishTime()
+    public async Task GetFieldsAsync_ShouldFormatOriginWithAdmissionDateInPolishTime()
     {
+        var municipality = CreateMunicipality("Gmina A");
         var animal = CreateAnimal();
-        animal.SetOrigin(AnimalOrigin.Create(new DateTimeOffset(2026, 3, 31, 23, 30, 0, TimeSpan.Zero),
-            AdmissionMethod.Abandoned, "Leśna 1", Guid.NewGuid(), Guid.NewGuid()));
-        _reader.LoadAsync(Arg.Any<IReadOnlyCollection<Animal>>(), Arg.Any<CancellationToken>())
-            .Returns(new AnimalOriginLookup(new Dictionary<Guid, string>()));
+        var origin = CreateOrigin(animal, municipality, municipality,
+            new DateTimeOffset(2026, 3, 31, 23, 30, 0, TimeSpan.Zero));
+        GivenLookup(new AnimalOriginLookup(
+            new Dictionary<Guid, AnimalOrigin> { [animal.Id] = origin },
+            new Dictionary<Guid, string> { [municipality.Id] = "Gmina A" }));
 
         var fields = await new OriginReportFieldContributor(_reader).GetFieldsAsync([animal], default);
 
-        fields.Single(f => f.Label == "Data przyjęcia").Format(animal).Should().Be("01.04.2026");
+        fields.ToDictionary(f => f.Label, f => f.Format(animal)).Should().Equal(new Dictionary<string, string>
+        {
+            ["Data przyjęcia"] = "01.04.2026",
+            ["Sposób trafienia"] = "Podrzucony",
+            ["Ulica znalezienia"] = "Leśna 1",
+            ["Gmina znalezienia"] = "Gmina A",
+            ["Gmina rozliczeniowa"] = "Gmina A",
+        });
     }
 
     [Fact]
     public async Task GetFieldsAsync_ShouldReturnUnassigned_WhenAnimalHasNoOrigin()
     {
         var animal = CreateAnimal();
-        _reader.LoadAsync(Arg.Any<IReadOnlyCollection<Animal>>(), Arg.Any<CancellationToken>())
-            .Returns(new AnimalOriginLookup(new Dictionary<Guid, string>()));
+        GivenLookup(new AnimalOriginLookup(new Dictionary<Guid, AnimalOrigin>(), new Dictionary<Guid, string>()));
 
         var fields = await new OriginReportFieldContributor(_reader).GetFieldsAsync([animal], default);
 
