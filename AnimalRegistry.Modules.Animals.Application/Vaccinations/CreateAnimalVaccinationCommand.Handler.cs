@@ -17,14 +17,14 @@ internal sealed class CreateAnimalVaccinationCommandHandler(
     public async Task<Result<AnimalVaccinationDto>> Handle(CreateAnimalVaccinationCommand request,
         CancellationToken cancellationToken)
     {
-        var animal = await animalRepository.GetByIdAsync(request.AnimalId, currentUser.ShelterId, cancellationToken);
-        if (animal is null)
+        if (!await animalRepository.ExistsAsync(request.AnimalId, currentUser.ShelterId, cancellationToken))
         {
             return Result<AnimalVaccinationDto>.NotFound("Animal not found.");
         }
 
         var now = DateTimeOffset.UtcNow;
-        var vaccination = AnimalVaccination.Create(animal.Id, animal.ShelterId, request.Data, currentUser.Email, now);
+        var vaccination = AnimalVaccination.Create(request.AnimalId, currentUser.ShelterId, request.Data,
+            currentUser.Email, now);
         vaccinationRepository.Add(vaccination);
 
         var saveResult = await unitOfWork.SaveChangesAsync(cancellationToken);

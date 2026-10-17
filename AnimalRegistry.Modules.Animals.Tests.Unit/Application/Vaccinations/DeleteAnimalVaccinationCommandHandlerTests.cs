@@ -4,6 +4,7 @@ using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.Access;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using static AnimalRegistry.Modules.Animals.Tests.Unit.VaccinationTestData;
 
@@ -24,7 +25,8 @@ public sealed class DeleteAnimalVaccinationCommandHandlerTests
         _vaccinations.GetByIdAsync(_vaccination.Id, _vaccination.AnimalId, ShelterId, Arg.Any<CancellationToken>())
             .Returns(_vaccination);
         _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(Result.Success());
-        _handler = new DeleteAnimalVaccinationCommandHandler(_vaccinations, _unitOfWork, _blobs, _currentUser);
+        _handler = new DeleteAnimalVaccinationCommandHandler(_vaccinations, _unitOfWork,
+            new AttachmentBlobCleaner(_blobs, NullLogger<AttachmentBlobCleaner>.Instance), _currentUser);
     }
 
     [Fact]
@@ -52,6 +54,19 @@ public sealed class DeleteAnimalVaccinationCommandHandlerTests
             _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>());
             _blobs.DeleteAsync("path.pdf", Arg.Any<CancellationToken>());
         });
+    }
+
+    [Fact]
+    public async Task Handle_ShouldSucceed_WhenBlobCannotBeDeleted()
+    {
+        _vaccination.SetAttachment(VaccinationAttachment.Create("path.pdf", "scan.pdf", "application/pdf", Now), Now);
+        _blobs.DeleteAsync("path.pdf", Arg.Any<CancellationToken>())
+            .Returns(_ => throw new InvalidOperationException("storage down"));
+
+        var result = await _handler.Handle(new DeleteAnimalVaccinationCommand(_vaccination.AnimalId, _vaccination.Id),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
