@@ -123,6 +123,18 @@ Content-Type: application/json
   "notes": "Pierwsza dawka"
 }
 
+### Renew vaccination (replacesVaccinationId marks an earlier vaccination of the animal as replaced)
+POST {{HostAddress}}/animals/00000000-0000-0000-0000-000000000000/vaccinations
+Authorization: Bearer {{$auth.token("auth0")}}
+Content-Type: application/json
+
+{
+  "vaccineName": "Nobivac Rabies",
+  "administeredOn": "2027-10-05T00:00:00+02:00",
+  "validUntil": "2028-10-05T00:00:00+02:00",
+  "replacesVaccinationId": "00000000-0000-0000-0000-000000000000"
+}
+
 ### Update vaccination
 PUT {{HostAddress}}/animals/00000000-0000-0000-0000-000000000000/vaccinations/00000000-0000-0000-0000-000000000000
 Authorization: Bearer {{$auth.token("auth0")}}

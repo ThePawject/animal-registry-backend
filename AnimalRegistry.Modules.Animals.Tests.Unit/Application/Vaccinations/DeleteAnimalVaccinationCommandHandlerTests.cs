@@ -18,6 +18,7 @@ public sealed class DeleteAnimalVaccinationCommandHandlerTests
     private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
     private readonly DeleteAnimalVaccinationCommandHandler _handler;
     private readonly AnimalVaccination _vaccination = CreateVaccination();
+    private readonly AnimalVaccination _vaccinationReplacedEarlier;
 
     public DeleteAnimalVaccinationCommandHandlerTests()
     {
@@ -25,6 +26,8 @@ public sealed class DeleteAnimalVaccinationCommandHandlerTests
         _vaccinations.GetByIdAsync(_vaccination.Id, _vaccination.AnimalId, ShelterId, Arg.Any<CancellationToken>())
             .Returns(_vaccination);
         _unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(Result.Success());
+        _vaccinationReplacedEarlier = AnimalVaccination.Create(_vaccination.AnimalId, ShelterId,
+            Data(administeredOn: LocalDate(2025, 3, 10)), null, false, UserEmail, Now);
         _handler = new DeleteAnimalVaccinationCommandHandler(_vaccinations, _unitOfWork,
             new AttachmentBlobCleaner(_blobs, NullLogger<AttachmentBlobCleaner>.Instance), _currentUser);
     }
@@ -67,6 +70,25 @@ public sealed class DeleteAnimalVaccinationCommandHandlerTests
             CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Handle_ShouldUnlinkReplacingVaccination_WhenDeletingReplacedOne()
+    {
+        var replacing = AnimalVaccination.Create(_vaccination.AnimalId, ShelterId, Data(), _vaccinationReplacedEarlier,
+            false, UserEmail, Now);
+        _vaccinations.GetByIdAsync(_vaccinationReplacedEarlier.Id, _vaccination.AnimalId, ShelterId,
+            Arg.Any<CancellationToken>()).Returns(_vaccinationReplacedEarlier);
+        _vaccinations.FindReplacingAsync(_vaccinationReplacedEarlier.Id, ShelterId, Arg.Any<CancellationToken>())
+            .Returns(replacing);
+
+        var result = await _handler.Handle(
+            new DeleteAnimalVaccinationCommand(_vaccination.AnimalId, _vaccinationReplacedEarlier.Id),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        replacing.ReplacesVaccinationId.Should().BeNull();
+        _vaccinations.Received(1).Remove(_vaccinationReplacedEarlier);
     }
 
     [Fact]

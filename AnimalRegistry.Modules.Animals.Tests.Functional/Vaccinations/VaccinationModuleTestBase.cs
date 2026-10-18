@@ -35,7 +35,8 @@ public abstract class VaccinationModuleTestBase : IntegrationTestBase
 
     protected static Task<HttpResponseMessage> PutModuleAsync(HttpClient client, bool isEnabled)
     {
-        return client.PutAsJsonAsync(SetShelterFeatureStateRequest.BuildRoute(FeatureKey), new { IsEnabled = isEnabled });
+        return client.PutAsJsonAsync(SetShelterFeatureStateRequest.BuildRoute(FeatureKey),
+            new { IsEnabled = isEnabled });
     }
 
     protected async Task SetModuleAsync(bool isEnabled)
@@ -62,7 +63,8 @@ public abstract class VaccinationModuleTestBase : IntegrationTestBase
         DateTimeOffset? validUntil = null,
         string? veterinarian = null,
         string? batchNumber = null,
-        string? notes = null)
+        string? notes = null,
+        Guid? replacesVaccinationId = null)
     {
         return new
         {
@@ -72,6 +74,7 @@ public abstract class VaccinationModuleTestBase : IntegrationTestBase
             Veterinarian = veterinarian,
             BatchNumber = batchNumber,
             Notes = notes,
+            ReplacesVaccinationId = replacesVaccinationId,
         };
     }
 

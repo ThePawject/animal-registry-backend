@@ -7,6 +7,8 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Vaccinations;
 
 internal sealed class AnimalVaccinationConfiguration : IEntityTypeConfiguration<AnimalVaccination>
 {
+    public const string ReplacesVaccinationIdIndexName = "IX_AnimalVaccinations_ReplacesVaccinationId";
+
     public void Configure(EntityTypeBuilder<AnimalVaccination> builder)
     {
         builder.ToTable("AnimalVaccinations");
@@ -36,6 +38,10 @@ internal sealed class AnimalVaccinationConfiguration : IEntityTypeConfiguration<
         builder.HasIndex(v => new { v.ShelterId, v.AnimalId });
         builder.HasIndex(v => new { v.ShelterId, v.ValidUntil });
         builder.HasIndex(v => new { v.ShelterId, v.AdministeredOn });
+        builder.HasIndex(v => v.ReplacesVaccinationId)
+            .IsUnique()
+            .HasFilter("[ReplacesVaccinationId] IS NOT NULL")
+            .HasDatabaseName(ReplacesVaccinationIdIndexName);
 
         builder.HasOne<Animal>()
             .WithMany()

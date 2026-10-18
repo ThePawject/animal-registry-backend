@@ -63,7 +63,9 @@ internal sealed class SetVaccinationAttachmentCommandHandler(
             await blobCleaner.DeleteAsync(previous.BlobPath);
         }
 
+        var replacing = await vaccinationRepository.FindReplacingAsync(vaccination.Id, currentUser.ShelterId,
+            cancellationToken);
         return Result<AnimalVaccinationDto>.Success(
-            AnimalVaccinationDto.FromDomain(vaccination, now, blobStorageService));
+            AnimalVaccinationDto.FromDomain(vaccination, replacing?.Id, now, blobStorageService));
     }
 }

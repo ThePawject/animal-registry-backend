@@ -21,6 +21,10 @@ internal sealed class DeleteAnimalVaccinationCommandHandler(
             return Result.NotFound("Vaccination not found.");
         }
 
+        var replacing = await vaccinationRepository.FindReplacingAsync(vaccination.Id, currentUser.ShelterId,
+            cancellationToken);
+        replacing?.ClearReplacement(DateTimeOffset.UtcNow);
+
         var attachment = vaccination.Attachment;
         vaccinationRepository.Remove(vaccination);
 

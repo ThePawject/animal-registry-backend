@@ -24,8 +24,8 @@ internal static class VaccinationTestData
 
     public static AnimalVaccination CreateVaccination(Guid? animalId = null, DateTimeOffset? validUntil = null)
     {
-        return AnimalVaccination.Create(animalId ?? Guid.NewGuid(), ShelterId, Data(validUntil: validUntil),
-            UserEmail, Now);
+        return AnimalVaccination.Create(animalId ?? Guid.NewGuid(), ShelterId, Data(validUntil: validUntil), null,
+            false, UserEmail, Now);
     }
 
     public static DateTimeOffset LocalDate(int year, int month, int day)

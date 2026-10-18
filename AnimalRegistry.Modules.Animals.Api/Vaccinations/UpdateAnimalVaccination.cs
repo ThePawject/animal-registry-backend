@@ -19,7 +19,9 @@ internal sealed class UpdateAnimalVaccination(IMediator mediator)
         Summary(s =>
         {
             s.Summary = "Update vaccination";
-            s.Description = "Replaces vaccination data. The attachment is managed by the attachment endpoints.";
+            s.Description =
+                "Replaces vaccination data, including which earlier vaccination it replaces. " +
+                "The attachment is managed by the attachment endpoints.";
         });
     }
 
@@ -27,8 +29,8 @@ internal sealed class UpdateAnimalVaccination(IMediator mediator)
     {
         var data = new AnimalVaccinationData(req.VaccineName, req.AdministeredOn!.Value, req.ValidUntil,
             req.Veterinarian, req.BatchNumber, req.Notes);
-        var result = await mediator.Send(new UpdateAnimalVaccinationCommand(req.AnimalId, req.VaccinationId, data),
-            ct);
+        var result = await mediator.Send(
+            new UpdateAnimalVaccinationCommand(req.AnimalId, req.VaccinationId, data, req.ReplacesVaccinationId), ct);
         await this.SendResultAsync(result, ct);
     }
 }

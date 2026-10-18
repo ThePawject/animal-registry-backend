@@ -7,6 +7,7 @@ namespace AnimalRegistry.Modules.Animals.Application.Vaccinations;
 
 internal sealed class UpdateAnimalVaccinationCommandHandler(
     IAnimalVaccinationRepository vaccinationRepository,
+    ReplacedVaccinationResolver replacedVaccinationResolver,
     IAnimalsUnitOfWork unitOfWork,
     IBlobStorageService blobStorageService,
     ICurrentUser currentUser)
@@ -22,8 +23,16 @@ internal sealed class UpdateAnimalVaccinationCommandHandler(
             return Result<AnimalVaccinationDto>.NotFound("Vaccination not found.");
         }
 
+        var replacedResult = await replacedVaccinationResolver.ResolveAsync(request.ReplacesVaccinationId,
+            request.AnimalId, vaccination.Id, currentUser.ShelterId, cancellationToken);
+        if (replacedResult.IsFailure)
+        {
+            return Result<AnimalVaccinationDto>.ValidationError(replacedResult.Error!);
+        }
+
+        var replaced = replacedResult.Value!;
         var now = DateTimeOffset.UtcNow;
-        vaccination.Update(request.Data, now);
+        vaccination.Update(request.Data, replaced.Vaccination, replaced.IsReplacedElsewhere, now);
 
         var saveResult = await unitOfWork.SaveChangesAsync(cancellationToken);
         if (saveResult.IsFailure)
@@ -31,7 +40,9 @@ internal sealed class UpdateAnimalVaccinationCommandHandler(
             return Result<AnimalVaccinationDto>.ValidationError(saveResult.Error!);
         }
 
+        var replacing = await vaccinationRepository.FindReplacingAsync(vaccination.Id, currentUser.ShelterId,
+            cancellationToken);
         return Result<AnimalVaccinationDto>.Success(
-            AnimalVaccinationDto.FromDomain(vaccination, now, blobStorageService));
+            AnimalVaccinationDto.FromDomain(vaccination, replacing?.Id, now, blobStorageService));
     }
 }

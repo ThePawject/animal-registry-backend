@@ -14,5 +14,6 @@ internal sealed class CreateAnimalVaccinationValidator : Validator<CreateAnimalV
         RuleFor(x => x.Veterinarian).MaximumLength(AnimalVaccination.VeterinarianMaxLength);
         RuleFor(x => x.BatchNumber).MaximumLength(AnimalVaccination.BatchNumberMaxLength);
         RuleFor(x => x.Notes).MaximumLength(AnimalVaccination.NotesMaxLength);
+        RuleFor(x => x.ReplacesVaccinationId).NotEqual(Guid.Empty);
     }
 }

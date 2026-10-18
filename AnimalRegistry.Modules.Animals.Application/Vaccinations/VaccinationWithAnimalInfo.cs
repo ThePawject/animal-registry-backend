@@ -8,4 +8,5 @@ public sealed record VaccinationWithAnimalInfo(
     string? AnimalName,
     string AnimalSignature,
     AnimalSpecies Species,
-    bool IsInShelter);
+    bool IsInShelter,
+    Guid? ReplacedByVaccinationId);

@@ -11,15 +11,17 @@ public sealed record AnimalVaccinationDto(
     string? Veterinarian,
     string? BatchNumber,
     string? Notes,
-    bool IsActive,
+    VaccinationStatus Status,
     int? DaysUntilExpiry,
+    Guid? ReplacesVaccinationId,
+    Guid? ReplacedByVaccinationId,
     VaccinationAttachmentDto? Attachment,
     string CreatedBy,
     DateTimeOffset CreatedOn,
     DateTimeOffset ModifiedOn)
 {
-    public static AnimalVaccinationDto FromDomain(AnimalVaccination vaccination, DateTimeOffset now,
-        IBlobStorageService blobStorageService)
+    public static AnimalVaccinationDto FromDomain(AnimalVaccination vaccination, Guid? replacedByVaccinationId,
+        DateTimeOffset now, IBlobStorageService blobStorageService)
     {
         return new AnimalVaccinationDto(
             vaccination.Id,
@@ -30,8 +32,10 @@ public sealed record AnimalVaccinationDto(
             vaccination.Veterinarian,
             vaccination.BatchNumber,
             vaccination.Notes,
-            vaccination.IsActive(now),
+            vaccination.GetStatus(now, replacedByVaccinationId is not null),
             vaccination.DaysUntilExpiry(now),
+            vaccination.ReplacesVaccinationId,
+            replacedByVaccinationId,
             vaccination.Attachment is { } attachment
                 ? new VaccinationAttachmentDto(
                     attachment.FileName,

@@ -19,7 +19,9 @@ internal sealed class CreateAnimalVaccination(IMediator mediator)
         Summary(s =>
         {
             s.Summary = "Add vaccination";
-            s.Description = "Adds a vaccination to an animal. Only the vaccine name and date are required.";
+            s.Description =
+                "Adds a vaccination to an animal. Only the vaccine name and date are required. " +
+                "ReplacesVaccinationId marks an earlier vaccination of the same animal as replaced.";
         });
     }
 
@@ -27,7 +29,8 @@ internal sealed class CreateAnimalVaccination(IMediator mediator)
     {
         var data = new AnimalVaccinationData(req.VaccineName, req.AdministeredOn!.Value, req.ValidUntil,
             req.Veterinarian, req.BatchNumber, req.Notes);
-        var result = await mediator.Send(new CreateAnimalVaccinationCommand(req.AnimalId, data), ct);
+        var result = await mediator.Send(
+            new CreateAnimalVaccinationCommand(req.AnimalId, data, req.ReplacesVaccinationId), ct);
         await this.SendResultAsync(result, ct);
     }
 }

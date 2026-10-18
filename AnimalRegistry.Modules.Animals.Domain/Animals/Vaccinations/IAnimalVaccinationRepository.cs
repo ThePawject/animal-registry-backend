@@ -8,6 +8,9 @@ internal interface IAnimalVaccinationRepository
     Task<IReadOnlyList<AnimalVaccination>> ListByAnimalIdAsync(Guid animalId, string shelterId,
         CancellationToken cancellationToken = default);
 
+    Task<AnimalVaccination?> FindReplacingAsync(Guid replacedId, string shelterId,
+        CancellationToken cancellationToken = default);
+
     void Add(AnimalVaccination vaccination);
 
     void Remove(AnimalVaccination vaccination);

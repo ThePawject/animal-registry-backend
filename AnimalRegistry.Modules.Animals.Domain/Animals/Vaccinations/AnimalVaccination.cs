@@ -30,6 +30,7 @@ public sealed class AnimalVaccination : Entity, IAggregateRoot
     public string? Veterinarian { get; private set; }
     public string? BatchNumber { get; private set; }
     public string? Notes { get; private set; }
+    public Guid? ReplacesVaccinationId { get; private set; }
     public VaccinationAttachment? Attachment { get; private set; }
     public string CreatedBy { get; private set; } = null!;
     public DateTimeOffset CreatedOn { get; private set; }
@@ -39,17 +40,26 @@ public sealed class AnimalVaccination : Entity, IAggregateRoot
         Guid animalId,
         string shelterId,
         AnimalVaccinationData data,
+        AnimalVaccination? replaced,
+        bool isReplacedElsewhere,
         string createdBy,
         DateTimeOffset now)
     {
         var vaccination = new AnimalVaccination(animalId, shelterId, createdBy, now);
-        vaccination.Apply(data, now);
+        vaccination.Apply(data, replaced, isReplacedElsewhere, now);
         return vaccination;
     }
 
-    public void Update(AnimalVaccinationData data, DateTimeOffset now)
+    public void Update(AnimalVaccinationData data, AnimalVaccination? replaced, bool isReplacedElsewhere,
+        DateTimeOffset now)
     {
-        Apply(data, now);
+        Apply(data, replaced, isReplacedElsewhere, now);
+    }
+
+    public void ClearReplacement(DateTimeOffset now)
+    {
+        ReplacesVaccinationId = null;
+        ModifiedOn = now;
     }
 
     public void SetAttachment(VaccinationAttachment attachment, DateTimeOffset now)
@@ -64,9 +74,14 @@ public sealed class AnimalVaccination : Entity, IAggregateRoot
         ModifiedOn = now;
     }
 
-    public bool IsActive(DateTimeOffset now)
+    public VaccinationStatus GetStatus(DateTimeOffset now, bool isReplaced)
     {
-        return DaysUntilExpiry(now) is null or >= 0;
+        if (isReplaced)
+        {
+            return VaccinationStatus.Replaced;
+        }
+
+        return DaysUntilExpiry(now) is null or >= 0 ? VaccinationStatus.Active : VaccinationStatus.Expired;
     }
 
     public int? DaysUntilExpiry(DateTimeOffset now)
@@ -79,11 +94,19 @@ public sealed class AnimalVaccination : Entity, IAggregateRoot
         return (ShelterCalendar.ToLocal(validUntil).Date - ShelterCalendar.ToLocal(now).Date).Days;
     }
 
-    private void Apply(AnimalVaccinationData data, DateTimeOffset now)
+    private void Apply(AnimalVaccinationData data, AnimalVaccination? replaced, bool isReplacedElsewhere,
+        DateTimeOffset now)
     {
         CheckRule(new VaccineNameMustBeProvidedRule(data.VaccineName));
         CheckRule(new AdministrationDateCannotBeInFutureRule(data.AdministeredOn, now));
         CheckRule(new ValidUntilCannotBeBeforeAdministrationRule(data.AdministeredOn, data.ValidUntil));
+
+        if (replaced is not null)
+        {
+            CheckRule(new ReplacedVaccinationMustBelongToSameAnimalRule(replaced, AnimalId, ShelterId));
+            CheckRule(new ReplacedVaccinationMustBeEarlierRule(replaced, data.AdministeredOn));
+            CheckRule(new VaccinationCanBeReplacedOnlyOnceRule(isReplacedElsewhere));
+        }
 
         VaccineName = data.VaccineName.Trim();
         AdministeredOn = data.AdministeredOn;
@@ -91,6 +114,7 @@ public sealed class AnimalVaccination : Entity, IAggregateRoot
         Veterinarian = Normalize(data.Veterinarian);
         BatchNumber = Normalize(data.BatchNumber);
         Notes = Normalize(data.Notes);
+        ReplacesVaccinationId = replaced?.Id;
         ModifiedOn = now;
     }
 

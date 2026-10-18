@@ -11,6 +11,7 @@ public sealed class CreateAnimalVaccinationRequest
     public string? Veterinarian { get; init; }
     public string? BatchNumber { get; init; }
     public string? Notes { get; init; }
+    public Guid? ReplacesVaccinationId { get; init; }
 
     public static string BuildRoute(Guid animalId)
     {

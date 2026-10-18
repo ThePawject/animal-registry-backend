@@ -16,7 +16,8 @@ internal sealed class VaccinationQuery(AnimalsDbContext context) : IVaccinationQ
     {
         var vaccinations = context.AnimalVaccinations
             .AsNoTracking()
-            .Where(v => v.ShelterId == shelterId && v.ValidUntil != null && v.ValidUntil < validBefore);
+            .Where(v => v.ShelterId == shelterId && v.ValidUntil != null && v.ValidUntil < validBefore)
+            .Where(v => !context.AnimalVaccinations.Any(r => r.ReplacesVaccinationId == v.Id));
 
         if (validFrom is { } from)
         {
@@ -56,7 +57,7 @@ internal sealed class VaccinationQuery(AnimalsDbContext context) : IVaccinationQ
         return rows.Select(ToInfo).ToList();
     }
 
-    private static IQueryable<VaccinationRow> JoinAnimals(IQueryable<AnimalVaccination> vaccinations,
+    private IQueryable<VaccinationRow> JoinAnimals(IQueryable<AnimalVaccination> vaccinations,
         IQueryable<Animal> animals)
     {
         return vaccinations.Join(
@@ -65,15 +66,22 @@ internal sealed class VaccinationQuery(AnimalsDbContext context) : IVaccinationQ
             a => a.Id,
             (v, a) => new VaccinationRow
             {
-                Vaccination = v, Name = a.Name, Signature = a.Signature, Species = a.Species,
+                Vaccination = v,
+                Name = a.Name,
+                Signature = a.Signature,
+                Species = a.Species,
                 IsInShelter = a.IsInShelter,
+                ReplacedByVaccinationId = context.AnimalVaccinations
+                    .Where(r => r.ReplacesVaccinationId == v.Id)
+                    .Select(r => (Guid?)r.Id)
+                    .FirstOrDefault(),
             });
     }
 
     private static VaccinationWithAnimalInfo ToInfo(VaccinationRow row)
     {
         return new VaccinationWithAnimalInfo(row.Vaccination, row.Name, row.Signature.Value, row.Species,
-            row.IsInShelter);
+            row.IsInShelter, row.ReplacedByVaccinationId);
     }
 
     private sealed class VaccinationRow
@@ -83,5 +91,6 @@ internal sealed class VaccinationQuery(AnimalsDbContext context) : IVaccinationQ
         public required AnimalSignature Signature { get; init; }
         public required AnimalSpecies Species { get; init; }
         public required bool IsInShelter { get; init; }
+        public required Guid? ReplacedByVaccinationId { get; init; }
     }
 }

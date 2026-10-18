@@ -1,6 +1,7 @@
 using AnimalRegistry.Modules.Animals.Api.Vaccinations;
 using AnimalRegistry.Modules.Animals.Application.Vaccinations;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
 using FluentAssertions;
@@ -39,7 +40,7 @@ public sealed class ExpiringVaccinationsTests(ApiTestFixture fixture) : Vaccinat
         var vaccinations = await ExpiringAsync();
 
         vaccinations.Select(v => v.Vaccination.VaccineName).Should().Equal("Today", "In 7 days", "In 30 days");
-        vaccinations.Should().OnlyContain(v => v.Vaccination.IsActive);
+        vaccinations.Should().OnlyContain(v => v.Vaccination.Status == VaccinationStatus.Active);
         vaccinations[1].Vaccination.DaysUntilExpiry.Should().Be(7);
         vaccinations[0].AnimalSignature.Should().Be("2026/0001");
         vaccinations[0].AnimalName.Should().Be("Burek");
@@ -57,7 +58,7 @@ public sealed class ExpiringVaccinationsTests(ApiTestFixture fixture) : Vaccinat
 
         withinWeek.Select(v => v.Vaccination.VaccineName).Should().Equal("Today", "In 7 days");
         withExpired.Select(v => v.Vaccination.VaccineName).Should().Equal("Expired", "Today", "In 7 days");
-        withExpired[0].Vaccination.IsActive.Should().BeFalse();
+        withExpired[0].Vaccination.Status.Should().Be(VaccinationStatus.Expired);
     }
 
     [Fact]

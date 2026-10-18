@@ -24,6 +24,14 @@ internal sealed class AnimalVaccinationRepository(AnimalsDbContext context) : IA
             .ToListAsync(cancellationToken);
     }
 
+    public Task<AnimalVaccination?> FindReplacingAsync(Guid replacedId, string shelterId,
+        CancellationToken cancellationToken = default)
+    {
+        return context.AnimalVaccinations
+            .FirstOrDefaultAsync(v => v.ReplacesVaccinationId == replacedId && v.ShelterId == shelterId,
+                cancellationToken);
+    }
+
     public void Add(AnimalVaccination vaccination)
     {
         context.AnimalVaccinations.Add(vaccination);

@@ -4,5 +4,6 @@ using AnimalRegistry.Shared.MediatorPattern;
 
 namespace AnimalRegistry.Modules.Animals.Application.Vaccinations;
 
-internal sealed record UpdateAnimalVaccinationCommand(Guid AnimalId, Guid VaccinationId, AnimalVaccinationData Data)
+internal sealed record UpdateAnimalVaccinationCommand(Guid AnimalId, Guid VaccinationId, AnimalVaccinationData Data,
+    Guid? ReplacesVaccinationId)
     : IRequest<Result<AnimalVaccinationDto>>;

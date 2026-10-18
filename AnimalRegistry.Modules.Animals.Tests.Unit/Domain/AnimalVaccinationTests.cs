@@ -11,7 +11,7 @@ public class AnimalVaccinationTests
 
     private AnimalVaccination Create(AnimalVaccinationData data)
     {
-        return AnimalVaccination.Create(_animalId, ShelterId, data, UserEmail, Now);
+        return AnimalVaccination.Create(_animalId, ShelterId, data, null, false, UserEmail, Now);
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class AnimalVaccinationTests
         var later = Now.AddHours(1);
 
         vaccination.Update(Data("Biocan DHPPi", validUntil: LocalDate(2027, 1, 1), veterinarian: null,
-            batchNumber: null, notes: "Po korekcie"), later);
+            batchNumber: null, notes: "Po korekcie"), null, false, later);
 
         vaccination.VaccineName.Should().Be("Biocan DHPPi");
         vaccination.ValidUntil.Should().Be(LocalDate(2027, 1, 1));
@@ -116,7 +116,7 @@ public class AnimalVaccinationTests
     {
         var vaccination = Create(Data());
 
-        var act = () => vaccination.Update(Data(" "), Now);
+        var act = () => vaccination.Update(Data(" "), null, false, Now);
 
         act.Should().Throw<BusinessRuleValidationException>();
         vaccination.VaccineName.Should().Be("Nobivac Rabies");
@@ -136,35 +136,126 @@ public class AnimalVaccinationTests
     }
 
     [Fact]
-    public void IsActive_ShouldBeTrue_WhenThereIsNoValidityDate()
+    public void GetStatus_ShouldBeActive_WhenThereIsNoValidityDate()
     {
         var vaccination = Create(Data());
 
-        vaccination.IsActive(Now).Should().BeTrue();
+        vaccination.GetStatus(Now, false).Should().Be(VaccinationStatus.Active);
         vaccination.DaysUntilExpiry(Now).Should().BeNull();
     }
 
     [Theory]
-    [InlineData(2026, 3, 14, false, -1)]
-    [InlineData(2026, 3, 15, true, 0)]
-    [InlineData(2026, 3, 16, true, 1)]
-    [InlineData(2026, 4, 14, true, 30)]
-    public void IsActive_ShouldCompareShelterDays(int year, int month, int day, bool expectedActive,
+    [InlineData(2026, 3, 14, VaccinationStatus.Expired, -1)]
+    [InlineData(2026, 3, 15, VaccinationStatus.Active, 0)]
+    [InlineData(2026, 3, 16, VaccinationStatus.Active, 1)]
+    [InlineData(2026, 4, 14, VaccinationStatus.Active, 30)]
+    public void GetStatus_ShouldCompareShelterDays(int year, int month, int day, VaccinationStatus expectedStatus,
         int expectedDays)
     {
         var vaccination = Create(Data(validUntil: LocalDate(year, month, day)));
 
-        vaccination.IsActive(Now).Should().Be(expectedActive);
+        vaccination.GetStatus(Now, false).Should().Be(expectedStatus);
         vaccination.DaysUntilExpiry(Now).Should().Be(expectedDays);
     }
 
     [Fact]
-    public void IsActive_ShouldUseShelterDay_WhenUtcDayDiffers()
+    public void GetStatus_ShouldUseShelterDay_WhenUtcDayDiffers()
     {
         var vaccination = Create(Data(administeredOn: LocalDate(2026, 3, 1),
             validUntil: new DateTimeOffset(2026, 3, 14, 23, 30, 0, TimeSpan.Zero)));
 
-        vaccination.IsActive(Now).Should().BeTrue();
+        vaccination.GetStatus(Now, false).Should().Be(VaccinationStatus.Active);
         vaccination.DaysUntilExpiry(Now).Should().Be(0);
+    }
+
+    [Fact]
+    public void Create_ShouldStoreReplacedVaccination_WhenItIsEarlierAndOfSameAnimal()
+    {
+        var replaced = AnimalVaccination.Create(_animalId, ShelterId, Data(administeredOn: LocalDate(2025, 3, 10)),
+            null, false, UserEmail, Now);
+
+        var vaccination = AnimalVaccination.Create(_animalId, ShelterId, Data(), replaced, false, UserEmail, Now);
+
+        vaccination.ReplacesVaccinationId.Should().Be(replaced.Id);
+    }
+
+    [Fact]
+    public void Create_ShouldThrow_WhenReplacedVaccinationBelongsToAnotherAnimal()
+    {
+        var replaced = AnimalVaccination.Create(Guid.NewGuid(), ShelterId, Data(administeredOn: LocalDate(2025, 3, 10)),
+            null, false, UserEmail, Now);
+
+        var act = () => AnimalVaccination.Create(_animalId, ShelterId, Data(), replaced, false, UserEmail, Now);
+
+        act.Should().Throw<BusinessRuleValidationException>()
+            .WithMessage("Replaced vaccination must belong to the same animal.");
+    }
+
+    [Fact]
+    public void Create_ShouldThrow_WhenReplacedVaccinationIsNotEarlier()
+    {
+        var replaced = AnimalVaccination.Create(_animalId, ShelterId, Data(), null, false, UserEmail, Now);
+
+        var act = () => AnimalVaccination.Create(_animalId, ShelterId, Data(), replaced, false, UserEmail, Now);
+
+        act.Should().Throw<BusinessRuleValidationException>()
+            .WithMessage("Replaced vaccination must have been administered before the replacing one.");
+    }
+
+    [Fact]
+    public void Create_ShouldThrow_WhenReplacedVaccinationIsAlreadyReplaced()
+    {
+        var replaced = AnimalVaccination.Create(_animalId, ShelterId, Data(administeredOn: LocalDate(2025, 3, 10)),
+            null, false, UserEmail, Now);
+
+        var act = () => AnimalVaccination.Create(_animalId, ShelterId, Data(), replaced, true, UserEmail, Now);
+
+        act.Should().Throw<BusinessRuleValidationException>()
+            .WithMessage("This vaccination has already been replaced by another one.");
+    }
+
+    [Fact]
+    public void Update_ShouldThrow_WhenVaccinationWouldReplaceItself()
+    {
+        var vaccination = Create(Data());
+
+        var act = () => vaccination.Update(Data(), vaccination, false, Now);
+
+        act.Should().Throw<BusinessRuleValidationException>()
+            .WithMessage("Replaced vaccination must have been administered before the replacing one.");
+    }
+
+    [Fact]
+    public void Update_ShouldClearReplacement_WhenNoReplacedVaccinationIsGiven()
+    {
+        var replaced = AnimalVaccination.Create(_animalId, ShelterId, Data(administeredOn: LocalDate(2025, 3, 10)),
+            null, false, UserEmail, Now);
+        var vaccination = AnimalVaccination.Create(_animalId, ShelterId, Data(), replaced, false, UserEmail, Now);
+
+        vaccination.Update(Data(), null, false, Now);
+
+        vaccination.ReplacesVaccinationId.Should().BeNull();
+    }
+
+    [Fact]
+    public void ClearReplacement_ShouldRemoveLink()
+    {
+        var replaced = AnimalVaccination.Create(_animalId, ShelterId, Data(administeredOn: LocalDate(2025, 3, 10)),
+            null, false, UserEmail, Now);
+        var vaccination = AnimalVaccination.Create(_animalId, ShelterId, Data(), replaced, false, UserEmail, Now);
+        var later = Now.AddHours(1);
+
+        vaccination.ClearReplacement(later);
+
+        vaccination.ReplacesVaccinationId.Should().BeNull();
+        vaccination.ModifiedOn.Should().Be(later);
+    }
+
+    [Fact]
+    public void GetStatus_ShouldBeReplaced_EvenWhenStillValid()
+    {
+        var vaccination = Create(Data(validUntil: LocalDate(2027, 3, 10)));
+
+        vaccination.GetStatus(Now, true).Should().Be(VaccinationStatus.Replaced);
     }
 }

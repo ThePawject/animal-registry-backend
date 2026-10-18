@@ -161,6 +161,9 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<Guid?>("ReplacesVaccinationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("ShelterId")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -181,6 +184,11 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AnimalId");
+
+                    b.HasIndex("ReplacesVaccinationId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_AnimalVaccinations_ReplacesVaccinationId")
+                        .HasFilter("[ReplacesVaccinationId] IS NOT NULL");
 
                     b.HasIndex("ShelterId", "AdministeredOn");
 

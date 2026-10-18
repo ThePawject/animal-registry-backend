@@ -18,7 +18,7 @@ internal sealed class ListAnimalVaccinations(IMediator mediator)
         Summary(s =>
         {
             s.Summary = "List animal vaccinations";
-            s.Description = "Vaccinations of an animal, newest first, with an IsActive flag.";
+            s.Description = "Vaccinations of an animal, newest first, with status Active, Expired or Replaced.";
         });
     }
 

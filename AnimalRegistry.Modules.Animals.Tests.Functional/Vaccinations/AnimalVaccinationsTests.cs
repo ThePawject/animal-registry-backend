@@ -1,6 +1,7 @@
 using AnimalRegistry.Modules.Animals.Api;
 using AnimalRegistry.Modules.Animals.Api.Vaccinations;
 using AnimalRegistry.Modules.Animals.Application.Vaccinations;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Modules.Shelters.Api;
 using AnimalRegistry.Modules.Shelters.Application;
@@ -61,7 +62,7 @@ public sealed class AnimalVaccinationsTests(ApiTestFixture fixture) : Vaccinatio
         vaccination.BatchNumber.Should().BeNull();
         vaccination.Notes.Should().BeNull();
         vaccination.Attachment.Should().BeNull();
-        vaccination.IsActive.Should().BeTrue();
+        vaccination.Status.Should().Be(VaccinationStatus.Active);
         vaccination.DaysUntilExpiry.Should().BeNull();
         vaccination.CreatedBy.Should().Be(TestUser.Email);
     }
@@ -78,12 +79,12 @@ public sealed class AnimalVaccinationsTests(ApiTestFixture fixture) : Vaccinatio
         var vaccinations = await ListAsync(animalId);
 
         vaccinations.Select(v => v.VaccineName).Should().Equal("New rabies", "Old rabies");
-        vaccinations[0].IsActive.Should().BeTrue();
+        vaccinations[0].Status.Should().Be(VaccinationStatus.Active);
         vaccinations[0].DaysUntilExpiry.Should().Be(335);
         vaccinations[0].Veterinarian.Should().Be("Anna Nowak");
         vaccinations[0].BatchNumber.Should().Be("S2");
         vaccinations[0].Notes.Should().Be("Druga dawka");
-        vaccinations[1].IsActive.Should().BeFalse();
+        vaccinations[1].Status.Should().Be(VaccinationStatus.Expired);
         vaccinations[1].DaysUntilExpiry.Should().Be(-35);
     }
 
@@ -95,7 +96,7 @@ public sealed class AnimalVaccinationsTests(ApiTestFixture fixture) : Vaccinatio
 
         var vaccination = await CreateVaccinationAsync(animalId, Body(validUntil: LocalDay(0)));
 
-        vaccination.IsActive.Should().BeTrue();
+        vaccination.Status.Should().Be(VaccinationStatus.Active);
         vaccination.DaysUntilExpiry.Should().Be(0);
     }
 

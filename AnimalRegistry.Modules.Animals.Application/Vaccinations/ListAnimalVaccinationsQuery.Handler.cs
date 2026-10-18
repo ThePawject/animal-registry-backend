@@ -25,8 +25,13 @@ internal sealed class ListAnimalVaccinationsQueryHandler(
             cancellationToken);
         var now = DateTimeOffset.UtcNow;
 
+        var replacedBy = vaccinations
+            .Where(v => v.ReplacesVaccinationId is not null)
+            .ToDictionary(v => v.ReplacesVaccinationId!.Value, v => (Guid?)v.Id);
+
         IReadOnlyList<AnimalVaccinationDto> dtos = vaccinations
-            .Select(v => AnimalVaccinationDto.FromDomain(v, now, blobStorageService))
+            .Select(v =>
+                AnimalVaccinationDto.FromDomain(v, replacedBy.GetValueOrDefault(v.Id), now, blobStorageService))
             .ToList();
         return Result<IReadOnlyList<AnimalVaccinationDto>>.Success(dtos);
     }

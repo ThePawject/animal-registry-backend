@@ -15,7 +15,7 @@ public class VaccinationReportPdfServiceTests
     private static VaccinationWithAnimalDto CreateEntry(DateTimeOffset? validUntil)
     {
         var info = new VaccinationWithAnimalInfo(CreateVaccination(validUntil: validUntil), "Burek", "2026/0001",
-            AnimalSpecies.Dog, true);
+            AnimalSpecies.Dog, true, null);
         return VaccinationWithAnimalDto.FromDomain(info, Now, Substitute.For<IBlobStorageService>());
     }
 

@@ -13,7 +13,7 @@ public sealed record VaccinationWithAnimalDto(
         IBlobStorageService blobStorageService)
     {
         return new VaccinationWithAnimalDto(
-            AnimalVaccinationDto.FromDomain(info.Vaccination, now, blobStorageService),
+            AnimalVaccinationDto.FromDomain(info.Vaccination, info.ReplacedByVaccinationId, now, blobStorageService),
             info.AnimalName,
             info.AnimalSignature,
             info.Species,
