@@ -12,10 +12,10 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Infrastructure.ReportPdfs;
 
 public class VaccinationReportPdfServiceTests
 {
-    private static VaccinationWithAnimalDto CreateEntry(DateTimeOffset? validUntil)
+    private static VaccinationWithAnimalDto CreateEntry(DateTimeOffset? validUntil, Guid? replacedBy = null)
     {
         var info = new VaccinationWithAnimalInfo(CreateVaccination(validUntil: validUntil), "Burek", "2026/0001",
-            AnimalSpecies.Dog, true, null);
+            AnimalSpecies.Dog, true, replacedBy);
         return VaccinationWithAnimalDto.FromDomain(info, Now, Substitute.For<IBlobStorageService>());
     }
 
@@ -67,7 +67,13 @@ public class VaccinationReportPdfServiceTests
             ShelterId = "shelter",
             From = new DateTime(2026, 3, 1),
             To = new DateTime(2026, 3, 31),
-            Entries = [CreateEntry(null), CreateEntry(LocalDate(2027, 3, 10))],
+            Entries =
+            [
+                CreateEntry(null),
+                CreateEntry(LocalDate(2027, 3, 10)),
+                CreateEntry(LocalDate(2026, 3, 12)),
+                CreateEntry(LocalDate(2027, 3, 10), Guid.NewGuid()),
+            ],
             ReportDate = Now,
         };
 

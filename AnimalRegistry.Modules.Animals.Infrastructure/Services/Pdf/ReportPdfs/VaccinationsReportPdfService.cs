@@ -1,6 +1,7 @@
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Domain;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.Common;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -97,6 +98,7 @@ internal sealed class VaccinationsReportPdfService : ReportPdfBase, IVaccination
                 columns.RelativeColumn(2);
                 columns.RelativeColumn(3);
                 columns.RelativeColumn(2);
+                columns.RelativeColumn(2);
             });
 
             table.Header(header =>
@@ -110,6 +112,7 @@ internal sealed class VaccinationsReportPdfService : ReportPdfBase, IVaccination
                 header.Cell().Element(ReportStyles.HeaderStyle).Text("Seria").Bold();
                 header.Cell().Element(ReportStyles.HeaderStyle).Text("Lekarz weterynarii").Bold();
                 header.Cell().Element(ReportStyles.HeaderStyle).Text("Ważne do").Bold();
+                header.Cell().Element(ReportStyles.HeaderStyle).Text("Status").Bold();
             });
 
             for (var i = 0; i < data.Entries.Count; i++)
@@ -128,8 +131,19 @@ internal sealed class VaccinationsReportPdfService : ReportPdfBase, IVaccination
                 table.Cell().Element(ReportStyles.CellStyle).Text(vaccination.ValidUntil is { } validUntil
                     ? FormatDate(validUntil)
                     : "-");
+                table.Cell().Element(ReportStyles.CellStyle).Text(GetStatusName(vaccination.Status));
             }
         });
+    }
+
+    private static string GetStatusName(VaccinationStatus status)
+    {
+        return status switch
+        {
+            VaccinationStatus.Replaced => "Zastąpione",
+            VaccinationStatus.Expired => "Wygasłe",
+            _ => "Aktywne",
+        };
     }
 
     private static string FormatDate(DateTimeOffset value)

@@ -28,20 +28,22 @@ public sealed class MunicipalitiesTests(ApiTestFixture fixture) : OriginModuleTe
     }
 
     [Fact]
-    public async Task ManagementEndpoints_ShouldReturnForbidden_WhenUserIsNotShelterAdmin()
+    public async Task ManagementEndpoints_ShouldBeAvailableToShelterWorker()
     {
         await SetModuleAsync(true);
-        var municipality = await CreateMunicipalityAsync("Gmina A");
+
+        var created = await CreateMunicipalityAsync("Gmina A", Worker);
 
         var responses = new[]
         {
-            await Worker.PostAsJsonAsync(CreateMunicipalityRequest.Route, new { Name = "Gmina B" }),
-            await Worker.PutAsJsonAsync(UpdateMunicipalityRequest.BuildRoute(municipality.Id), new { Name = "B" }),
-            await Worker.DeleteAsync(ArchiveMunicipalityRequest.BuildRoute(municipality.Id)),
-            await Worker.PostAsync(RestoreMunicipalityRequest.BuildRoute(municipality.Id), null),
+            await Worker.PutAsJsonAsync(UpdateMunicipalityRequest.BuildRoute(created.Id), new { Name = "Gmina B" }),
+            await Worker.DeleteAsync(ArchiveMunicipalityRequest.BuildRoute(created.Id)),
+            await Worker.PostAsync(RestoreMunicipalityRequest.BuildRoute(created.Id), null),
         };
 
-        responses.Should().OnlyContain(r => r.StatusCode == HttpStatusCode.Forbidden);
+        responses.Should().OnlyContain(r => r.IsSuccessStatusCode);
+        var municipalities = await Worker.GetFromJsonAsync<List<MunicipalityDto>>(ListMunicipalitiesRequest.Route);
+        municipalities!.Should().ContainSingle(m => m.Id == created.Id && m.Name == "Gmina B" && !m.IsArchived);
     }
 
     [Fact]

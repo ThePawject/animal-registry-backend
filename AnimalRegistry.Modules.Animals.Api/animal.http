@@ -42,7 +42,7 @@ Content-Type: application/json
 GET {{HostAddress}}/municipalities?includeArchived=false
 Authorization: Bearer {{$auth.token("auth0")}}
 
-### Create municipality (requires Shelter_Admin role)
+### Create municipality
 POST {{HostAddress}}/municipalities
 Authorization: Bearer {{$auth.token("auth0")}}
 Content-Type: application/json
