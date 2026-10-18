@@ -1,15 +1,12 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
-using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 
 namespace AnimalRegistry.Modules.Animals.Application.Origin;
 
-public sealed class AnimalOriginLookup(
-    IReadOnlyDictionary<Guid, AnimalOrigin> originsByAnimalId,
-    IReadOnlyDictionary<Guid, string> municipalityNames)
+public sealed class AnimalOriginLookup(IReadOnlyDictionary<Guid, string> municipalityNames)
 {
     public AnimalOriginDto Resolve(Animal animal)
     {
-        if (!originsByAnimalId.TryGetValue(animal.Id, out var origin))
+        if (animal.Origin is not { } origin)
         {
             return AnimalOriginDto.Unassigned;
         }

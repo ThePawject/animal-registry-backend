@@ -39,10 +39,11 @@ internal static class OriginTestData
         return new AnimalOriginData(admissionDate ?? AdmissionDate, method, street, foundId, contractorId);
     }
 
-    public static AnimalOrigin CreateOrigin(Animal animal, Municipality found, Municipality contractor,
+    public static AnimalOrigin AssignOrigin(Animal animal, Municipality found, Municipality contractor,
         DateTimeOffset? admissionDate = null)
     {
-        return AnimalOrigin.Create(animal.Id, animal.ShelterId, Data(found.Id, contractor.Id, admissionDate),
-            [found, contractor], FarFuture);
+        var origin = AnimalOrigin.Create(Data(found.Id, contractor.Id, admissionDate), FarFuture);
+        animal.SetOrigin(origin, [found, contractor]);
+        return origin;
     }
 }

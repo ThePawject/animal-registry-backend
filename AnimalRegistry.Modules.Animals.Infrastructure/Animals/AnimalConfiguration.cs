@@ -1,4 +1,5 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals;
+using AnimalRegistry.Modules.Animals.Infrastructure.Origin;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -35,6 +36,8 @@ internal sealed class AnimalConfiguration : IEntityTypeConfiguration<Animal>
         builder.HasIndex(a => a.ShelterId);
         builder.HasIndex(a => new { a.ShelterId, a.CreatedOn });
         builder.Property(a => a.MainPhotoId);
+
+        builder.OwnsOne(a => a.Origin, AnimalOriginConfiguration.Configure);
 
         builder.OwnsMany(a => a.Photos, photoBuilder =>
         {

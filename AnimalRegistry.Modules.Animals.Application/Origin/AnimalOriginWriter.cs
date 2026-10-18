@@ -8,7 +8,6 @@ namespace AnimalRegistry.Modules.Animals.Application.Origin;
 
 internal sealed class AnimalOriginWriter(
     IShelterFeatureToggles toggles,
-    IAnimalOriginRepository originRepository,
     IMunicipalityRepository municipalityRepository) : IAnimalOriginWriter
 {
     public async Task<Result> ApplyAsync(Animal animal, AnimalOriginData? data,
@@ -24,21 +23,13 @@ internal sealed class AnimalOriginWriter(
             return Result.ValidationError("Animal origin is required when the origin module is enabled.");
         }
 
+        var origin = AnimalOrigin.Create(data, DateTimeOffset.UtcNow);
         var municipalities = await municipalityRepository.GetByIdsAsync(
-            [data.FoundMunicipalityId, data.ContractorMunicipalityId],
+            [origin.FoundMunicipalityId, origin.ContractorMunicipalityId],
             animal.ShelterId,
             cancellationToken);
-        var origin = await originRepository.GetByAnimalIdAsync(animal.Id, animal.ShelterId, cancellationToken);
-        var now = DateTimeOffset.UtcNow;
 
-        if (origin is null)
-        {
-            originRepository.Add(AnimalOrigin.Create(animal.Id, animal.ShelterId, data, municipalities, now));
-        }
-        else
-        {
-            origin.Update(data, municipalities, now);
-        }
+        animal.SetOrigin(origin, municipalities);
 
         return Result.Success();
     }

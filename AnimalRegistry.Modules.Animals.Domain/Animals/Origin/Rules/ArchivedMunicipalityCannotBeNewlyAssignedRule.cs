@@ -7,7 +7,7 @@ internal sealed class ArchivedMunicipalityCannotBeNewlyAssignedRule(
     Guid municipalityId,
     string role,
     IReadOnlyCollection<Municipality> municipalities,
-    IReadOnlyCollection<Guid> assignedMunicipalityIds) : IBusinessRule
+    AnimalOrigin? currentOrigin) : IBusinessRule
 {
     private readonly Municipality? _municipality = municipalities.FirstOrDefault(m => m.Id == municipalityId);
 
@@ -15,6 +15,6 @@ internal sealed class ArchivedMunicipalityCannotBeNewlyAssignedRule(
 
     public bool IsBroken()
     {
-        return _municipality is { IsArchived: true } && !assignedMunicipalityIds.Contains(municipalityId);
+        return _municipality is { IsArchived: true } && currentOrigin?.IsAssigned(municipalityId) != true;
     }
 }

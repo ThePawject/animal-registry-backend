@@ -6,16 +6,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AnimalRegistry.Modules.Animals.Infrastructure.Origin;
 
-internal sealed class AnimalOriginConfiguration : IEntityTypeConfiguration<AnimalOrigin>
+internal static class AnimalOriginConfiguration
 {
-    public const string AnimalIdIndexName = "IX_AnimalOrigins_AnimalId";
+    public const string PrimaryKeyName = "PK_AnimalOrigins";
 
-    public void Configure(EntityTypeBuilder<AnimalOrigin> builder)
+    public static void Configure(OwnedNavigationBuilder<Animal, AnimalOrigin> builder)
     {
         builder.ToTable("AnimalOrigins");
-        builder.HasKey(o => o.Id);
+        builder.WithOwner().HasForeignKey("AnimalId");
+        builder.HasKey("AnimalId").HasName(PrimaryKeyName);
 
-        builder.Property(o => o.ShelterId).IsRequired().HasMaxLength(100);
         builder.Property(o => o.AdmissionDate).IsRequired();
         builder.Property(o => o.AdmissionMethod)
             .IsRequired()
@@ -25,13 +25,8 @@ internal sealed class AnimalOriginConfiguration : IEntityTypeConfiguration<Anima
         builder.Property(o => o.FoundMunicipalityId).IsRequired();
         builder.Property(o => o.ContractorMunicipalityId).IsRequired();
 
-        builder.HasIndex(o => o.AnimalId).IsUnique().HasDatabaseName(AnimalIdIndexName);
-        builder.HasIndex(o => new { o.ShelterId, o.AdmissionDate });
+        builder.HasIndex(o => o.AdmissionDate);
 
-        builder.HasOne<Animal>()
-            .WithMany()
-            .HasForeignKey(o => o.AnimalId)
-            .OnDelete(DeleteBehavior.Cascade);
         builder.HasOne<Municipality>()
             .WithMany()
             .HasForeignKey(o => o.FoundMunicipalityId)

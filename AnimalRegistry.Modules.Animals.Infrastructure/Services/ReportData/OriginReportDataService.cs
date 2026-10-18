@@ -2,6 +2,7 @@ using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Application.Reports.Models;
 using AnimalRegistry.Modules.Animals.Domain;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using System.Globalization;
 
@@ -81,14 +82,14 @@ internal sealed class OriginReportDataService(
         CancellationToken cancellationToken)
     {
         var admitted = await query.GetAdmittedBetweenAsync(shelterId, from, to, cancellationToken);
-        var origins = admitted
-            .Where(a => a.Origin is not null)
-            .ToDictionary(a => a.Animal.Id, a => a.Origin!);
         var municipalities = await municipalityRepository.GetByIdsAsync(
-            origins.Values.SelectMany(o => new[] { o.FoundMunicipalityId, o.ContractorMunicipalityId }),
+            admitted
+                .Select(a => a.Animal.Origin)
+                .OfType<AnimalOrigin>()
+                .SelectMany(o => new[] { o.FoundMunicipalityId, o.ContractorMunicipalityId }),
             shelterId,
             cancellationToken);
-        var lookup = new AnimalOriginLookup(origins, municipalities.ToDictionary(m => m.Id, m => m.Name));
+        var lookup = new AnimalOriginLookup(municipalities.ToDictionary(m => m.Id, m => m.Name));
 
         return admitted
             .Select(a => new OriginReportEntry

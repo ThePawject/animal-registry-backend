@@ -29,11 +29,11 @@ public class OriginReportDataServiceTests
         var animal = CreateAnimal(signature);
         if (contractor is null)
         {
-            return new AdmittedAnimal(animal, null, animal.CreatedOn);
+            return new AdmittedAnimal(animal, animal.CreatedOn);
         }
 
-        var origin = CreateOrigin(animal, contractor, contractor, admittedOn);
-        return new AdmittedAnimal(animal, origin, origin.AdmissionDate);
+        var origin = AssignOrigin(animal, contractor, contractor, admittedOn);
+        return new AdmittedAnimal(animal, origin.AdmissionDate);
     }
 
     private void GivenAnimals(params AdmittedAnimal[] animals)

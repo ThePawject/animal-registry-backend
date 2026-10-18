@@ -2,6 +2,9 @@ using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents.Reactions;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalHealths;
 using AnimalRegistry.Modules.Animals.Domain.Animals.DomainEvents;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin.Rules;
+using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Shared.DDD;
 
 namespace AnimalRegistry.Modules.Animals.Domain.Animals;
@@ -58,6 +61,7 @@ public sealed class Animal : Entity, IAggregateRoot
     public bool IsInShelter { get; private set; }
     public string ShelterId { get; private set; } = null!;
     public Guid? MainPhotoId { get; private set; }
+    public AnimalOrigin? Origin { get; private set; }
     public IReadOnlyCollection<AnimalPhoto> Photos => GetOrderedPhotos();
     public IReadOnlyCollection<AnimalEvent> Events => _events.AsReadOnly();
     public IReadOnlyCollection<AnimalHealth> HealthRecords => _healthRecords.AsReadOnly();
@@ -127,6 +131,21 @@ public sealed class Animal : Entity, IAggregateRoot
         ModifiedOn = DateTimeOffset.UtcNow;
 
         AddDomainEvent(new AnimalUpdatedDomainEvent(Id, Name, Signature.Value));
+    }
+
+    public void SetOrigin(AnimalOrigin origin, IReadOnlyCollection<Municipality> municipalities)
+    {
+        CheckMunicipality(origin.FoundMunicipalityId, "found", municipalities);
+        CheckMunicipality(origin.ContractorMunicipalityId, "contractor", municipalities);
+
+        Origin = origin;
+        ModifiedOn = DateTimeOffset.UtcNow;
+    }
+
+    private void CheckMunicipality(Guid municipalityId, string role, IReadOnlyCollection<Municipality> municipalities)
+    {
+        CheckRule(new MunicipalityMustExistInShelterRule(municipalityId, role, ShelterId, municipalities));
+        CheckRule(new ArchivedMunicipalityCannotBeNewlyAssignedRule(municipalityId, role, municipalities, Origin));
     }
 
     internal void SetOutOfShelter()

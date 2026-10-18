@@ -25,6 +25,6 @@ internal sealed class AnimalsUnitOfWork(AnimalsDbContext context) : IAnimalsUnit
     private static bool IsDuplicateAnimalOrigin(DbUpdateException exception)
     {
         return exception.InnerException is SqlException { Number: 2601 or 2627 } sqlException &&
-               sqlException.Message.Contains(AnimalOriginConfiguration.AnimalIdIndexName);
+               sqlException.Message.Contains(AnimalOriginConfiguration.PrimaryKeyName);
     }
 }

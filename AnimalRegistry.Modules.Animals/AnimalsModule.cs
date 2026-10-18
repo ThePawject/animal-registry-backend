@@ -47,7 +47,6 @@ public sealed class AnimalsModule : IModule
         services.AddScoped<IAnimalRepository, AnimalRepository>();
         services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
         services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
-        services.AddScoped<IAnimalOriginRepository, AnimalOriginRepository>();
         services.AddScoped<IAnimalsUnitOfWork, AnimalsUnitOfWork>();
 
         services.AddScoped<IRepositoryDumpDataService, RepositoryDumpDataService>();

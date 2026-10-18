@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Shared.DDD;
@@ -8,23 +9,21 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Domain;
 
 public class AnimalOriginTests
 {
+    private readonly Animal _animal = CreateAnimal();
     private readonly Municipality _found = CreateMunicipality("Gmina A");
     private readonly Municipality _contractor = CreateMunicipality("Gmina B");
-    private readonly Guid _animalId = Guid.NewGuid();
 
-    private AnimalOrigin Create(AnimalOriginData data, params Municipality[] municipalities)
+    private void SetOrigin(AnimalOriginData data, params Municipality[] municipalities)
     {
-        return AnimalOrigin.Create(_animalId, ShelterId, data,
-            municipalities.Length == 0 ? [_found, _contractor] : municipalities, Now);
+        _animal.SetOrigin(AnimalOrigin.Create(data, Now),
+            municipalities.Length == 0 ? [_found, _contractor] : municipalities);
     }
 
     [Fact]
     public void Create_ShouldStoreDataAndTrimStreet_WhenDataIsValid()
     {
-        var origin = Create(Data(_found.Id, _contractor.Id, street: "  Leśna 1 "));
+        var origin = AnimalOrigin.Create(Data(_found.Id, _contractor.Id, street: "  Leśna 1 "), Now);
 
-        origin.AnimalId.Should().Be(_animalId);
-        origin.ShelterId.Should().Be(ShelterId);
         origin.AdmissionDate.Should().Be(AdmissionDate);
         origin.AdmissionMethod.Should().Be(AdmissionMethod.Abandoned);
         origin.FoundStreet.Should().Be("Leśna 1");
@@ -35,7 +34,7 @@ public class AnimalOriginTests
     [Fact]
     public void Create_ShouldAcceptAdmissionDate_BeforeStartOfNextDay()
     {
-        var act = () => Create(Data(_found.Id, _contractor.Id, StartOfNextDay.AddTicks(-1)));
+        var act = () => AnimalOrigin.Create(Data(_found.Id, _contractor.Id, StartOfNextDay.AddTicks(-1)), Now);
 
         act.Should().NotThrow();
     }
@@ -43,7 +42,7 @@ public class AnimalOriginTests
     [Fact]
     public void Create_ShouldThrow_WhenAdmissionDateIsInFuture()
     {
-        var act = () => Create(Data(_found.Id, _contractor.Id, StartOfNextDay));
+        var act = () => AnimalOrigin.Create(Data(_found.Id, _contractor.Id, StartOfNextDay), Now);
 
         act.Should().Throw<BusinessRuleValidationException>().WithMessage("Admission date cannot be in the future.");
     }
@@ -53,7 +52,7 @@ public class AnimalOriginTests
     [InlineData((AdmissionMethod)999)]
     public void Create_ShouldThrow_WhenAdmissionMethodIsNotAssigned(AdmissionMethod method)
     {
-        var act = () => Create(Data(_found.Id, _contractor.Id, method: method));
+        var act = () => AnimalOrigin.Create(Data(_found.Id, _contractor.Id, method: method), Now);
 
         act.Should().Throw<BusinessRuleValidationException>().WithMessage("Admission method must be provided.");
     }
@@ -63,7 +62,7 @@ public class AnimalOriginTests
     [InlineData("   ")]
     public void Create_ShouldThrow_WhenStreetIsMissing(string street)
     {
-        var act = () => Create(Data(_found.Id, _contractor.Id, street: street));
+        var act = () => AnimalOrigin.Create(Data(_found.Id, _contractor.Id, street: street), Now);
 
         act.Should().Throw<BusinessRuleValidationException>()
             .WithMessage("Street where the animal was found must be provided.");
@@ -72,8 +71,8 @@ public class AnimalOriginTests
     [Fact]
     public void Create_ShouldThrow_WhenMunicipalityIsMissing()
     {
-        var withoutFound = () => Create(Data(Guid.Empty, _contractor.Id));
-        var withoutContractor = () => Create(Data(_found.Id, Guid.Empty));
+        var withoutFound = () => AnimalOrigin.Create(Data(Guid.Empty, _contractor.Id), Now);
+        var withoutContractor = () => AnimalOrigin.Create(Data(_found.Id, Guid.Empty), Now);
 
         withoutFound.Should().Throw<BusinessRuleValidationException>()
             .WithMessage("The found municipality must be provided.");
@@ -82,96 +81,112 @@ public class AnimalOriginTests
     }
 
     [Fact]
-    public void Create_ShouldThrow_WhenMunicipalityDoesNotExist()
+    public void Create_ShouldBeEqual_WhenDataIsEqual()
+    {
+        var data = Data(_found.Id, _contractor.Id);
+
+        AnimalOrigin.Create(data, Now).Should().Be(AnimalOrigin.Create(data, Now));
+    }
+
+    [Fact]
+    public void SetOrigin_ShouldAssignOrigin()
+    {
+        SetOrigin(Data(_found.Id, _contractor.Id));
+
+        _animal.Origin!.FoundMunicipalityId.Should().Be(_found.Id);
+        _animal.Origin.ContractorMunicipalityId.Should().Be(_contractor.Id);
+    }
+
+    [Fact]
+    public void SetOrigin_ShouldThrow_WhenMunicipalityDoesNotExist()
     {
         var unknownId = Guid.NewGuid();
 
-        var act = () => Create(Data(_found.Id, unknownId));
+        var act = () => SetOrigin(Data(_found.Id, unknownId));
 
         act.Should().Throw<BusinessRuleValidationException>()
             .WithMessage($"The contractor municipality '{unknownId}' does not exist.");
     }
 
     [Fact]
-    public void Create_ShouldThrow_WhenMunicipalityBelongsToAnotherShelter()
+    public void SetOrigin_ShouldThrow_WhenMunicipalityBelongsToAnotherShelter()
     {
         var foreign = Municipality.Create("other-shelter", "Gmina Obca");
 
-        var act = () => Create(Data(foreign.Id, _contractor.Id), foreign, _contractor);
+        var act = () => SetOrigin(Data(foreign.Id, _contractor.Id), foreign, _contractor);
 
         act.Should().Throw<BusinessRuleValidationException>()
             .WithMessage($"The found municipality '{foreign.Id}' does not exist.");
     }
 
     [Fact]
-    public void Create_ShouldThrow_WhenArchivedMunicipalityIsAssigned()
+    public void SetOrigin_ShouldThrow_WhenArchivedMunicipalityIsAssigned()
     {
         var archived = CreateMunicipality("Gmina Archiwalna", archived: true);
 
-        var act = () => Create(Data(_found.Id, archived.Id), _found, archived);
+        var act = () => SetOrigin(Data(_found.Id, archived.Id), _found, archived);
 
         act.Should().Throw<BusinessRuleValidationException>()
             .WithMessage("The contractor municipality 'Gmina Archiwalna' is archived.");
     }
 
     [Fact]
-    public void Update_ShouldReplaceData()
+    public void SetOrigin_ShouldReplaceExistingOrigin()
     {
-        var origin = Create(Data(_found.Id, _found.Id));
+        SetOrigin(Data(_found.Id, _found.Id));
         var date = AdmissionDate.AddDays(-3);
 
-        origin.Update(Data(_contractor.Id, _contractor.Id, date, AdmissionMethod.Other, "Polna 2"),
-            [_contractor], Now);
+        SetOrigin(Data(_contractor.Id, _contractor.Id, date, AdmissionMethod.Other, "Polna 2"), _contractor);
 
-        origin.AdmissionDate.Should().Be(date);
-        origin.AdmissionMethod.Should().Be(AdmissionMethod.Other);
-        origin.FoundStreet.Should().Be("Polna 2");
-        origin.FoundMunicipalityId.Should().Be(_contractor.Id);
-        origin.ContractorMunicipalityId.Should().Be(_contractor.Id);
+        _animal.Origin!.AdmissionDate.Should().Be(date);
+        _animal.Origin.AdmissionMethod.Should().Be(AdmissionMethod.Other);
+        _animal.Origin.FoundStreet.Should().Be("Polna 2");
+        _animal.Origin.FoundMunicipalityId.Should().Be(_contractor.Id);
+        _animal.Origin.ContractorMunicipalityId.Should().Be(_contractor.Id);
     }
 
     [Fact]
-    public void Update_ShouldKeepData_WhenRuleIsBroken()
+    public void SetOrigin_ShouldKeepOrigin_WhenRuleIsBroken()
     {
-        var origin = Create(Data(_found.Id, _contractor.Id));
+        SetOrigin(Data(_found.Id, _contractor.Id));
 
-        var act = () => origin.Update(Data(_found.Id, _contractor.Id, street: " "), [_found, _contractor], Now);
+        var act = () => SetOrigin(Data(_found.Id, Guid.NewGuid(), street: "Polna 2"));
 
         act.Should().Throw<BusinessRuleValidationException>();
-        origin.FoundStreet.Should().Be("Leśna 1");
+        _animal.Origin!.FoundStreet.Should().Be("Leśna 1");
     }
 
     [Fact]
-    public void Update_ShouldAcceptArchivedMunicipality_WhenAlreadyAssignedInSameRole()
+    public void SetOrigin_ShouldAcceptArchivedMunicipality_WhenAlreadyAssignedInSameRole()
     {
-        var origin = Create(Data(_found.Id, _contractor.Id));
+        SetOrigin(Data(_found.Id, _contractor.Id));
         _contractor.Archive();
 
-        var act = () => origin.Update(Data(_found.Id, _contractor.Id, street: "Polna 2"), [_found, _contractor], Now);
+        var act = () => SetOrigin(Data(_found.Id, _contractor.Id, street: "Polna 2"));
 
         act.Should().NotThrow();
-        origin.FoundStreet.Should().Be("Polna 2");
+        _animal.Origin!.FoundStreet.Should().Be("Polna 2");
     }
 
     [Fact]
-    public void Update_ShouldAcceptArchivedMunicipality_WhenAlreadyAssignedInOtherRole()
+    public void SetOrigin_ShouldAcceptArchivedMunicipality_WhenAlreadyAssignedInOtherRole()
     {
-        var origin = Create(Data(_found.Id, _contractor.Id));
+        SetOrigin(Data(_found.Id, _contractor.Id));
         _found.Archive();
 
-        var act = () => origin.Update(Data(_found.Id, _found.Id), [_found, _contractor], Now);
+        var act = () => SetOrigin(Data(_found.Id, _found.Id));
 
         act.Should().NotThrow();
-        origin.ContractorMunicipalityId.Should().Be(_found.Id);
+        _animal.Origin!.ContractorMunicipalityId.Should().Be(_found.Id);
     }
 
     [Fact]
-    public void Update_ShouldThrow_WhenArchivedMunicipalityWasNotAssigned()
+    public void SetOrigin_ShouldThrow_WhenArchivedMunicipalityWasNotAssigned()
     {
-        var origin = Create(Data(_found.Id, _found.Id));
+        SetOrigin(Data(_found.Id, _found.Id));
         _contractor.Archive();
 
-        var act = () => origin.Update(Data(_found.Id, _contractor.Id), [_found, _contractor], Now);
+        var act = () => SetOrigin(Data(_found.Id, _contractor.Id));
 
         act.Should().Throw<BusinessRuleValidationException>()
             .WithMessage("The contractor municipality 'Gmina B' is archived.");

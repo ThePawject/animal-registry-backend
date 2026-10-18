@@ -1,6 +1,5 @@
 using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
-using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 using FluentAssertions;
 using NSubstitute;
 using static AnimalRegistry.Modules.Animals.Tests.Unit.OriginTestData;
@@ -31,11 +30,8 @@ public class OriginReportFieldContributorTests
     {
         var municipality = CreateMunicipality("Gmina A");
         var animal = CreateAnimal();
-        var origin = CreateOrigin(animal, municipality, municipality,
-            new DateTimeOffset(2026, 3, 31, 23, 30, 0, TimeSpan.Zero));
-        GivenLookup(new AnimalOriginLookup(
-            new Dictionary<Guid, AnimalOrigin> { [animal.Id] = origin },
-            new Dictionary<Guid, string> { [municipality.Id] = "Gmina A" }));
+        AssignOrigin(animal, municipality, municipality, new DateTimeOffset(2026, 3, 31, 23, 30, 0, TimeSpan.Zero));
+        GivenLookup(new AnimalOriginLookup(new Dictionary<Guid, string> { [municipality.Id] = "Gmina A" }));
 
         var fields = await new OriginReportFieldContributor(_reader).GetFieldsAsync([animal], default);
 
@@ -53,7 +49,7 @@ public class OriginReportFieldContributorTests
     public async Task GetFieldsAsync_ShouldReturnUnassigned_WhenAnimalHasNoOrigin()
     {
         var animal = CreateAnimal();
-        GivenLookup(new AnimalOriginLookup(new Dictionary<Guid, AnimalOrigin>(), new Dictionary<Guid, string>()));
+        GivenLookup(new AnimalOriginLookup(new Dictionary<Guid, string>()));
 
         var fields = await new OriginReportFieldContributor(_reader).GetFieldsAsync([animal], default);
 

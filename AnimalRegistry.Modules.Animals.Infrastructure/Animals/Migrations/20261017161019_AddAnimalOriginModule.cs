@@ -30,9 +30,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                 name: "AnimalOrigins",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AnimalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ShelterId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     AdmissionDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     AdmissionMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     FoundStreet = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
@@ -41,7 +39,7 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AnimalOrigins", x => x.Id);
+                    table.PrimaryKey("PK_AnimalOrigins", x => x.AnimalId);
                     table.ForeignKey(
                         name: "FK_AnimalOrigins_Animals_AnimalId",
                         column: x => x.AnimalId,
@@ -68,10 +66,9 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                 columns: new[] { "ShelterId", "CreatedOn" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AnimalOrigins_AnimalId",
+                name: "IX_AnimalOrigins_AdmissionDate",
                 table: "AnimalOrigins",
-                column: "AnimalId",
-                unique: true);
+                column: "AdmissionDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AnimalOrigins_ContractorMunicipalityId",
@@ -82,11 +79,6 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                 name: "IX_AnimalOrigins_FoundMunicipalityId",
                 table: "AnimalOrigins",
                 column: "FoundMunicipalityId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AnimalOrigins_ShelterId_AdmissionDate",
-                table: "AnimalOrigins",
-                columns: new[] { "ShelterId", "AdmissionDate" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Municipalities_ShelterId_Name",

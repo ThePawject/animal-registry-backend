@@ -13,13 +13,12 @@ namespace AnimalRegistry.Modules.Animals.Tests.Unit.Application.Origin;
 public class AnimalOriginWriterTests
 {
     private readonly IShelterFeatureToggles _toggles = Substitute.For<IShelterFeatureToggles>();
-    private readonly IAnimalOriginRepository _origins = Substitute.For<IAnimalOriginRepository>();
     private readonly IMunicipalityRepository _municipalities = Substitute.For<IMunicipalityRepository>();
     private readonly AnimalOriginWriter _writer;
 
     public AnimalOriginWriterTests()
     {
-        _writer = new AnimalOriginWriter(_toggles, _origins, _municipalities);
+        _writer = new AnimalOriginWriter(_toggles, _municipalities);
     }
 
     private void EnableModule(bool isEnabled = true)
@@ -38,11 +37,13 @@ public class AnimalOriginWriterTests
     {
         EnableModule(false);
 
-        var result = await _writer.ApplyAsync(CreateAnimal(), Data(Guid.NewGuid(), Guid.NewGuid()));
+        var animal = CreateAnimal();
+
+        var result = await _writer.ApplyAsync(animal, Data(Guid.NewGuid(), Guid.NewGuid()));
 
         result.IsSuccess.Should().BeTrue();
-        await _origins.DidNotReceiveWithAnyArgs().GetByAnimalIdAsync(default, default!);
-        _origins.DidNotReceiveWithAnyArgs().Add(default!);
+        animal.Origin.Should().BeNull();
+        await _municipalities.DidNotReceiveWithAnyArgs().GetByIdsAsync(default!, default!);
     }
 
     [Fact]
@@ -57,7 +58,7 @@ public class AnimalOriginWriterTests
     }
 
     [Fact]
-    public async Task ApplyAsync_ShouldAddNewOrigin_WhenAnimalHasNone()
+    public async Task ApplyAsync_ShouldSetOrigin_WhenAnimalHasNone()
     {
         EnableModule();
         var found = CreateMunicipality("Gmina A");
@@ -68,30 +69,25 @@ public class AnimalOriginWriterTests
         var result = await _writer.ApplyAsync(animal, Data(found.Id, contractor.Id));
 
         result.IsSuccess.Should().BeTrue();
-        _origins.Received(1).Add(Arg.Is<AnimalOrigin>(o =>
-            o.AnimalId == animal.Id &&
-            o.ShelterId == ShelterId &&
-            o.FoundMunicipalityId == found.Id &&
-            o.ContractorMunicipalityId == contractor.Id));
+        animal.Origin!.FoundMunicipalityId.Should().Be(found.Id);
+        animal.Origin.ContractorMunicipalityId.Should().Be(contractor.Id);
     }
 
     [Fact]
-    public async Task ApplyAsync_ShouldUpdateExistingOrigin()
+    public async Task ApplyAsync_ShouldReplaceExistingOrigin()
     {
         EnableModule();
         var municipality = CreateMunicipality("Gmina A");
         GivenMunicipalities(municipality);
         var animal = CreateAnimal();
-        var origin = CreateOrigin(animal, municipality, municipality);
-        _origins.GetByAnimalIdAsync(animal.Id, ShelterId, Arg.Any<CancellationToken>()).Returns(origin);
+        AssignOrigin(animal, municipality, municipality);
 
         var result = await _writer.ApplyAsync(animal,
             Data(municipality.Id, municipality.Id, method: AdmissionMethod.Other, street: "Polna 2"));
 
         result.IsSuccess.Should().BeTrue();
-        origin.FoundStreet.Should().Be("Polna 2");
-        origin.AdmissionMethod.Should().Be(AdmissionMethod.Other);
-        _origins.DidNotReceiveWithAnyArgs().Add(default!);
+        animal.Origin!.FoundStreet.Should().Be("Polna 2");
+        animal.Origin.AdmissionMethod.Should().Be(AdmissionMethod.Other);
     }
 
     [Fact]
@@ -101,12 +97,13 @@ public class AnimalOriginWriterTests
         var found = CreateMunicipality("Gmina A");
         GivenMunicipalities(found);
         var unknownId = Guid.NewGuid();
+        var animal = CreateAnimal();
 
-        var act = () => _writer.ApplyAsync(CreateAnimal(), Data(found.Id, unknownId));
+        var act = () => _writer.ApplyAsync(animal, Data(found.Id, unknownId));
 
         await act.Should().ThrowAsync<BusinessRuleValidationException>()
             .WithMessage($"The contractor municipality '{unknownId}' does not exist.");
-        _origins.DidNotReceiveWithAnyArgs().Add(default!);
+        animal.Origin.Should().BeNull();
     }
 
     [Fact]

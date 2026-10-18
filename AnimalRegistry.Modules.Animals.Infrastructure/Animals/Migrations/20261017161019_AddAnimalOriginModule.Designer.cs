@@ -133,54 +133,6 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.ToTable("AnimalHealthDocuments");
                 });
 
-            modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Animals.Origin.AnimalOrigin", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("AdmissionDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("AdmissionMethod")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("AnimalId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ContractorMunicipalityId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FoundMunicipalityId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FoundStreet")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ShelterId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnimalId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_AnimalOrigins_AnimalId");
-
-                    b.HasIndex("ContractorMunicipalityId");
-
-                    b.HasIndex("FoundMunicipalityId");
-
-                    b.HasIndex("ShelterId", "AdmissionDate");
-
-                    b.ToTable("AnimalOrigins", (string)null);
-                });
-
             modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Municipalities.Municipality", b =>
                 {
                     b.Property<Guid>("Id")
@@ -320,32 +272,64 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                                 .HasForeignKey("AnimalId");
                         });
 
+                    b.OwnsOne("AnimalRegistry.Modules.Animals.Domain.Animals.Origin.AnimalOrigin", "Origin", b1 =>
+                        {
+                            b1.Property<Guid>("AnimalId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTimeOffset>("AdmissionDate")
+                                .HasColumnType("datetimeoffset");
+
+                            b1.Property<string>("AdmissionMethod")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)");
+
+                            b1.Property<Guid>("ContractorMunicipalityId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("FoundMunicipalityId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("FoundStreet")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)");
+
+                            b1.HasKey("AnimalId")
+                                .HasName("PK_AnimalOrigins");
+
+                            b1.HasIndex("AdmissionDate");
+
+                            b1.HasIndex("ContractorMunicipalityId");
+
+                            b1.HasIndex("FoundMunicipalityId");
+
+                            b1.ToTable("AnimalOrigins", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AnimalId");
+
+                            b1.HasOne("AnimalRegistry.Modules.Animals.Domain.Municipalities.Municipality", null)
+                                .WithMany()
+                                .HasForeignKey("ContractorMunicipalityId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+
+                            b1.HasOne("AnimalRegistry.Modules.Animals.Domain.Municipalities.Municipality", null)
+                                .WithMany()
+                                .HasForeignKey("FoundMunicipalityId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+                        });
+
                     b.Navigation("Events");
 
                     b.Navigation("HealthRecords");
 
+                    b.Navigation("Origin");
+
                     b.Navigation("Photos");
-                });
-
-            modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Animals.Origin.AnimalOrigin", b =>
-                {
-                    b.HasOne("AnimalRegistry.Modules.Animals.Domain.Animals.Animal", null)
-                        .WithMany()
-                        .HasForeignKey("AnimalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("AnimalRegistry.Modules.Animals.Domain.Municipalities.Municipality", null)
-                        .WithMany()
-                        .HasForeignKey("ContractorMunicipalityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("AnimalRegistry.Modules.Animals.Domain.Municipalities.Municipality", null)
-                        .WithMany()
-                        .HasForeignKey("FoundMunicipalityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

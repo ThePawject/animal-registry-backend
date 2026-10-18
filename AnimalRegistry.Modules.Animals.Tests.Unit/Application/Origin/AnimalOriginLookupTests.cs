@@ -10,7 +10,7 @@ public class AnimalOriginLookupTests
     [Fact]
     public void Resolve_ShouldReturnUnassigned_WhenAnimalHasNoOrigin()
     {
-        var lookup = new AnimalOriginLookup(new Dictionary<Guid, AnimalOrigin>(), new Dictionary<Guid, string>());
+        var lookup = new AnimalOriginLookup(new Dictionary<Guid, string>());
 
         var origin = lookup.Resolve(CreateAnimal());
 
@@ -28,9 +28,8 @@ public class AnimalOriginLookupTests
         var found = CreateMunicipality("Gmina A");
         var contractor = CreateMunicipality("Gmina B");
         var animal = CreateAnimal();
-        var stored = CreateOrigin(animal, found, contractor);
+        AssignOrigin(animal, found, contractor);
         var lookup = new AnimalOriginLookup(
-            new Dictionary<Guid, AnimalOrigin> { [animal.Id] = stored },
             new Dictionary<Guid, string> { [found.Id] = "Gmina A", [contractor.Id] = "Gmina B" });
 
         var origin = lookup.Resolve(animal);
@@ -47,9 +46,8 @@ public class AnimalOriginLookupTests
     {
         var found = CreateMunicipality("Gmina A");
         var animal = CreateAnimal();
-        var lookup = new AnimalOriginLookup(
-            new Dictionary<Guid, AnimalOrigin> { [animal.Id] = CreateOrigin(animal, found, found) },
-            new Dictionary<Guid, string>());
+        AssignOrigin(animal, found, found);
+        var lookup = new AnimalOriginLookup(new Dictionary<Guid, string>());
 
         lookup.Resolve(animal).FoundMunicipality.Should().Be(MunicipalityReferenceDto.Unassigned);
     }

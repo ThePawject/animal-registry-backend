@@ -12,9 +12,16 @@ namespace AnimalRegistry.Modules.Animals.Tests.Functional.Origin;
 [Collection("Sequential")]
 public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTestBase(fixture)
 {
-    private Task<bool> OriginExistsAsync(Guid animalId)
+    private Task<int> OriginCountAsync(Guid animalId)
     {
-        return WithDbAsync(db => db.AnimalOrigins.AnyAsync(o => o.AnimalId == animalId));
+        return WithDbAsync(db => db.Database
+            .SqlQuery<int>($"SELECT COUNT(*) AS Value FROM AnimalOrigins WHERE AnimalId = {animalId}")
+            .SingleAsync());
+    }
+
+    private async Task<bool> OriginExistsAsync(Guid animalId)
+    {
+        return await OriginCountAsync(animalId) > 0;
     }
 
     private Task<int> AnimalCountAsync()
@@ -294,7 +301,7 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
         origin.FoundStreet.Should().Be("Długa 3");
         origin.FoundMunicipality.Id.Should().Be(second.Id);
         origin.ContractorMunicipality.Id.Should().Be(second.Id);
-        (await WithDbAsync(db => db.AnimalOrigins.CountAsync(o => o.AnimalId == id))).Should().Be(1);
+        (await OriginCountAsync(id)).Should().Be(1);
     }
 
     [Fact]
@@ -326,7 +333,7 @@ public sealed class AnimalOriginTests(ApiTestFixture fixture) : OriginModuleTest
         responses.Should().Contain(r => r.StatusCode == HttpStatusCode.OK);
         responses.Should().OnlyContain(r =>
             r.StatusCode == HttpStatusCode.OK || r.StatusCode == HttpStatusCode.BadRequest);
-        (await WithDbAsync(db => db.AnimalOrigins.CountAsync(o => o.AnimalId == id))).Should().Be(1);
+        (await OriginCountAsync(id)).Should().Be(1);
     }
 
     [Fact]

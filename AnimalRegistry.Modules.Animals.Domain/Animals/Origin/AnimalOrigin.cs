@@ -1,60 +1,16 @@
 using AnimalRegistry.Modules.Animals.Domain.Animals.Origin.Rules;
-using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Shared.DDD;
 
 namespace AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
 
-public sealed class AnimalOrigin : Entity, IAggregateRoot
+public sealed class AnimalOrigin : ValueObject
 {
     private AnimalOrigin()
     {
     }
 
-    private AnimalOrigin(Guid animalId, string shelterId)
+    private AnimalOrigin(AnimalOriginData data)
     {
-        AnimalId = animalId;
-        ShelterId = shelterId;
-    }
-
-    public Guid AnimalId { get; private set; }
-    public string ShelterId { get; private set; } = null!;
-    public DateTimeOffset AdmissionDate { get; private set; }
-    public AdmissionMethod AdmissionMethod { get; private set; }
-    public string FoundStreet { get; private set; } = null!;
-    public Guid FoundMunicipalityId { get; private set; }
-    public Guid ContractorMunicipalityId { get; private set; }
-
-    public static AnimalOrigin Create(
-        Guid animalId,
-        string shelterId,
-        AnimalOriginData data,
-        IReadOnlyCollection<Municipality> municipalities,
-        DateTimeOffset now)
-    {
-        var origin = new AnimalOrigin(animalId, shelterId);
-        origin.Apply(data, municipalities, now);
-        return origin;
-    }
-
-    public void Update(
-        AnimalOriginData data,
-        IReadOnlyCollection<Municipality> municipalities,
-        DateTimeOffset now)
-    {
-        Apply(data, municipalities, now);
-    }
-
-    private void Apply(
-        AnimalOriginData data,
-        IReadOnlyCollection<Municipality> municipalities,
-        DateTimeOffset now)
-    {
-        CheckRule(new AdmissionDateCannotBeInFutureRule(data.AdmissionDate, now));
-        CheckRule(new AdmissionMethodMustBeAssignedRule(data.AdmissionMethod));
-        CheckRule(new FoundStreetMustBeProvidedRule(data.FoundStreet));
-        CheckMunicipality(data.FoundMunicipalityId, "found", municipalities);
-        CheckMunicipality(data.ContractorMunicipalityId, "contractor", municipalities);
-
         AdmissionDate = data.AdmissionDate;
         AdmissionMethod = data.AdmissionMethod;
         FoundStreet = data.FoundStreet.Trim();
@@ -62,11 +18,25 @@ public sealed class AnimalOrigin : Entity, IAggregateRoot
         ContractorMunicipalityId = data.ContractorMunicipalityId;
     }
 
-    private void CheckMunicipality(Guid municipalityId, string role, IReadOnlyCollection<Municipality> municipalities)
+    public DateTimeOffset AdmissionDate { get; private set; }
+    public AdmissionMethod AdmissionMethod { get; private set; }
+    public string FoundStreet { get; private set; } = null!;
+    public Guid FoundMunicipalityId { get; private set; }
+    public Guid ContractorMunicipalityId { get; private set; }
+
+    public static AnimalOrigin Create(AnimalOriginData data, DateTimeOffset now)
     {
-        CheckRule(new MunicipalityMustBeProvidedRule(municipalityId, role));
-        CheckRule(new MunicipalityMustExistInShelterRule(municipalityId, role, ShelterId, municipalities));
-        CheckRule(new ArchivedMunicipalityCannotBeNewlyAssignedRule(municipalityId, role, municipalities,
-            [FoundMunicipalityId, ContractorMunicipalityId]));
+        CheckRule(new AdmissionDateCannotBeInFutureRule(data.AdmissionDate, now));
+        CheckRule(new AdmissionMethodMustBeAssignedRule(data.AdmissionMethod));
+        CheckRule(new FoundStreetMustBeProvidedRule(data.FoundStreet));
+        CheckRule(new MunicipalityMustBeProvidedRule(data.FoundMunicipalityId, "found"));
+        CheckRule(new MunicipalityMustBeProvidedRule(data.ContractorMunicipalityId, "contractor"));
+
+        return new AnimalOrigin(data);
+    }
+
+    internal bool IsAssigned(Guid municipalityId)
+    {
+        return FoundMunicipalityId == municipalityId || ContractorMunicipalityId == municipalityId;
     }
 }
