@@ -14,7 +14,6 @@ internal sealed class UpdateMunicipality(IMediator mediator) : Endpoint<UpdateMu
     {
         Put(UpdateMunicipalityRequest.Route);
         Policies(ShelterAccessHandler.ShelterAccessPolicyName);
-        Roles(ShelterRoles.Admin);
         Options(b => b.RequireShelterFeature(AnimalOriginFeature.FeatureKey));
     }
 

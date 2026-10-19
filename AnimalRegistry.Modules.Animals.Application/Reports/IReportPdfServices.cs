@@ -31,3 +31,13 @@ public interface IOriginYearlyReportPdfService
 {
     byte[] GenerateReport(OriginYearlyReportData data, DateTimeOffset generatedAt);
 }
+
+public interface IExpiringVaccinationsReportPdfService
+{
+    byte[] GenerateReport(ExpiringVaccinationsReportData data, DateTimeOffset generatedAt);
+}
+
+public interface IVaccinationsReportPdfService
+{
+    byte[] GenerateReport(VaccinationsReportData data, DateTimeOffset generatedAt);
+}

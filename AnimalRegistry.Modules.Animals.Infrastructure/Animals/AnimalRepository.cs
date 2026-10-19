@@ -28,6 +28,11 @@ internal sealed class AnimalRepository(
         return animal;
     }
 
+    public Task<bool> ExistsAsync(Guid id, string shelterId, CancellationToken cancellationToken = default)
+    {
+        return context.Animals.AnyAsync(a => a.Id == id && a.ShelterId == shelterId, cancellationToken);
+    }
+
     public async Task<Result<Animal>> AddAsync(Animal entity, CancellationToken cancellationToken = default)
     {
         var entityEntry = await context.Animals.AddAsync(entity, cancellationToken);

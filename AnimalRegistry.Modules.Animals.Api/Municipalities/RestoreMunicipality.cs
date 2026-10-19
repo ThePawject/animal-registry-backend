@@ -14,7 +14,6 @@ internal sealed class RestoreMunicipality(IMediator mediator) : EndpointWithoutR
     {
         Post(RestoreMunicipalityRequest.Route);
         Policies(ShelterAccessHandler.ShelterAccessPolicyName);
-        Roles(ShelterRoles.Admin);
         Options(b => b.RequireShelterFeature(AnimalOriginFeature.FeatureKey));
     }
 

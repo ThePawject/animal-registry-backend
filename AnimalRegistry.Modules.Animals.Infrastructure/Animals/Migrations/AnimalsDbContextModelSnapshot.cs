@@ -130,6 +130,75 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.ToTable("AnimalHealthDocuments");
                 });
 
+            modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations.AnimalVaccination", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("AdministeredOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("AnimalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BatchNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("ReplacesVaccinationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ShelterId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("VaccineName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset?>("ValidUntil")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Veterinarian")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnimalId");
+
+                    b.HasIndex("ReplacesVaccinationId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_AnimalVaccinations_ReplacesVaccinationId")
+                        .HasFilter("[ReplacesVaccinationId] IS NOT NULL");
+
+                    b.HasIndex("ShelterId", "AdministeredOn");
+
+                    b.HasIndex("ShelterId", "AnimalId");
+
+                    b.HasIndex("ShelterId", "ValidUntil");
+
+                    b.ToTable("AnimalVaccinations", (string)null);
+                });
+
             modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Municipalities.Municipality", b =>
                 {
                     b.Property<Guid>("Id")
@@ -327,6 +396,52 @@ namespace AnimalRegistry.Modules.Animals.Infrastructure.Animals.Migrations
                     b.Navigation("Origin");
 
                     b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations.AnimalVaccination", b =>
+                {
+                    b.HasOne("AnimalRegistry.Modules.Animals.Domain.Animals.Animal", null)
+                        .WithMany()
+                        .HasForeignKey("AnimalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations.VaccinationAttachment", "Attachment", b1 =>
+                        {
+                            b1.Property<Guid>("AnimalVaccinationId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("BlobPath")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("nvarchar(500)")
+                                .HasColumnName("AttachmentBlobPath");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("AttachmentContentType");
+
+                            b1.Property<string>("FileName")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("nvarchar(255)")
+                                .HasColumnName("AttachmentFileName");
+
+                            b1.Property<DateTimeOffset>("UploadedOn")
+                                .HasColumnType("datetimeoffset")
+                                .HasColumnName("AttachmentUploadedOn");
+
+                            b1.HasKey("AnimalVaccinationId");
+
+                            b1.ToTable("AnimalVaccinations");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AnimalVaccinationId");
+                        });
+
+                    b.Navigation("Attachment");
                 });
 #pragma warning restore 612, 618
         }
