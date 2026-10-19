@@ -29,3 +29,17 @@ public interface IDateRangeAnimalsDataService
         IReadOnlyList<AnimalEventType>? eventTypes = null,
         CancellationToken cancellationToken = default);
 }
+
+public interface IOriginReportDataService
+{
+    Task<OriginMonthlyReportData> PrepareMonthlyReportDataAsync(
+        string shelterId,
+        int year,
+        int month,
+        CancellationToken cancellationToken = default);
+
+    Task<OriginYearlyReportData> PrepareYearlyReportDataAsync(
+        string shelterId,
+        int year,
+        CancellationToken cancellationToken = default);
+}

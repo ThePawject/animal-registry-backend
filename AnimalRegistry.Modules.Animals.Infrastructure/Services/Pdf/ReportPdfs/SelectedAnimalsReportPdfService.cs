@@ -38,7 +38,7 @@ internal sealed class SelectedAnimalsReportPdfService : ReportPdfBase, ISelected
                         for (var i = 0; i < data.Animals.Count; i++)
                         {
                             AnimalPdfComponents.AddAnimalSection(column, data.Animals[i], i, data.TotalAnimals, true,
-                                data.PhotoData);
+                                data.PhotoData, data.ExtraFields);
                         }
                     }
                 });

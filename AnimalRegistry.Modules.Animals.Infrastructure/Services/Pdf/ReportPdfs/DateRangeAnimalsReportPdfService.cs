@@ -38,7 +38,8 @@ internal sealed class DateRangeAnimalsReportPdfService : ReportPdfBase, IDateRan
                     {
                         for (var i = 0; i < data.Animals.Count; i++)
                         {
-                            AddAnimalWithEvents(column, data.Animals[i], i, data.StartDate, data.EndDate);
+                            AddAnimalWithEvents(column, data.Animals[i], i, data.StartDate, data.EndDate,
+                                data.ExtraFields);
                         }
                     }
                 });
@@ -53,7 +54,8 @@ internal sealed class DateRangeAnimalsReportPdfService : ReportPdfBase, IDateRan
         AnimalWithFilteredEvents animalWithEvents,
         int index,
         DateTimeOffset startDate,
-        DateTimeOffset endDate)
+        DateTimeOffset endDate,
+        IReadOnlyList<AnimalReportField> extraFields)
     {
         if (index > 0)
         {
@@ -80,6 +82,8 @@ internal sealed class DateRangeAnimalsReportPdfService : ReportPdfBase, IDateRan
             { "Data urodzenia", animal.BirthDate?.ToString("dd.MM.yyyy") ?? "Nieznana" },
             { "W schronisku", animal.IsInShelter ? "Tak" : "Nie" },
         };
+
+        AnimalPdfComponents.AddExtraFields(basicInfo, animal, extraFields);
 
         ReportComponents.AddInfoTable(column, basicInfo);
 

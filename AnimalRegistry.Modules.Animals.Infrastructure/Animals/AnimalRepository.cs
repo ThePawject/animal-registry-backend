@@ -36,6 +36,16 @@ internal sealed class AnimalRepository(
         return Result<Animal>.Success(entityEntry.Entity);
     }
 
+    public void Add(Animal entity)
+    {
+        context.Animals.Add(entity);
+    }
+
+    public void Update(Animal entity)
+    {
+        context.Update(entity);
+    }
+
     public async Task<Result<Animal>> UpdateAsync(Animal entity, CancellationToken cancellationToken = default)
     {
         context.Update(entity);

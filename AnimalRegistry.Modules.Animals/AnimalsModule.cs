@@ -1,20 +1,26 @@
 using AnimalRegistry.Modules.Animals.Api;
 using AnimalRegistry.Modules.Animals.Application;
+using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Application.Reports;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
+using AnimalRegistry.Modules.Animals.Domain.Animals.Origin;
+using AnimalRegistry.Modules.Animals.Domain.Municipalities;
 using AnimalRegistry.Modules.Animals.Infrastructure;
 using AnimalRegistry.Modules.Animals.Infrastructure.Animals;
+using AnimalRegistry.Modules.Animals.Infrastructure.Municipalities;
+using AnimalRegistry.Modules.Animals.Infrastructure.Origin;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.Pdf.ReportPdfs;
 using AnimalRegistry.Modules.Animals.Infrastructure.Services.ReportData;
 using AnimalRegistry.Shared;
 using AnimalRegistry.Shared.MediatorPattern;
-using FastEndpoints;
+using AnimalRegistry.Shared.ShelterFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Reflection;
 
 namespace AnimalRegistry.Modules.Animals;
 
@@ -22,16 +28,10 @@ public sealed class AnimalsModule : IModule
 {
     public string Name => "Animals";
 
+    public IReadOnlyCollection<Assembly> EndpointAssemblies => [typeof(CreateAnimal).Assembly];
+
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddFastEndpoints(options =>
-        {
-            options.Assemblies =
-            [
-                typeof(CreateAnimal).Assembly,
-            ];
-        });
-
         services.AddMediator(typeof(CreateAnimalCommandHandler).Assembly);
 
         services.Configure<AnimalsDatabaseSettings>(options =>
@@ -46,6 +46,8 @@ public sealed class AnimalsModule : IModule
 
         services.AddScoped<IAnimalRepository, AnimalRepository>();
         services.AddScoped<IAnimalEventRepository, AnimalEventRepository>();
+        services.AddScoped<IMunicipalityRepository, MunicipalityRepository>();
+        services.AddScoped<IAnimalsUnitOfWork, AnimalsUnitOfWork>();
 
         services.AddScoped<IRepositoryDumpDataService, RepositoryDumpDataService>();
         services.AddScoped<ISelectedAnimalsDataService, SelectedAnimalsDataService>();
@@ -56,6 +58,9 @@ public sealed class AnimalsModule : IModule
         services.AddScoped<IDateRangeAnimalsReportPdfService, DateRangeAnimalsReportPdfService>();
         services.AddScoped<ISelectedAnimalsReportPdfService, SelectedAnimalsReportPdfService>();
         services.AddScoped<IRepositoryDumpReportPdfService, RepositoryDumpReportPdfService>();
+        services.AddScoped<IAnimalReportFieldsProvider, AnimalReportFieldsProvider>();
+
+        RegisterOriginFeature(services);
 
         services.Configure<BlobStorageSettings>(options =>
         {
@@ -80,5 +85,17 @@ public sealed class AnimalsModule : IModule
         }
 
         await db.Database.MigrateAsync();
+    }
+
+    private static void RegisterOriginFeature(IServiceCollection services)
+    {
+        services.AddShelterFeature<AnimalOriginFeature>();
+        services.AddScoped<IAnimalOriginReader, AnimalOriginReader>();
+        services.AddScoped<IAnimalOriginWriter, AnimalOriginWriter>();
+        services.AddScoped<IAnimalReportFieldContributor, OriginReportFieldContributor>();
+        services.AddScoped<IOriginReportDataService, OriginReportDataService>();
+        services.AddScoped<IOriginReportQuery, OriginReportQuery>();
+        services.AddScoped<IOriginMonthlyReportPdfService, OriginMonthlyReportPdfService>();
+        services.AddScoped<IOriginYearlyReportPdfService, OriginYearlyReportPdfService>();
     }
 }

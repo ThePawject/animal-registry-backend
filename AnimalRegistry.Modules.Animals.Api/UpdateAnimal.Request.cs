@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Api.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 using Microsoft.AspNetCore.Http;
 
@@ -21,6 +22,8 @@ public sealed class UpdateAnimalRequest
     public IFormFileCollection NewPhotos { get; init; } = new FormFileCollection();
     public Guid? MainPhotoId { get; init; }
     public int? MainPhotoIndex { get; init; }
+
+    public AnimalOriginRequest? Origin { get; init; }
 
     public static string BuildRoute(Guid id)
     {

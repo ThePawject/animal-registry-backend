@@ -1,3 +1,4 @@
+using AnimalRegistry.Modules.Animals.Application.Origin;
 using AnimalRegistry.Modules.Animals.Domain.Animals;
 
 namespace AnimalRegistry.Modules.Animals.Application;
@@ -20,10 +21,11 @@ public sealed record AnimalDto(
     Guid? MainPhotoId,
     IReadOnlyCollection<AnimalPhotoDto> Photos,
     IReadOnlyCollection<AnimalEventDto> Events,
-    IReadOnlyCollection<AnimalHealthDto> HealthRecords
+    IReadOnlyCollection<AnimalHealthDto> HealthRecords,
+    AnimalOriginDto? Origin = null
 )
 {
-    public static AnimalDto FromDomain(Animal a)
+    public static AnimalDto FromDomain(Animal a, AnimalOriginDto? origin = null)
     {
         return new AnimalDto(
             a.Id,
@@ -48,7 +50,8 @@ public sealed record AnimalDto(
                 p.UploadedOn
             )).ToList(),
             a.Events.Select(AnimalEventDto.FromDomain).ToList(),
-            a.HealthRecords.Select(AnimalHealthDto.FromDomain).ToList()
+            a.HealthRecords.Select(AnimalHealthDto.FromDomain).ToList(),
+            origin
         );
     }
 }

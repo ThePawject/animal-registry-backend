@@ -280,3 +280,5 @@ UploadedFiles
 
 # Environment files with secrets
 http-client.private.env.json
+# Six Labors license, never commit
+sixlabors.lic

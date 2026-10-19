@@ -4,3 +4,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("AnimalRegistry.Modules.Animals.Tests.Integration")]
 [assembly: InternalsVisibleTo("AnimalRegistry.Modules.Animals.Tests.Functional")]
 [assembly: InternalsVisibleTo("AnimalRegistry.Modules.Animals")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
