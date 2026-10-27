@@ -4,6 +4,7 @@ using AnimalRegistry.Modules.Animals.Domain.Animals.AnimalEvents;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
+using AnimalRegistry.Shared.Pagination;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -15,8 +16,9 @@ public sealed class ExpiringVaccinationsTests(ApiTestFixture fixture) : Vaccinat
 {
     private async Task<List<VaccinationWithAnimalDto>> ExpiringAsync(string query = "")
     {
-        return (await Worker.GetFromJsonAsync<List<VaccinationWithAnimalDto>>(
-            $"{ListExpiringVaccinationsRequest.Route}{query}"))!;
+        var page = await Worker.GetFromJsonAsync<PagedResult<VaccinationWithAnimalDto>>(
+            $"{ListExpiringVaccinationsRequest.Route}{query}");
+        return page!.Items.ToList();
     }
 
     private async Task<Guid> SeedAsync()
@@ -74,6 +76,75 @@ public sealed class ExpiringVaccinationsTests(ApiTestFixture fixture) : Vaccinat
 
         inShelter.Should().BeEmpty();
         all.Should().ContainSingle().Which.IsInShelter.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task List_ShouldReturnOnlyExpired_WhenValidityIsExpired()
+    {
+        await SetModuleAsync(true);
+        await SeedAsync();
+
+        var vaccinations = await ExpiringAsync("?validity=Expired");
+
+        vaccinations.Should().ContainSingle().Which.Vaccination.VaccineName.Should().Be("Expired");
+        vaccinations[0].Vaccination.Status.Should().Be(VaccinationStatus.Expired);
+    }
+
+    [Fact]
+    public async Task List_ShouldReturnEverythingSoonestFirst_WhenValidityIsAll()
+    {
+        await SetModuleAsync(true);
+        await SeedAsync();
+
+        var vaccinations = await ExpiringAsync("?validity=All");
+
+        vaccinations.Select(v => v.Vaccination.VaccineName).Should().Equal(
+            "Expired", "Today", "In 7 days", "In 30 days", "In 31 days", "Without validity");
+    }
+
+    [Fact]
+    public async Task List_ShouldSkipAnimalsOutsideShelter_WhenValidityIsAllUnlessRequested()
+    {
+        await SetModuleAsync(true);
+        var adoptedId = await CreateAnimalAsync("2026/0002");
+        await CreateVaccinationAsync(adoptedId, Body("Adopted", LocalDay(-300), LocalDay(300)));
+        await Animals.AddEvent(adoptedId, AnimalEventType.Adoption);
+
+        var inShelter = await ExpiringAsync("?validity=All");
+        var all = await ExpiringAsync("?validity=All&inShelterOnly=false");
+
+        inShelter.Should().BeEmpty();
+        all.Should().ContainSingle().Which.IsInShelter.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task List_ShouldReturnRequestedPageWithTotalCount()
+    {
+        await SetModuleAsync(true);
+        await SeedAsync();
+
+        var first = await Worker.GetFromJsonAsync<PagedResult<VaccinationWithAnimalDto>>(
+            $"{ListExpiringVaccinationsRequest.Route}?validity=All&page=1&pageSize=4");
+        var second = await Worker.GetFromJsonAsync<PagedResult<VaccinationWithAnimalDto>>(
+            $"{ListExpiringVaccinationsRequest.Route}?validity=All&page=2&pageSize=4");
+
+        first!.TotalCount.Should().Be(6);
+        first.Items.Select(v => v.Vaccination.VaccineName).Should().Equal("Expired", "Today", "In 7 days", "In 30 days");
+        second!.TotalCount.Should().Be(6);
+        second.Items.Select(v => v.Vaccination.VaccineName).Should().Equal("In 31 days", "Without validity");
+    }
+
+    [Theory]
+    [InlineData("page=0")]
+    [InlineData("pageSize=0")]
+    [InlineData("pageSize=101")]
+    public async Task List_ShouldReturnBadRequest_WhenPagingIsOutOfRange(string query)
+    {
+        await SetModuleAsync(true);
+
+        var response = await Worker.GetAsync($"{ListExpiringVaccinationsRequest.Route}?{query}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

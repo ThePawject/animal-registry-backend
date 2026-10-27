@@ -3,6 +3,7 @@ using AnimalRegistry.Modules.Animals.Application.Vaccinations;
 using AnimalRegistry.Modules.Animals.Domain.Animals.Vaccinations;
 using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Shared.Testing;
+using AnimalRegistry.Shared.Pagination;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -14,8 +15,9 @@ public sealed class VaccinationReplacementTests(ApiTestFixture fixture) : Vaccin
 {
     private async Task<List<VaccinationWithAnimalDto>> ExpiringAsync(string query = "")
     {
-        return (await Worker.GetFromJsonAsync<List<VaccinationWithAnimalDto>>(
-            $"{ListExpiringVaccinationsRequest.Route}{query}"))!;
+        var page = await Worker.GetFromJsonAsync<PagedResult<VaccinationWithAnimalDto>>(
+            $"{ListExpiringVaccinationsRequest.Route}{query}");
+        return page!.Items.ToList();
     }
 
     private async Task<(Guid AnimalId, AnimalVaccinationDto Old)> CreateExpiredAsync()
