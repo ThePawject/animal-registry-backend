@@ -6,6 +6,7 @@ using AnimalRegistry.Modules.Animals.Tests.Functional.Fixture;
 using AnimalRegistry.Modules.Shelters.Api;
 using AnimalRegistry.Modules.Shelters.Application;
 using AnimalRegistry.Shared.Testing;
+using AnimalRegistry.Shared.Pagination;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -262,8 +263,8 @@ public sealed class AnimalVaccinationsTests(ApiTestFixture fixture) : Vaccinatio
 
         (await Admin.DeleteAsync(DeleteAnimalRequest.BuildRoute(animalId))).EnsureSuccessStatusCode();
 
-        var expiring = await Worker.GetFromJsonAsync<List<VaccinationWithAnimalDto>>(
+        var expiring = await Worker.GetFromJsonAsync<PagedResult<VaccinationWithAnimalDto>>(
             $"{ListExpiringVaccinationsRequest.Route}?expiresInDays=30");
-        expiring.Should().BeEmpty();
+        expiring!.Items.Should().BeEmpty();
     }
 }

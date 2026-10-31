@@ -1,3 +1,5 @@
+using AnimalRegistry.Shared.Pagination;
+
 namespace AnimalRegistry.Modules.Animals.Application.Vaccinations;
 
 public interface IVaccinationQuery
@@ -7,6 +9,15 @@ public interface IVaccinationQuery
         DateTimeOffset? validFrom,
         DateTimeOffset validBefore,
         bool inShelterOnly,
+        CancellationToken cancellationToken = default);
+
+    Task<PagedResult<VaccinationWithAnimalInfo>> ListAsync(
+        string shelterId,
+        DateTimeOffset? validFrom,
+        DateTimeOffset? validBefore,
+        bool inShelterOnly,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<VaccinationWithAnimalInfo>> GetAdministeredBetweenAsync(

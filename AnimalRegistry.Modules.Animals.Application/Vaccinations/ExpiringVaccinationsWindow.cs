@@ -11,4 +11,9 @@ public static class ExpiringVaccinationsWindow
         var validBefore = ShelterCalendar.StartOfDay(today.AddDays(expiresInDays + 1));
         return (includeExpired ? null : ShelterCalendar.StartOfDay(today), validBefore);
     }
+
+    public static (DateTimeOffset? ValidFrom, DateTimeOffset ValidBefore) ResolveExpired(DateTimeOffset now)
+    {
+        return (null, ShelterCalendar.StartOfDay(ShelterCalendar.ToLocal(now).Date));
+    }
 }
